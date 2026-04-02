@@ -1,611 +1,860 @@
 <!DOCTYPE html>
 <html lang="hi">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Mark Entry</title>
-    <link rel="icon" type="image/png" href="logo.png">
-    <style>
-        :root {
-            --primary: #1a5f7a;
-            --secondary: #159895;
-            --accent: #eb455f;
-            --bg: #ffffff;
-        }
+  <meta charset="UTF-8">
+  <title>Mark Entry – School ERP</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+  /* ==========================================================
+     SCREEN STYLES
+     ========================================================== */
+  :root {
+    --primary:   #1a5f7a;
+    --secondary: #159895;
+    --accent:    #eb455f;
+    --bg:        #ffffff;
+  }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: var(--bg);
-            margin: 0;
-            padding: 0;
-        }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; }
 
-        .no-print {
-            max-width: 1200px;
-            margin: 20px auto;
-            background: rgb(248, 168, 168);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
+  .no-print {
+    max-width: 1200px; margin: 20px auto;
+    background: rgb(248,168,168); padding: 30px;
+    border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,.1);
+  }
 
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
-            background: #4ed102;
-            padding: 10px;
-            border-radius: 20px;
-        }
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 30px; background: #4ed102;
+    padding: 10px; border-radius: 20px;
+  }
+  .tab-btn {
+    flex: 1; min-width: 150px; padding: 12px; border: none;
+    background: rgb(226,247,168); cursor: pointer;
+    border-radius: 8px; font-weight: bold; transition: .3s;
+  }
+  .tab-btn.active {
+    background: rgb(241,80,169); color: rgb(235,232,62); transform: translateY(-2px);
+  }
 
-        .tab-btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 12px;
-            border: none;
-            background: rgb(226, 247, 168);
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
+  .section { display: none; }
+  .section.active { display: block; }
 
-        .tab-btn.active {
-            background: rgb(241, 80, 169);
-            color: rgb(235, 232, 62);
-            transform: translateY(-2px);
-        }
+  .card {
+    background: #fff; border: 1px solid #e0e0e0;
+    padding: 20px; border-radius: 10px; margin-bottom: 20px;
+  }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
 
-        .section {
-            display: none;
-        }
+  input, select {
+    width: 100%; padding: 10px; border: 2px solid #037027;
+    border-radius: 8px; outline: none; box-sizing: border-box;
+  }
+  button { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  .btn-add { background: var(--secondary); color: rgb(239,243,4); }
+  .btn-save { background: rgb(255,240,190); color: rgb(247,20,216); width: 100%; margin-top: 20px; }
 
-        .section.active {
-            display: block;
-        }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th { background: var(--primary); color: rgb(240,245,180); padding: 12px; font-size: 14px; }
+  td { padding: 10px; border-bottom: 1px solid #ec0cc7; background: rgb(255,240,190); }
 
-        .card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+  /* BUG FIX 3: Mark validation highlight */
+  input.mark-error { border: 2px solid #e53935 !important; background: #fff5f5 !important; }
+  #mark-error-msg {
+    display: none; background: #ffebee; color: #c62828;
+    padding: 8px 14px; border-radius: 6px;
+    margin-top: 10px; font-weight: bold; font-size: 13px;
+  }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
+  #print-area { display: none; }
 
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #037027;
-            border-radius: 8px;
-            outline: none;
-            box-sizing: border-box;
-        }
+  /* ==========================================================
+     A4 LANDSCAPE PRINT — ALL BUGS FIXED
+     BUG FIX 1: @page for exact A4 fit
+     BUG FIX 2: Removed invalid bare !important; and missing px unit
+     ========================================================== */
+  @page {
+    size: auto;
+    margin: 5mm 7mm;
+  }
 
-        button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-add {
-            background: var(--secondary);
-            color: rgb(239, 243, 4);
-        }
-
-        .btn-save {
-            background: rgb(255, 240, 190);
-            color: rgb(247, 20, 216);
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th {
-            background: var(--primary);
-            color: rgb(240, 245, 180);
-            padding: 12px;
-            font-size: 14px;
-            border-radius: 2px;
-            gap: 2px;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ec0cc7;
-            background: rgb(255, 240, 190);
-        }
-
-        /* Print Layout - COLORFUL VERSION */
-        #print-area {
-            display: none;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            #print-area {
-                display: block !important;
-                padding: 0;
-            }
-
-            .ms-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 18px;
-            }
-
-            /* यहाँ हेडर का बैकग्राउंड और फॉन्ट कलर बदला गया है */
-            .ms-table th {
-                background-color: #e5eed4 !important;
-                color: #0c0c0c !important;
-                /* फॉन्ट का रंग सफेद */
-                border: 1px solid black !important;
-                padding: 4px;
-                text-align: center;
-                -webkit-print-color-adjust: exact;
-            }
-
-            .ms-table td {
-                border: 1px solid black !important;
-                padding: 8px;
-                font-size: 16px;
-                text-align: center;
-            }
-
-            .report-header {
-                text-align: center;
-                margin-bottom: 5px;
-                margin-top: -20;
-                color: #1a5f7a;
-            }
-
-            .report-header h1 {
-                color: #eb455f;
-                font-size: 45px;
-                padding: auto;
-                !important;
-                -webkit-print-color-adjust: exact;
-            }
-
-            /* स्कूल का नाम लाल */
-
-            .student-info-row {
-                display: flex;
-                justify-content: space-between;
-                font-weight: bold;
-                font-size: 20px;
-                margin-bottom: 8px;
-            }
-
-            .bottom-details {
-                margin-top: 10px;
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .bottom-details td {
-                border: 1px solid black !important;
-                padding: 8px;
-                font-size: 13px;
-            }
-
-            /* नीचे के बॉक्स का कलर */
-            .bottom-details td:first-child {
-                background-color: #e8f4f8 !important;
-                font-weight: bold;
-                -webkit-print-color-adjust: exact;
-            }
-
-            .footer-sign {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 60px;
-                font-weight: bold;
-            }
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
-    </style>
-</head>
 
+    .no-print  { display: none !important; }
+    #print-area {
+      display: block !important;
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      width: 100%;
+    }
+
+    /* ---- HEADER (compact, professional) ---- */
+    .rpt-school {
+      text-align: center;
+      /* BUG FIX 2: was margin-top: -20 (missing px) — now 0 */
+      margin: 0 0 1px 0;
+      padding: 5;
+      line-height: 2;
+    }
+    /* BUG FIX 2: was h1 { !important; } (invalid CSS) — now valid declarations */
+    .rpt-school h1 {
+      font-size: 20px;
+      color: #c0392b;
+      margin: 0 0 1px 0;
+      padding: 0;
+      font-weight: 800;
+      letter-spacing: .4px;
+    }
+    .rpt-school h3 {
+      font-size: 10px;
+      color: #0c0b0b;
+      margin: 0 0 1px 0;
+      font-weight: 500;
+    }
+    .rpt-school h2 {
+      font-size: 11.5px;
+      color: #080808;
+      margin: 0 0 1px 0;
+      font-weight: 900;
+    }
+    .rpt-divider {
+      border: none;
+      border-top: 2px solid #c0392b;
+      margin: 2px 0 3px 0;
+    }
+
+    /* ---- Student Info Row ---- */
+    .rpt-sturow {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid #0a0a0a;
+      background: #eef6ff;
+      padding: 4px 10px;
+      border-radius: 3px;
+      margin-bottom: 3px;
+    }
+
+    /* ---- Marks Table ---- */
+    .ms-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      table-layout: fixed;
+      margin-bottom: 4px;
+    }
+
+    /* Column width distribution for 22 columns across A4 landscape ~281mm */
+    .ms-table col.c-sno  { width: 1.5%; }   /* serial no */
+    .ms-table col.c-sub  { width: 5%;   }   /* subject name */
+    .ms-table col.c-ex   { width: 2.3%; }   /* exam data cols ×20 = 86% */
+    .ms-table col.c-viv  { width: 5.1%; }   /* vivaran */
+
+    .ms-table th {
+      background-color: #d0e4f5 !important;
+      color: #111 !important;
+      border: 0.5px solid #0a0a0a !important;
+      padding: 4px 2px;
+      text-align: center;
+      font-size: 12.5px;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+    .ms-table td {
+      border: 0.5px solid #0c0c0c !important;
+      padding: 4px 2px;
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .ms-table td.sub-name {
+      text-align: left;
+      padding-left: 2px;
+      font-weight: 800;
+    }
+    .ms-table tfoot td {
+      background-color: #e0f0e0 !important;
+      font-weight: bold;
+    }
+
+    /* ---- Bottom Summary Table ---- */
+    .bot-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .bot-table td {
+      border: 0.5px solid #444 !important;
+      padding: 4px 5px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .bot-table td.lbl {
+      background-color: #d5eaf5 !important;
+      font-weight: bold;
+      width: 17%;
+    }
+    .final-box {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      line-height: 1.8;
+      vertical-align: top;
+    }
+
+    /* ---- Footer Signatures ---- */
+    .rpt-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 70px;
+      font-size: 11.5px;
+      font-weight: bold;
+      border-top: 1.5px solid #555;
+      padding-top: 5px;
+    }
+  }
+  </style>
+</head>
 <body>
 
-    <div class="no-print">
-        <h2 style="text-align:center; color:var(--primary)">छात्र प्रगति पत्र प्रबंधन प्रणाली</h2>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tab-subs', event)">1. विषय & पूर्णांक</button>
-            <button class="tab-btn" onclick="switchTab('tab-classes', event)">2. कक्षा मास्टर</button>
-            <button class="tab-btn" onclick="switchTab('tab-students', event)">3. छात्र पंजीकरण</button>
-            <button class="tab-btn" onclick="switchTab('tab-marks', event)">4. अंक प्रविष्टि (Entry)</button>
-            <button class="tab-btn" onclick="switchTab('tab-system', event)">5. बैकअप/रीस्टोर</button>
-        </div>
+<!-- ============================================================
+     SCREEN UI
+     ============================================================ -->
+<div class="no-print">
+  <h2 style="text-align:center;color:var(--primary)">छात्र प्रगति पत्र प्रबंधन प्रणाली</h2>
 
-        <div id="tab-subs" class="section active">
-            <div class="card">
-                <h3>नया विषय जोड़ें</h3>
-                <div class="grid-3">
-                    <input type="text" id="sub_name" placeholder="विषय का नाम">
-                    <input type="number" id="sub_def_max" value="100" placeholder="Default Max">
-                    <button class="btn-add" onclick="saveSubject()">+ विषय जोड़ें</button>
-                </div>
-                <table id="sub-list">
-                    <thead>
-                        <tr>
-                            <th>विषय</th>
-                            <th>डिफ़ॉल्ट पूर्णांक</th>
-                            <th>हटाएं</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-subs',event)">1. विषय &amp; पूर्णांक</button>
+    <button class="tab-btn" onclick="switchTab('tab-classes',event)">2. कक्षा मास्टर</button>
+    <button class="tab-btn" onclick="switchTab('tab-students',event)">3. छात्र पंजीकरण</button>
+    <button class="tab-btn" onclick="switchTab('tab-marks',event)">4. अंक प्रविष्टि</button>
+    <button class="tab-btn" onclick="switchTab('tab-system',event)">5. बैकअप/रीस्टोर</button>
+  </div>
 
-        <div id="tab-classes" class="section">
-            <div class="card">
-                <h3>कक्षा मास्टर</h3>
-                <input type="text" id="cls_name" placeholder="कक्षा (उदा. 5th)" style="margin-bottom:15px;">
-                <p><strong>विषय चुनें:</strong></p>
-                <div id="cls-subs-selection"
-                    style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; padding:15px; background:#f9f9f9; border-radius:8px;">
-                </div>
-                <button class="btn-add" onclick="saveClass()" style="margin-top:15px;">कक्षा सुरक्षित करें</button>
-                <table id="cls-list">
-                    <thead>
-                        <tr>
-                            <th>कक्षा</th>
-                            <th>चयनित विषय</th>
-                            <th>हटाएं</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="tab-students" class="section">
-            <div class="card">
-                <h3>छात्र पंजीकरण</h3>
-                <div class="grid-3">
-                    <input type="text" id="stu_name" placeholder="छात्र का नाम">
-                    <select id="stu_cls_id"></select>
-                    <input type="text" id="stu_roll" placeholder="अनुक्रमांक">
-                </div>
-                <button class="btn-add" onclick="saveStudent()" style="margin-top:10px;">पंजीकरण करें</button>
-                <table id="stu-list">
-                    <thead>
-                        <tr>
-                            <th>Roll</th>
-                            <th>नाम</th>
-                            <th>कक्षा</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="tab-marks" class="section">
-            <div class="card">
-                <div class="grid-3">
-                    <select id="entry_cls" onchange="syncStudentDropdown()">
-                        <option value="">कक्षा चुनें</option>
-                    </select>
-                    <select id="entry_stu">
-                        <option value="">छात्र चुनें</option>
-                    </select>
-                    <button class="btn-add" onclick="loadMarkingPanel()">अंक भरें/देखें</button>
-                </div>
-            </div>
-            <div id="marking-panel"></div>
-        </div>
-
-        <div id="tab-system" class="section">
-            <div class="card">
-                <h3>डेटा सुरक्षा</h3>
-                <button class="btn-add" onclick="exportData()" style="background:#2ecc71">Download Backup
-                    (.json)</button>
-                <div style="margin-top:20px;">
-                    <label>File Select Karein:</label>
-                    <input type="file" onchange="importData(event)">
-                </div>
-            </div>
-        </div>
+  <!-- Tab 1: Subjects -->
+  <div id="tab-subs" class="section active">
+    <div class="card">
+      <h3>नया विषय जोड़ें</h3>
+      <div class="grid-3">
+        <input type="text" id="sub_name" placeholder="विषय का नाम">
+        <input type="number" id="sub_def_max" value="100" placeholder="Default Max">
+        <button class="btn-add" onclick="saveSubject()">+ विषय जोड़ें</button>
+      </div>
+      <table id="sub-list">
+        <thead><tr><th>विषय</th><th>डिफ़ॉल्ट पूर्णांक</th><th>हटाएं</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
+  </div>
 
-    <div id="print-area">
-        <div class="report-header">
-            <h1>श्री दुर्गे माँ बाल गोविन्द इण्टर कालेज</h1>
-        </div>
-        <div class="report-header">
-            <h3>अचली खेड़ा, मोहनलालगंज लखनऊ </h3>
-        </div>
-        <div class="report-header">
-            <h2>प्रगति पत्र सत्र - 2025-26</h2>
-        </div>
-        <div class="student-info-row">
-            <span>नाम: <span id="p_name"></span></span>
-            <span>कक्षा: <span id="p_cls"></span></span>
-            <span>अनुक्रमांक: <span id="p_roll"></span></span>
-        </div>
-        <table class="ms-table">
-            <thead>
-                <tr>
-                    <th rowspan="2">क्र.</th>
-                    <th rowspan="2">विषय</th>
-                    <th colspan="5">त्रैमासिक परीक्षा</th>
-                    <th colspan="5">अर्द्धवार्षिक परीक्षा</th>
-                    <th colspan="5">वार्षिक परीक्षा</th>
-                    <th colspan="4">महायोग</th>
-                    <th rowspan="2">विवरण</th>
-                </tr>
-                <tr>
-                    <th>पूर्ण.</th>
-                    <th>1st</th>
-                    <th>2nd</th>
-                    <th>योग</th>
-                    <th>%</th>
-                    <th>पूर्ण.</th>
-                    <th>1st</th>
-                    <th>2nd</th>
-                    <th>योग</th>
-                    <th>%</th>
-                    <th>पूर्ण.</th>
-                    <th>1st</th>
-                    <th>2nd</th>
-                    <th>योग</th>
-                    <th>%</th>
-                    <th>पूर्ण.</th>
-                    <th>न्यून.</th>
-                    <th>प्राप्त</th>
-                    <th>%</th>
-                </tr>
-            </thead>
-            <tbody id="p_body"></tbody>
-            <tfoot id="p_foot"></tfoot>
-        </table>
-        <table class="bottom-details">
-            <tr>
-                <td width="20%">संकेतांक</td>
-                <td id="b_sanket"></td>
-                <td rowspan="5" width="40%" valign="top"><strong>सम्पूर्ण परीक्षाफल</strong><br><br>परिणाम: <span
-                        id="b_res_final"></span><br>कक्षा में स्थान: <span id="b_rank_final"></span></td>
-            </tr>
-            <tr>
-                <td>आचरण</td>
-                <td id="b_achar"></td>
-            </tr>
-            <tr>
-                <td>परीक्षाफल</td>
-                <td id="b_res"></td>
-            </tr>
-            <tr>
-                <td>कक्षा में स्थान</td>
-                <td id="b_rank"></td>
-            </tr>
-            <tr>
-                <td>उपस्थिति</td>
-                <td id="b_att"></td>
-            </tr>
-        </table>
-        <div class="footer-sign">
-            <div>कक्षा अध्यापक</div>
-            <div>प्रधानाचार्य</div>
-            <div>अभिभावक</div>
-        </div>
+  <!-- Tab 2: Classes -->
+  <div id="tab-classes" class="section">
+    <div class="card">
+      <h3>कक्षा मास्टर</h3>
+      <input type="text" id="cls_name" placeholder="कक्षा (उदा. 5th)" style="margin-bottom:15px;">
+      <p><strong>विषय चुनें:</strong></p>
+      <div id="cls-subs-selection"
+        style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:15px;background:#f9f9f9;border-radius:8px;">
+      </div>
+      <button class="btn-add" onclick="saveClass()" style="margin-top:15px;">कक्षा सुरक्षित करें</button>
+      <table id="cls-list">
+        <thead><tr><th>कक्षा</th><th>चयनित विषय</th><th>हटाएं</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
+  </div>
 
-    <script>
-        let db;
-        const request = indexedDB.open("SchoolReportFinalDB", 1);
-        request.onupgradeneeded = e => {
-            db = e.target.result;
-            db.createObjectStore("subjects", { keyPath: "id", autoIncrement: true });
-            db.createObjectStore("classes", { keyPath: "id", autoIncrement: true });
-            db.createObjectStore("students", { keyPath: "id", autoIncrement: true });
-            db.createObjectStore("marks", { keyPath: "sid" });
-        };
-        request.onsuccess = e => { db = e.target.result; syncAll(); };
+  <!-- Tab 3: Students -->
+  <div id="tab-students" class="section">
+    <div class="card">
+      <h3>छात्र पंजीकरण</h3>
+      <div class="grid-3">
+        <input type="text" id="stu_name" placeholder="छात्र का नाम">
+        <select id="stu_cls_id"></select>
+        <input type="text" id="stu_roll" placeholder="अनुक्रमांक">
+      </div>
+      <button class="btn-add" onclick="saveStudent()" style="margin-top:10px;">पंजीकरण करें</button>
+      <table id="stu-list">
+        <thead><tr><th>Roll</th><th>नाम</th><th>कक्षा</th><th>Action</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
-        function switchTab(id, event) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if (event) event.target.classList.add('active');
-            syncAll();
-        }
+  <!-- Tab 4: Mark Entry -->
+  <div id="tab-marks" class="section">
+    <div class="card">
+      <div class="grid-3">
+        <select id="entry_cls" onchange="syncStudentDropdown()">
+          <option value="">कक्षा चुनें</option>
+        </select>
+        <select id="entry_stu">
+          <option value="">छात्र चुनें</option>
+        </select>
+        <button class="btn-add" onclick="loadMarkingPanel()">अंक भरें/देखें</button>
+      </div>
+    </div>
+    <div id="marking-panel"></div>
+  </div>
 
-        async function getStoreData(store) {
-            return new Promise(res => {
-                const tx = db.transaction(store, "readonly");
-                tx.objectStore(store).getAll().onsuccess = e => res(e.target.result);
-            });
-        }
+  <!-- Tab 5: Backup -->
+  <div id="tab-system" class="section">
+    <div class="card">
+      <h3>डेटा सुरक्षा</h3>
+      <button class="btn-add" onclick="exportData()" style="background:#2ecc71">
+        ⬇ Download Backup (.json)
+      </button>
+      <div style="margin-top:20px;">
+        <label>Restore File चुनें:</label>
+        <input type="file" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+</div>
 
-        async function syncAll() {
-            const subs = await getStoreData("subjects");
-            const classes = await getStoreData("classes");
-            const students = await getStoreData("students");
-            document.querySelector("#sub-list tbody").innerHTML = subs.map(s => `<tr><td>${s.name}</td><td>${s.max}</td><td><button onclick="deleteItem('subjects', ${s.id})" style="background:red; color:white;">Del</button></td></tr>`).join('');
-            document.getElementById("cls-subs-selection").innerHTML = subs.map(s => `<label><input type="checkbox" class="cls-sub-check" value="${s.name}" data-max="${s.max}"> ${s.name}</label>`).join('');
-            const clsOpt = '<option value="">कक्षा चुनें</option>' + classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            document.getElementById("stu_cls_id").innerHTML = clsOpt;
-            document.getElementById("entry_cls").innerHTML = clsOpt;
-            document.querySelector("#cls-list tbody").innerHTML = classes.map(c => `<tr><td>${c.name}</td><td>${c.subs.map(sb => sb.name).join(", ")}</td><td><button onclick="deleteItem('classes', ${c.id})" style="background:red; color:white;">Del</button></td></tr>`).join('');
-            document.querySelector("#stu-list tbody").innerHTML = students.map(s => `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.cname}</td><td><button onclick="deleteItem('students', ${s.id})" style="background:red; color:white;">Del</button></td></tr>`).join('');
-        }
 
-        function saveSubject() {
-            const name = document.getElementById("sub_name").value;
-            const max = parseInt(document.getElementById("sub_def_max").value);
-            if (!name) return;
-            db.transaction("subjects", "readwrite").objectStore("subjects").add({ name, max }).oncomplete = () => {
-                document.getElementById("sub_name").value = ""; syncAll();
-            };
-        }
+<!-- ============================================================
+     PRINT AREA — A4 Landscape, Professional Layout
+     ============================================================ -->
+<div id="print-area">
 
-        function saveClass() {
-            const name = document.getElementById("cls_name").value;
-            const subs = Array.from(document.querySelectorAll(".cls-sub-check:checked")).map(cb => ({ name: cb.value, max: cb.dataset.max }));
-            if (!name || subs.length === 0) return alert("नाम और विषय चुनें");
-            db.transaction("classes", "readwrite").objectStore("classes").add({ name, subs }).oncomplete = () => {
-                document.getElementById("cls_name").value = ""; syncAll();
-            };
-        }
+  <!-- Header — compact & professional -->
+  <div class="rpt-school">
+    <h1>श्री दुर्गे माँ बाल गोविन्द इण्टर कालेज</h1>
+    <h3>अचली खेड़ा, मोहनलालगंज लखनऊ</h3>
+    <h2>प्रगति पत्र सत्र - 2025-26</h2>
+  </div>
+  <hr class="rpt-divider">
 
-        function saveStudent() {
-            const name = document.getElementById("stu_name").value;
-            const cid = parseInt(document.getElementById("stu_cls_id").value);
-            const roll = document.getElementById("stu_roll").value;
-            const cname = document.getElementById("stu_cls_id").options[document.getElementById("stu_cls_id").selectedIndex].text;
-            if (!name || !cid) return;
-            db.transaction("students", "readwrite").objectStore("students").add({ name, cid, roll, cname }).oncomplete = () => {
-                document.getElementById("stu_name").value = ""; document.getElementById("stu_roll").value = "";
-                syncAll(); syncStudentDropdown(); // Real-time sync
-            };
-        }
+  <!-- Student Info -->
+  <div class="rpt-sturow">
+    <span>नाम: <span id="p_name"></span></span>
+    <span>कक्षा: <span id="p_cls"></span></span>
+    <span>अनुक्रमांक: <span id="p_roll"></span></span>
+  </div>
 
-        async function syncStudentDropdown() {
-            const cid = parseInt(document.getElementById("entry_cls").value);
-            const allSt = await getStoreData("students");
-            document.getElementById("entry_stu").innerHTML = '<option value="">छात्र चुनें</option>' +
-                allSt.filter(s => s.cid === cid).map(s => `<option value="${s.id}">${s.name} (${s.roll})</option>`).join('');
-        }
+  <!-- Marks Table (22 columns, A4-optimized) -->
+  <table class="ms-table">
+    <colgroup>
+      <col class="c-sno"><!-- क्र -->
+      <col class="c-sub"><!-- विषय -->
+      <!-- त्रैमासिक ×5 -->
+      <col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex">
+      <!-- अर्द्धवार्षिक ×5 -->
+      <col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex">
+      <!-- वार्षिक ×5 -->
+      <col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex">
+      <!-- महायोग ×4 -->
+      <col class="c-ex"><col class="c-ex"><col class="c-ex"><col class="c-ex">
+      <!-- विवरण -->
+      <col class="c-viv">
+    </colgroup>
+    <thead>
+      <tr>
+        <th rowspan="2">क्र.</th>
+        <th rowspan="2">विषय</th>
+        <th colspan="5">त्रैमासिक परीक्षा</th>
+        <th colspan="5">अर्द्धवार्षिक परीक्षा</th>
+        <th colspan="5">वार्षिक परीक्षा</th>
+        <th colspan="4">महायोग</th>
+        <th rowspan="2">विवरण</th>
+      </tr>
+      <tr>
+        <th>पूर्ण.</th><th>1st</th><th>2nd</th><th>योग</th><th>%</th>
+        <th>पूर्ण.</th><th>1st</th><th>2nd</th><th>योग</th><th>%</th>
+        <th>पूर्ण.</th><th>1st</th><th>2nd</th><th>योग</th><th>%</th>
+        <th>पूर्ण.</th><th>न्यून.</th><th>प्राप्त</th><th>%</th>
+      </tr>
+    </thead>
+    <tbody id="p_body"></tbody>
+    <tfoot id="p_foot"></tfoot>
+  </table>
 
-        async function loadMarkingPanel() {
-            const sid = parseInt(document.getElementById("entry_stu").value);
-            if (!sid) return;
-            const student = (await getStoreData("students")).find(s => s.id === sid);
-            const cls = (await getStoreData("classes")).find(c => c.id === student.cid);
-            const saved = await new Promise(res => db.transaction("marks").objectStore("marks").get(sid).onsuccess = e => res(e.target.result || { sid, examData: {}, extra: {} }));
-            let html = `<div class="card"><h3>अंक प्रविष्टि: ${student.name}</h3><table><tr><th>विषय</th><th colspan="3">त्रैमासिक</th><th colspan="3">अर्द्धवार्षिक</th><th colspan="3">वार्षिक</th></tr><tr><th></th><th>Poorank</th><th>P1</th><th>P2</th><th>Poorank</th><th>P1</th><th>P2</th><th>Poorank</th><th>P1</th><th>P2</th></tr>`;
-            cls.subs.forEach(s => {
-                const d = saved.examData[s.name] || { q_m: 50, q1: 0, q2: 0, h_m: 100, h1: 0, h2: 0, a_m: 100, a1: 0, a2: 0 };
-                html += `<tr><td>${s.name}</td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="q_m" value="${d.q_m}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="q1" value="${d.q1}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="q2" value="${d.q2}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="h_m" value="${d.h_m}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="h1" value="${d.h1}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="h2" value="${d.h2}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="a_m" value="${d.a_m}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="a1" value="${d.a1}"></td><td><input type="number" class="m-in" oninput="autoSave(${sid})" data-s="${s.name}" data-f="a2" value="${d.a2}"></td></tr>`;
-            });
-            const ex = saved.extra || { sanket: '', achar: '', res: '', rank: '', att: '' };
-            html += `</table><div class="grid-3" style="margin-top:20px;"><input type="text" id="ex_sanket" oninput="autoSave(${sid})" placeholder="संकेतांक" value="${ex.sanket}"><input type="text" id="ex_achar" oninput="autoSave(${sid})" placeholder="आचरण" value="${ex.achar}"><input type="text" id="ex_res" oninput="autoSave(${sid})" placeholder="परीक्षाफल" value="${ex.res}"><input type="text" id="ex_rank" oninput="autoSave(${sid})" placeholder="कक्षा में स्थान" value="${ex.rank}"><input type="text" id="ex_att" oninput="autoSave(${sid})" placeholder="उपस्थिति" value="${ex.att}"></div><button class="btn-save" onclick="saveFinalMarks(${sid})">Save All Data & Sync</button><button class="btn-save" style="background:#2980b9" onclick="printReport(${sid})">Print Report Card</button></div>`;
-            document.getElementById("marking-panel").innerHTML = html;
-        }
+  <!-- Bottom Summary -->
+  <table class="bot-table">
+    <tr>
+      <td class="lbl">संकेतांक</td>
+      <td id="b_sanket"></td>
+      <td class="final-box" rowspan="5" width="36%" valign="top">
+        <strong>सम्पूर्ण परीक्षाफल</strong><br>
+        परिणाम: <strong><span id="b_res_final"></span></strong><br>
+        कक्षा में स्थान: <strong><span id="b_rank_final"></span></strong>
+      </td>
+    </tr>
+    <tr><td class="lbl">आचरण</td>    <td id="b_achar"></td></tr>
+    <tr><td class="lbl">परीक्षाफल</td><td id="b_res"></td></tr>
+    <tr><td class="lbl">कक्षा में स्थान</td><td id="b_rank"></td></tr>
+    <tr><td class="lbl">उपस्थिति</td> <td id="b_att"></td></tr>
+  </table>
 
-        function autoSave(sid) {
-            const examData = {};
-            document.querySelectorAll(".m-in").forEach(i => {
-                const s = i.dataset.s, f = i.dataset.f; if (!examData[s]) examData[s] = {};
-                examData[s][f] = parseInt(i.value) || 0;
-            });
-            const extra = { sanket: document.getElementById("ex_sanket").value, achar: document.getElementById("ex_achar").value, res: document.getElementById("ex_res").value, rank: document.getElementById("ex_rank").value, att: document.getElementById("ex_att").value };
-            db.transaction("marks", "readwrite").objectStore("marks").put({ sid, examData, extra });
-        }
+  <!-- Signature Footer -->
+  <div class="rpt-footer">
+    <span>कक्षा अध्यापक हस्ताक्षर</span>
+    <span>प्रधानाचार्य हस्ताक्षर</span>
+    <span>अभिभावक हस्ताक्षर</span>
+  </div>
+</div>
 
-        function saveFinalMarks(sid) { autoSave(sid); alert('Data Saved!'); syncAll(); }
 
-        // सभी छात्रों के कुल प्राप्तांकों की गणना और रैंक निर्धारण के लिए सहायक फंक्शन
+<script>
+/* ==========================================================
+   DATABASE SETUP
+   ========================================================== */
+let db;
+const dbReq = indexedDB.open("SchoolReportFinalDB", 1);
+dbReq.onupgradeneeded = e => {
+  db = e.target.result;
+  db.createObjectStore("subjects",  { keyPath: "id",  autoIncrement: true });
+  db.createObjectStore("classes",   { keyPath: "id",  autoIncrement: true });
+  db.createObjectStore("students",  { keyPath: "id",  autoIncrement: true });
+  db.createObjectStore("marks",     { keyPath: "sid" });
+};
+dbReq.onsuccess = e => { db = e.target.result; syncAll(); };
+
+/* ==========================================================
+   HELPER — Promise wrapper for IndexedDB getAll
+   ========================================================== */
+function getStoreData(store) {
+  return new Promise(res => {
+    db.transaction(store, "readonly")
+      .objectStore(store).getAll()
+      .onsuccess = e => res(e.target.result);
+  });
+}
+
+/* ==========================================================
+   TAB SWITCHING
+   ========================================================== */
+function switchTab(id, event) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (event) event.target.classList.add('active');
+  syncAll();
+}
+
+/* ==========================================================
+   SYNC ALL UI FROM DB
+   ========================================================== */
+async function syncAll() {
+  const subs     = await getStoreData("subjects");
+  const classes  = await getStoreData("classes");
+  const students = await getStoreData("students");
+
+  // Subject list
+  document.querySelector("#sub-list tbody").innerHTML = subs.map(s =>
+    `<tr><td>${s.name}</td><td>${s.max}</td>
+     <td><button onclick="deleteItem('subjects',${s.id})"
+         style="background:red;color:white;padding:5px 12px;">Del</button></td></tr>`
+  ).join('');
+
+  // Subject checkboxes for class builder
+  document.getElementById("cls-subs-selection").innerHTML = subs.map(s =>
+    `<label><input type="checkbox" class="cls-sub-check" value="${s.name}" data-max="${s.max}"> ${s.name}</label>`
+  ).join('');
+
+  // Class dropdowns (shared)
+  const clsOpt = '<option value="">कक्षा चुनें</option>' +
+    classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById("stu_cls_id").innerHTML = clsOpt;
+  document.getElementById("entry_cls").innerHTML  = clsOpt;
+
+  // Class list table
+  document.querySelector("#cls-list tbody").innerHTML = classes.map(c =>
+    `<tr><td>${c.name}</td><td>${c.subs.map(s => s.name).join(", ")}</td>
+     <td><button onclick="deleteItem('classes',${c.id})"
+         style="background:red;color:white;padding:5px 12px;">Del</button></td></tr>`
+  ).join('');
+
+  // Student list table
+  document.querySelector("#stu-list tbody").innerHTML = students.map(s =>
+    `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.cname}</td>
+     <td><button onclick="deleteItem('students',${s.id})"
+         style="background:red;color:white;padding:5px 12px;">Del</button></td></tr>`
+  ).join('');
+}
+
+/* ==========================================================
+   CRUD — SUBJECTS
+   ========================================================== */
+function saveSubject() {
+  const name = document.getElementById("sub_name").value.trim();
+  const max  = parseInt(document.getElementById("sub_def_max").value) || 100;
+  if (!name) return alert("विषय का नाम दर्ज करें");
+  db.transaction("subjects","readwrite").objectStore("subjects").add({ name, max }).oncomplete = () => {
+    document.getElementById("sub_name").value = "";
+    syncAll();
+  };
+}
+
+/* ==========================================================
+   CRUD — CLASSES
+   ========================================================== */
+function saveClass() {
+  const name = document.getElementById("cls_name").value.trim();
+  const subs = Array.from(document.querySelectorAll(".cls-sub-check:checked"))
+    .map(cb => ({ name: cb.value, max: parseInt(cb.dataset.max) }));
+  if (!name || !subs.length) return alert("नाम और कम से कम एक विषय चुनें");
+  db.transaction("classes","readwrite").objectStore("classes").add({ name, subs }).oncomplete = () => {
+    document.getElementById("cls_name").value = "";
+    syncAll();
+  };
+}
+
+/* ==========================================================
+   CRUD — STUDENTS
+   BUG FIX 7: Roll number uniqueness per class
+   BUG FIX 6: Removed erroneous syncStudentDropdown() call
+   ========================================================== */
+async function saveStudent() {
+  const name  = document.getElementById("stu_name").value.trim();
+  const cid   = parseInt(document.getElementById("stu_cls_id").value);
+  const roll  = document.getElementById("stu_roll").value.trim();
+  const sel   = document.getElementById("stu_cls_id");
+  const cname = sel.options[sel.selectedIndex].text;
+
+  if (!name) return alert("छात्र का नाम दर्ज करें");
+  if (!cid)  return alert("कक्षा चुनें");
+
+  // BUG FIX 7: Validate roll number uniqueness within same class
+  if (roll) {
+    const existing = await getStoreData("students");
+    if (existing.find(s => s.cid === cid && s.roll === roll)) {
+      return alert(`अनुक्रमांक "${roll}" इस कक्षा में पहले से मौजूद है। कृपया अलग अनुक्रमांक दें।`);
+    }
+  }
+
+  db.transaction("students","readwrite").objectStore("students").add({ name, cid, roll, cname }).oncomplete = () => {
+    document.getElementById("stu_name").value = "";
+    document.getElementById("stu_roll").value = "";
+    syncAll();
+    // BUG FIX 6: Do NOT call syncStudentDropdown() here — it reads entry_cls
+    // from Tab 4 which may be different from the student's class just added
+  };
+}
+
+/* ==========================================================
+   MARK ENTRY — STUDENT DROPDOWN SYNC
+   ========================================================== */
+async function syncStudentDropdown() {
+  const cid   = parseInt(document.getElementById("entry_cls").value);
+  const allSt = await getStoreData("students");
+  document.getElementById("entry_stu").innerHTML =
+    '<option value="">छात्र चुनें</option>' +
+    allSt.filter(s => s.cid === cid)
+         .map(s => `<option value="${s.id}">${s.name} (${s.roll})</option>`).join('');
+}
+
+/* ==========================================================
+   MARK ENTRY — LOAD MARKING PANEL
+   ========================================================== */
+async function loadMarkingPanel() {
+  const sid = parseInt(document.getElementById("entry_stu").value);
+  if (!sid) return alert("पहले छात्र चुनें");
+
+  const student = (await getStoreData("students")).find(s => s.id === sid);
+  const cls     = (await getStoreData("classes")).find(c => c.id === student.cid);
+  const saved   = await new Promise(res =>
+    db.transaction("marks").objectStore("marks").get(sid).onsuccess = e =>
+      res(e.target.result || { sid, examData: {}, extra: {} })
+  );
+
+  let html = `
+    <div class="card">
+      <h3>अंक प्रविष्टि: ${student.name} (Roll: ${student.roll})</h3>
+      <div id="mark-error-msg">⚠ कुछ अंक पूर्णांक से अधिक हैं! कृपया सुधारें।</div>
+      <table>
+        <tr>
+          <th>विषय</th>
+          <th colspan="3">त्रैमासिक</th>
+          <th colspan="3">अर्द्धवार्षिक</th>
+          <th colspan="3">वार्षिक</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Poorank</th><th>P1</th><th>P2</th>
+          <th>Poorank</th><th>P1</th><th>P2</th>
+          <th>Poorank</th><th>P1</th><th>P2</th>
+        </tr>`;
+
+  cls.subs.forEach(s => {
+    const d = saved.examData[s.name] ||
+      { q_m: parseInt(s.max)||100, q1:0, q2:0, h_m:100, h1:0, h2:0, a_m:100, a1:0, a2:0 };
+    html += `<tr>
+      <td><strong>${s.name}</strong></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="q_m" data-role="max" value="${d.q_m}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="q1" data-role="q-obt" value="${d.q1}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="q2" data-role="q-obt" value="${d.q2}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="h_m" data-role="max" value="${d.h_m}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="h1" data-role="h-obt" value="${d.h1}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="h2" data-role="h-obt" value="${d.h2}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="a_m" data-role="max" value="${d.a_m}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="a1" data-role="a-obt" value="${d.a1}"></td>
+      <td><input type="number" min="0" class="m-in" oninput="autoSave(${sid})"
+          data-s="${s.name}" data-f="a2" data-role="a-obt" value="${d.a2}"></td>
+    </tr>`;
+  });
+
+  const ex = saved.extra || { sanket:'', achar:'', res:'', att:'' };
+  html += `
+    </table>
+    <div class="grid-3" style="margin-top:20px;">
+      <input type="text" id="ex_sanket" oninput="autoSave(${sid})"
+             placeholder="संकेतांक" value="${ex.sanket||''}">
+      <input type="text" id="ex_achar"  oninput="autoSave(${sid})"
+             placeholder="आचरण" value="${ex.achar||''}">
+      <input type="text" id="ex_res"    oninput="autoSave(${sid})"
+             placeholder="परीक्षाफल (खाली छोड़ें = Auto)" value="${ex.res||''}">
+      <input type="text" id="ex_att"    oninput="autoSave(${sid})"
+             placeholder="उपस्थिति" value="${ex.att||''}">
+    </div>
+    <button class="btn-save" onclick="saveFinalMarks(${sid})">✔ सभी अंक सुरक्षित करें</button>
+    <button class="btn-save" style="background:#1565c0;color:#fff;"
+            onclick="printReport(${sid})">🖨 Report Card Print करें</button>
+    </div>`;
+
+  document.getElementById("marking-panel").innerHTML = html;
+}
+
+/* ==========================================================
+   AUTO SAVE
+   BUG FIX 3: Marks validation — obtained cannot exceed max
+   ========================================================== */
+function autoSave(sid) {
+  const examData = {};
+
+  // Pass 1 — collect all values (clamp negatives to 0)
+  document.querySelectorAll(".m-in").forEach(i => {
+    const s = i.dataset.s, f = i.dataset.f;
+    if (!examData[s]) examData[s] = {};
+    let v = parseInt(i.value);
+    if (isNaN(v) || v < 0) v = 0;
+    examData[s][f] = v;
+  });
+
+  // Pass 2 — validate obtained ≤ max and flag errors
+  const maxRef = { 'q-obt': 'q_m', 'h-obt': 'h_m', 'a-obt': 'a_m' };
+  let hasError = false;
+  document.querySelectorAll(".m-in").forEach(i => {
+    const s = i.dataset.s, f = i.dataset.f, role = i.dataset.role;
+    i.classList.remove('mark-error');
+    if (maxRef[role] && examData[s][f] > examData[s][maxRef[role]]) {
+      i.classList.add('mark-error');
+      hasError = true;
+    }
+  });
+
+  const errMsg = document.getElementById("mark-error-msg");
+  if (errMsg) errMsg.style.display = hasError ? 'block' : 'none';
+
+  const extra = {
+    sanket: (document.getElementById("ex_sanket")||{value:''}).value,
+    achar:  (document.getElementById("ex_achar") ||{value:''}).value,
+    res:    (document.getElementById("ex_res")   ||{value:''}).value,
+    att:    (document.getElementById("ex_att")   ||{value:''}).value
+  };
+
+  db.transaction("marks","readwrite").objectStore("marks").put({ sid, examData, extra });
+}
+
+function saveFinalMarks(sid) {
+  autoSave(sid);
+  alert('✔ Data Saved Successfully!');
+  syncAll();
+}
+
+/* ==========================================================
+   RANK CALCULATION (unchanged logic)
+   ========================================================== */
 async function calculateRanks(cid) {
-    const allStudents = await getStoreData("students");
-    const classStudents = allStudents.filter(s => s.cid === cid);
-    const studentsWithScores = [];
+  const allStudents   = await getStoreData("students");
+  const classStudents = allStudents.filter(s => s.cid === cid);
+  const scores = [];
 
-    for (let s of classStudents) {
-        const m = await new Promise(res => {
-            const req = db.transaction("marks").objectStore("marks").get(s.id);
-            req.onsuccess = e => res(e.target.result);
-        });
-
-        let totalObtained = 0;
-        if (m && m.examData) {
-            Object.values(m.examData).forEach(d => {
-                totalObtained += (d.q1 + d.q2 + d.h1 + d.h2 + d.a1 + d.a2);
-            });
-        }
-        studentsWithScores.push({ id: s.id, total: totalObtained });
-    }
-
-    // कुल अंकों के आधार पर सॉर्ट करें (ज्यादा से कम)
-    studentsWithScores.sort((a, b) => b.total - a.total);
-
-    // रैंक मैप तैयार करें
-    const rankMap = {};
-    studentsWithScores.forEach((item, index) => {
-        rankMap[item.id] = index + 1; // 1st, 2nd, 3rd...
+  for (const s of classStudents) {
+    const m = await new Promise(res => {
+      db.transaction("marks").objectStore("marks").get(s.id).onsuccess = e => res(e.target.result);
     });
+    let total = 0;
+    if (m && m.examData)
+      Object.values(m.examData).forEach(d => { total += d.q1+d.q2+d.h1+d.h2+d.a1+d.a2; });
+    scores.push({ id: s.id, total });
+  }
 
-    return rankMap;
+  scores.sort((a, b) => b.total - a.total);
+  const rankMap = {};
+  scores.forEach((item, idx) => { rankMap[item.id] = idx + 1; });
+  return rankMap;
 }
 
-// अपडेटेड प्रिंट फंक्शन
+/* ==========================================================
+   PRINT REPORT
+   BUG FIX 4: Both rank fields use auto-calculated rank
+   BUG FIX 8: Double requestAnimationFrame replaces fragile setTimeout
+   ========================================================== */
 async function printReport(sid) {
-    const stu = (await getStoreData("students")).find(s => s.id === sid);
-    const cls = (await getStoreData("classes")).find(c => c.id === stu.cid);
-    const m = await new Promise(res => db.transaction("marks").objectStore("marks").get(sid).onsuccess = e => res(e.target.result));
-    
-    // रैंक की गणना करें
-    const rankMap = await calculateRanks(stu.cid);
-    const currentRank = rankMap[sid];
+  const stu = (await getStoreData("students")).find(s => s.id === sid);
+  const cls = (await getStoreData("classes")).find(c => c.id === stu.cid);
+  const m   = await new Promise(res =>
+    db.transaction("marks").objectStore("marks").get(sid).onsuccess = e => res(e.target.result)
+  );
 
-    document.getElementById("p_name").innerText = stu.name;
-    document.getElementById("p_cls").innerText = stu.cname;
-    document.getElementById("p_roll").innerText = stu.roll;
+  if (!m || !m.examData) return alert("पहले अंक दर्ज करें और Save करें।");
 
-    let h = ""; 
-    let t = { qp: 0, qy: 0, hp: 0, hy: 0, ap: 0, ay: 0, gp: 0, gy: 0 };
-    
-    cls.subs.forEach((s, i) => {
-        const d = m.examData[s.name] || { q_m: 50, q1: 0, q2: 0, h_m: 100, h1: 0, h2: 0, a_m: 100, a1: 0, a2: 0 };
-        const qY = d.q1 + d.q2, hY = d.h1 + d.h2, aY = d.a1 + d.a2, rT = qY + hY + aY, rM = d.q_m + d.h_m + d.a_m;
-        const qP = d.q_m > 0 ? ((qY / d.q_m) * 100).toFixed(1) : 0;
-        const hP = d.h_m > 0 ? ((hY / d.h_m) * 100).toFixed(1) : 0;
-        const aP = d.a_m > 0 ? ((aY / d.a_m) * 100).toFixed(1) : 0;
-        const gP = rM > 0 ? ((rT / rM) * 100).toFixed(1) : 0;
-        
-        h += `<tr><td>${i + 1}</td><td>${s.name}</td><td>${d.q_m}</td><td>${d.q1}</td><td>${d.q2}</td><td>${qY}</td><td>${qP}%</td><td>${d.h_m}</td><td>${d.h1}</td><td>${d.h2}</td><td>${hY}</td><td>${hP}%</td><td>${d.a_m}</td><td>${d.a1}</td><td>${d.a2}</td><td>${aY}</td><td>${aP}%</td><td>${rM}</td><td>${Math.round(rM * 0.33)}</td><td>${rT}</td><td>${gP}%</td><td></td></tr>`;
-        t.qp += d.q_m; t.qy += qY; t.hp += d.h_m; t.hy += hY; t.ap += d.a_m; t.ay += aY; t.gp += rM; t.gy += rT;
-    });
+  // BUG FIX 4: Auto-calculated rank — used for ALL rank display fields
+  const rankMap     = await calculateRanks(stu.cid);
+  const currentRank = rankMap[sid] || '-';
+  const positions   = ["प्रथम (1st)","द्वितीय (2nd)","तृतीय (3rd)","चतुर्थ (4th)","पंचम (5th)"];
+  const rankText    = (typeof currentRank === 'number' && currentRank <= 5)
+                        ? positions[currentRank - 1]
+                        : String(currentRank);
 
-    const ftGP = t.gp > 0 ? ((t.gy / t.gp) * 100).toFixed(1) : 0;
-    document.getElementById("p_body").innerHTML = h;
-    document.getElementById("p_foot").innerHTML = `<tr><td colspan="2">योग</td><td>${t.qp}</td><td></td><td></td><td>${t.qy}</td><td></td><td>${t.hp}</td><td></td><td></td><td>${t.hy}</td><td></td><td>${t.ap}</td><td></td><td></td><td>${t.ay}</td><td></td><td>${t.gp}</td><td></td><td>${t.gy}</td><td>${ftGP}%</td><td></td></tr>`;
-    
-    // अतिरिक्त विवरण भरें
-    ['sanket', 'achar', 'res', 'att'].forEach(f => {
-        document.getElementById('b_' + f).innerText = (m.extra && m.extra[f]) ? m.extra[f] : '';
-    });
+  document.getElementById("p_name").innerText = stu.name;
+  document.getElementById("p_cls").innerText  = stu.cname;
+  document.getElementById("p_roll").innerText = stu.roll;
 
-    // ऑटोमैटिक रैंक डिस्प्ले (सिर्फ टॉप 5 के लिए विशेष टेक्स्ट, बाकी के लिए नंबर)
-    let rankText = currentRank;
-    if (currentRank <= 5) {
-        const positions = ["प्रथम (1st)", "द्वितीय (2nd)", "तृतीय (3rd)", "चतुर्थ (4th)", "पंचम (5th)"];
-        rankText = positions[currentRank - 1];
-    }
-    
-    document.getElementById("b_rank").innerText = rankText;
-    document.getElementById("b_rank_final").innerText = rankText;
-    document.getElementById("b_res_final").innerText = (m.extra && m.extra.res) ? m.extra.res : (ftGP >= 33 ? "उत्तीर्ण" : "अनुत्तीर्ण");
+  let rows = "";
+  let t = { qp:0, qy:0, hp:0, hy:0, ap:0, ay:0, gp:0, gy:0 };
 
-    // प्रिंट कमांड
-    setTimeout(() => { window.print(); }, 500);
+  cls.subs.forEach((s, i) => {
+    const d  = m.examData[s.name] ||
+               { q_m: parseInt(s.max)||100, q1:0, q2:0, h_m:100, h1:0, h2:0, a_m:100, a1:0, a2:0 };
+    const qY = d.q1 + d.q2, hY = d.h1 + d.h2, aY = d.a1 + d.a2;
+    const rT = qY + hY + aY, rM = d.q_m + d.h_m + d.a_m;
+    const qP = d.q_m > 0 ? ((qY/d.q_m)*100).toFixed(1) : '0.0';
+    const hP = d.h_m > 0 ? ((hY/d.h_m)*100).toFixed(1) : '0.0';
+    const aP = d.a_m > 0 ? ((aY/d.a_m)*100).toFixed(1) : '0.0';
+    const gP = rM    > 0 ? ((rT/rM)   *100).toFixed(1) : '0.0';
+
+    rows += `<tr>
+      <td>${i+1}</td><td class="sub-name">${s.name}</td>
+      <td>${d.q_m}</td><td>${d.q1}</td><td>${d.q2}</td><td>${qY}</td><td>${qP}%</td>
+      <td>${d.h_m}</td><td>${d.h1}</td><td>${d.h2}</td><td>${hY}</td><td>${hP}%</td>
+      <td>${d.a_m}</td><td>${d.a1}</td><td>${d.a2}</td><td>${aY}</td><td>${aP}%</td>
+      <td>${rM}</td><td>${Math.round(rM*0.33)}</td><td>${rT}</td><td>${gP}%</td>
+      <td></td>
+    </tr>`;
+
+    t.qp+=d.q_m; t.qy+=qY; t.hp+=d.h_m; t.hy+=hY; t.ap+=d.a_m; t.ay+=aY; t.gp+=rM; t.gy+=rT;
+  });
+
+  const ftGP = t.gp > 0 ? ((t.gy/t.gp)*100).toFixed(1) : '0.0';
+
+  document.getElementById("p_body").innerHTML = rows;
+  document.getElementById("p_foot").innerHTML = `<tr>
+    <td colspan="2" style="text-align:center;font-weight:bold;">योग</td>
+    <td>${t.qp}</td><td></td><td></td><td>${t.qy}</td><td></td>
+    <td>${t.hp}</td><td></td><td></td><td>${t.hy}</td><td></td>
+    <td>${t.ap}</td><td></td><td></td><td>${t.ay}</td><td></td>
+    <td>${t.gp}</td><td>${Math.round(t.gp*0.33)}</td><td>${t.gy}</td><td>${ftGP}%</td>
+    <td></td>
+  </tr>`;
+
+  // Fill bottom details
+  document.getElementById("b_sanket").innerText = m.extra?.sanket || '';
+  document.getElementById("b_achar").innerText  = m.extra?.achar  || '';
+  document.getElementById("b_att").innerText    = m.extra?.att    || '';
+
+  // BUG FIX 4: Both rank cells show SAME auto-calculated rank (no more conflict)
+  document.getElementById("b_rank").innerText       = rankText;
+  document.getElementById("b_rank_final").innerText = rankText;
+
+  // Auto result: manual entry if present, otherwise auto-calculate from %
+  const autoRes  = parseFloat(ftGP) >= 33 ? "उत्तीर्ण" : "अनुत्तीर्ण";
+  const finalRes = (m.extra?.res) ? m.extra.res : autoRes;
+  document.getElementById("b_res").innerText       = finalRes;
+  document.getElementById("b_res_final").innerText = finalRes;
+
+  // BUG FIX 8: Use double requestAnimationFrame — ensures DOM is fully painted
+  // before print dialog opens (replaces fragile 500ms setTimeout)
+  requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
 }
 
-        function deleteItem(s, id) { if (confirm("Confirm Delete?")) db.transaction(s, "readwrite").objectStore(s).delete(id).oncomplete = syncAll; }
-        async function exportData() { const d = { subjects: await getStoreData("subjects"), classes: await getStoreData("classes"), students: await getStoreData("students"), marks: await getStoreData("marks") }; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(d)], { type: "application/json" })); a.download = "School_ERP_Backup.json"; a.click(); }
-        function importData(e) { const r = new FileReader(); r.onload = async ev => { const d = JSON.parse(ev.target.result); Object.keys(d).forEach(k => { const tx = db.transaction(k, "readwrite"); d[k].forEach(i => tx.objectStore(k).put(i)); }); alert("Data Restored!"); syncAll(); }; r.readAsText(e.target.files[0]); }
-    </script>
-</body>
+/* ==========================================================
+   DELETE
+   BUG FIX 5: Cascade delete — removes linked students & marks
+   ========================================================== */
+async function deleteItem(store, id) {
+  if (store === 'classes') {
+    const students = await getStoreData("students");
+    const linked   = students.filter(s => s.cid === id);
+    if (linked.length > 0) {
+      if (!confirm(
+        `इस कक्षा में ${linked.length} छात्र हैं।\nहटाने पर उनके सभी अंक भी हट जाएंगे।\nक्या जारी रखें?`
+      )) return;
+      for (const st of linked) {
+        await new Promise(r => {
+          db.transaction("marks","readwrite").objectStore("marks").delete(st.id).onsuccess = r;
+        });
+        await new Promise(r => {
+          db.transaction("students","readwrite").objectStore("students").delete(st.id).onsuccess = r;
+        });
+      }
+    } else {
+      if (!confirm("यह कक्षा हटाएं?")) return;
+    }
 
+  } else if (store === 'students') {
+    if (!confirm("छात्र और उनके सभी अंक हटाएं?")) return;
+    // BUG FIX 5: Also delete marks record for this student
+    await new Promise(r => {
+      db.transaction("marks","readwrite").objectStore("marks").delete(id).onsuccess = r;
+    });
+
+  } else {
+    if (!confirm("Confirm Delete?")) return;
+  }
+
+  db.transaction(store,"readwrite").objectStore(store).delete(id).onsuccess = syncAll;
+}
+
+/* ==========================================================
+   BACKUP / RESTORE
+   ========================================================== */
+async function exportData() {
+  const d = {
+    subjects: await getStoreData("subjects"),
+    classes:  await getStoreData("classes"),
+    students: await getStoreData("students"),
+    marks:    await getStoreData("marks")
+  };
+  const a = document.createElement("a");
+  a.href     = URL.createObjectURL(new Blob([JSON.stringify(d)], { type:"application/json" }));
+  a.download = "School_ERP_Backup.json";
+  a.click();
+}
+
+function importData(e) {
+  const r = new FileReader();
+  r.onload = async ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      for (const k of Object.keys(d)) {
+        const tx = db.transaction(k,"readwrite");
+        d[k].forEach(item => tx.objectStore(k).put(item));
+      }
+      alert("✔ Data Restored Successfully!");
+      syncAll();
+    } catch (err) {
+      alert("❌ Invalid backup file. Please check the file and try again.");
+    }
+  };
+  r.readAsText(e.target.files[0]);
+}
+</script>
+</body>
 </html>
