@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="mint">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPI QR Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<style>
+/* ============================================================
+   THEME VARIABLES
+   ============================================================ */
+[data-theme="dark"] {
+  --bg:        #0a0e1a;
+  --bg2:       #111827;
+  --surface:   #111827;
+  --surface2:  #1a2235;
+  --border:    rgba(255, 215, 0, 0.25); /* Golden Sharp Border */
+  --border2:   rgba(255, 255, 255, 0.30); /* White Sharp Border */
+  --text:      #ffffff;
+  --text2:     #e2e8f0;
+  --muted:     #94a3b8;
+  --accent:    #FFD700; /* Pure Gold */
+  --accent2:   #ffffff; /* White */
+  --green:     #34d399;
+  --red:       #f87171;
+  --gold:      #FFD700;
+  --qr-dark:   #000000;
+  --qr-light:  #ffffff;
+  
+  /* उभरा हुआ लुक और पीछे जलती हुई गोल्डन लाइट का इफेक्ट */
+  --shadow:    0 20px 50px rgba(0, 0, 0, 0.7); 
+  --glow:      0 0 40px rgba(255, 215, 0, 0.35), 0 0 15px rgba(255, 215, 0, 0.2);
+  --grid:      rgba(255, 255, 255, 0.05); /* Sharp White Grid */
+  --grad1:     rgba(255, 215, 0, 0.1);    /* Gold Gradient */
+  --grad2:     rgba(255, 255, 255, 0.08); /* White Gradient */
+  
+  --badge-bg:  rgba(255, 215, 0, 0.15);
+  --badge-col: #FFD700;
+  --badge-brd: rgba(255, 215, 0, 0.3);
+  --tab-active:#FFD700;
+  --btn-grad:  linear-gradient(135deg, #FFD700, #b8860b); /* Golden Button */
+  --amt-col:   #FFD700;
+  --qr-bg:     #ffffff;
+}
+
+[data-theme="light"] {
+  --bg:        #f0f4f8;
+  --bg2:       #ffffff;
+  --surface:   #ffffff;
+  --surface2:  #f8fafc;
+  --border:    rgba(30,60,114,0.12);
+  --border2:   rgba(30,60,114,0.28);
+  --text:      #1e293b;
+  --text2:     #475569;
+  --muted:     #94a3b8;
+  --accent:    #2563eb;
+  --accent2:   #7c3aed;
+  --green:     #059669;
+  --red:       #dc2626;
+  --gold:      #d97706;
+  --qr-dark:   #1e3c72;
+  --qr-light:  #ffffff;
+  --shadow:    0 8px 20px rgba(255,20,147,0.25);
+  --glow:      0 0 0px transparent;
+  --grid:      rgba(30,60,114,0.04);
+  --grad1:     rgba(37,99,235,0.05);
+  --grad2:     rgba(124,58,237,0.04);
+  --badge-bg:  rgba(5,150,105,0.10);
+  --badge-col: #059669;
+  --badge-brd: rgba(5,150,105,0.25);
+  --tab-active:#2563eb;
+  --btn-grad:  linear-gradient(135deg,#2563eb,#7c3aed);
+  --amt-col:   #d97706;
+  --qr-bg:     #ffffff;
+}
+
+[data-theme="mint"] {
+  --bg:        #e8f5f0;
+  --bg2:       #f0faf6;
+  --surface:   #f0faf6;
+  --surface2:  #e0f3ec;
+  --border:    rgba(6,95,70,0.14);
+  --border2:   rgba(6,95,70,0.30);
+  --text:      #064e3b;
+  --text2:     #065f46;
+  --muted:     #6ee7b7;
+  --accent:    #059669;
+  --accent2:   #0d9488;
+  --green:     #047857;
+  --red:       #b91c1c;
+  --gold:      #92400e;
+  --qr-dark:   #064e3b;
+  --qr-light:  #f0fff4;
+  --shadow: 0 8px 20px rgba(255, 20, 147, 0.25); 
+  --glow:   0 0 15px rgba(255, 20, 147, 0.40);
+  --grid:   rgba(255, 20, 147, 0.04);
+  --grad1:     rgba(5,150,105,0.08);
+  --grad2:     rgba(13,148,136,0.06);
+  --badge-bg:  rgba(4,120,87,0.12);
+  --badge-col: #047857;
+  --badge-brd: rgba(4,120,87,0.28);
+  --tab-active:#059669;
+  --btn-grad:  linear-gradient(135deg,#059669,#0d9488);
+  --amt-col:   #92400e;
+  --qr-bg:     #f0fff4;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Rajdhani','Noto Sans Devanagari',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 0.6s,color 0.6s;
+}
+
+/* Ambient background */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, var(--grad1) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, var(--grad2) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+  transition:background 0.6s;
+}
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:44px 44px;
+  pointer-events:none;z-index:0;
+  transition:background 0.4s;
+}
+
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header{
+  padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  backdrop-filter:blur(40px);
+  position:sticky;top:0;z-index:100;
+  box-shadow:var(--shadow);
+  transition:background 0.9s,border-color 0.9s;
+}
+
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{
+  width:38px;height:38px;
+  background:var(--btn-grad);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+.logo-text{
+  font-size:22px;font-weight:700;letter-spacing:1px;
+  background:var(--btn-grad);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.header-right{display:flex;align-items:center;gap:12px;}
+
+/* Live badge */
+.live-badge{
+  font-size:12px;padding:3px 10px;
+  background:var(--badge-bg);color:var(--badge-col);
+  border:2px solid var(--badge-brd);
+  border-radius:20px;letter-spacing:1px;text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;
+}
+.live-dot{
+  width:12px;height:12px;background:var(--badge-col);
+  border-radius:50%;
+  animation:pulse 1.8s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.4;transform:scale(0.8);}
+}
+
+/* Theme Toggle */
+.theme-toggle{
+  display:flex;align-items:center;gap:4px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:30px;
+  padding:4px;
+  transition:background 0.3s;
+}
+.theme-btn{
+  width:32px;height:28px;
+  border:none;border-radius:24px;cursor:pointer;
+  font-size:14px;
+  background:transparent;
+  transition:all 0.25s;
+  display:flex;align-items:center;justify-content:center;
+}
+.theme-btn.active{
+  background:var(--btn-grad);
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+.theme-btn:not(.active):hover{background:var(--border);}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tab-bar{
+  display:flex;gap:0;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  padding:0 24px;
+  transition:background 0.4s;
+  overflow-x:auto;
+}
+.tab-btn{
+  padding:12px 20px;border:none;
+  background:transparent;color:var(--text2);
+  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.25s;letter-spacing:.3px;
+  display:flex;align-items:center;gap:7px;
+  white-space:nowrap;
+}
+.tab-btn.active{color:var(--tab-active);border-bottom-color:var(--tab-active);}
+.tab-btn:not(.active):hover{color:var(--text);}
+.tab-count{
+  background:var(--tab-active);color:var(--surface);
+  border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;
+  transition:background 0.4s;
+}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.main{flex:1;padding:24px;max-width:1100px;margin:0 auto;width:100%;}
+.tab-panel{display:none;animation:fadeIn 0.25s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;padding:22px;
+  box-shadow:var(--glow);
+  transition:background 0.4s,border-color 0.4s,box-shadow 0.4s;
+}
+.card-title{
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text2);
+  margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+  transition:color 0.4s;
+}
+.card-title::before{
+  content:'';display:inline-block;
+  width:3px;height:14px;
+  background:var(--accent);border-radius:2px;
+  transition:background 0.4s;
+}
+
+/* ============================================================
+   GENERATE GRID
+   ============================================================ */
+.gen-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px;align-items:start;
+}
+@media(max-width:700px){.gen-grid{grid-template-columns:1fr;}}
+
+/* ============================================================
+   UPI LIST
+   ============================================================ */
+.upi-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+
+.upi-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;cursor:pointer;
+  transition:all 0.2s;
+}
+.upi-item:hover{border-color:var(--border2);background:var(--bg);}
+.upi-item.selected{
+  border-color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 8%, transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.upi-radio{
+  width:16px;height:16px;flex-shrink:0;
+  border-radius:50%;border:2px solid var(--muted);
+  transition:all 0.2s;
+}
+.upi-item.selected .upi-radio{
+  border-color:var(--accent);background:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.upi-info{flex:1;min-width:0;}
+.upi-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.upi-id-text{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.upi-del{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all 0.2s;flex-shrink:0;
+}
+.upi-del:hover{color:var(--red);background:color-mix(in srgb, var(--red) 12%, transparent);}
+
+/* Add UPI form */
+.add-upi-toggle{
+  width:100%;padding:10px;
+  background:none;border:1px dashed var(--border2);
+  color:var(--accent);font-family:inherit;font-size:13px;font-weight:600;
+  border-radius:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all 0.2s;
+}
+.add-upi-toggle:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);}
+
+.add-form{display:none;flex-direction:column;gap:10px;margin-top:14px;}
+.add-form.open{display:flex;}
+
+.inp-group{display:flex;flex-direction:column;gap:4px;}
+label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;}
+
+input[type=text],input[type=number]{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);padding:10px 14px;border-radius:10px;
+  font-family:inherit;font-size:14px;outline:none;width:100%;
+  transition:border-color 0.2s,box-shadow 0.2s,background 0.3s;
+}
+input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+input::placeholder{color:var(--muted);}
+
+.btn-row{display:flex;gap:8px;}
+.save-btn{
+  flex:1;padding:10px;border:none;
+  background:var(--btn-grad);color:#fff;
+  font-family:inherit;font-size:13px;font-weight:700;
+  border-radius:8px;cursor:pointer;transition:opacity 0.2s,transform 0.1s;
+}
+.save-btn:hover{opacity:.9;transform:translateY(-1px);}
+.cancel-btn{
+  flex:1;padding:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;
+  border-radius:8px;cursor:pointer;transition:all 0.2s;
+}
+.cancel-btn:hover{color:var(--text);}
+
+/* ============================================================
+   AMOUNT SECTION
+   ============================================================ */
+.amt-wrap{position:relative;}
+.amt-prefix{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--amt-col);font-weight:700;font-size:18px;pointer-events:none;
+}
+#amount{
+  padding-left:30px;font-size:22px;font-weight:700;
+  height:58px;color:var(--amt-col);letter-spacing:0.5px;
+}
+
+.quick-amts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.q-btn{
+  padding:5px 13px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);border-radius:20px;
+  font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.q-btn:hover{border-color:var(--amt-col);color:var(--amt-col);background:color-mix(in srgb,var(--amt-col) 8%,transparent);}
+
+.gen-btn{
+  width:100%;padding:15px;
+  background:var(--btn-grad);
+  border:none;color:#fff;
+  font-family:inherit;font-size:16px;font-weight:700;
+  letter-spacing:1px;border-radius:12px;cursor:pointer;
+  transition:all 0.3s;margin-top:16px;
+  position:relative;overflow:hidden;
+}
+.gen-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.gen-btn:hover::after{opacity:1;}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.25);}
+.gen-btn:active{transform:translateY(0);}
+
+/* ============================================================
+   QR DISPLAY CARD
+   ============================================================ */
+.qr-card{display:flex;flex-direction:column;align-items:center;gap:18px;}
+
+.qr-wrap{
+  position:relative;padding:18px;
+  background:var(--qr-bg);border-radius:16px;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 25%,transparent), 0 20px 50px rgba(0,0,0,.3);
+  transition:all 0.4s cubic-bezier(.34,1.56,.64,1);
+  transform:scale(.88) translateY(8px);opacity:0;
+}
+.qr-wrap.show{transform:scale(1) translateY(0);opacity:1;}
+
+/* Corner decorations */
+.qr-wrap::before,.qr-wrap::after{
+  content:'';position:absolute;width:18px;height:18px;
+  border-color:var(--accent);border-style:solid;
+}
+.qr-wrap::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:4px 0 0 0;}
+.qr-wrap::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 4px 0;}
+
+#qrcode canvas,#qrcode img{display:block;}
+
+.empty-qr{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:280px;color:var(--muted);gap:12px;text-align:center;
+}
+.empty-icon{font-size:52px;opacity:.35;margin-bottom:4px;}
+
+.qr-meta{text-align:center;width:100%;}
+.qr-payee{font-size:18px;font-weight:700;color:var(--text);}
+.qr-upi-id{font-size:12px;color:var(--text2);margin-top:4px;}
+.qr-amt-badge{
+  display:inline-block;margin-top:10px;
+  padding:6px 22px;
+  background:color-mix(in srgb,var(--amt-col) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--amt-col) 30%,transparent);
+  color:var(--amt-col);border-radius:30px;
+  font-size:22px;font-weight:700;
+}
+
+.qr-actions{display:flex;gap:10px;width:100%;}
+.act-btn{
+  flex:1;padding:10px;border-radius:10px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.act-btn:hover{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);}
+.act-btn.save-hist{border-color:color-mix(in srgb,var(--green) 40%,transparent);color:var(--green);}
+.act-btn.save-hist:hover{background:color-mix(in srgb,var(--green) 10%,transparent);}
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.hist-title{font-size:20px;font-weight:700;color:var(--text);}
+
+.hist-top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.top-act{
+  padding:9px 18px;
+  border-radius:10px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text2);
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:all 0.2s;
+}
+.top-act:hover{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);}
+.top-act.del{border-color:color-mix(in srgb,var(--red) 30%,transparent);color:var(--red);}
+.top-act.del:hover{background:color-mix(in srgb,var(--red) 10%,transparent);}
+
+.hist-list{display:flex;flex-direction:column;gap:10px;}
+
+.hist-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;
+  transition:all 0.2s;
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.hist-item:hover{border-color:var(--border2);}
+
+.hist-thumb{
+  width:58px;height:58px;border-radius:8px;
+  background:#fff;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.hist-thumb img{width:58px;height:58px;display:block;}
+.hist-thumb-placeholder{color:var(--muted);font-size:10px;}
+
+.hist-info{flex:1;min-width:0;}
+.hist-name{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-vpa{font-size:12px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
+.hist-amt{font-size:15px;font-weight:700;color:var(--amt-col);}
+.hist-time{font-size:11px;color:var(--muted);}
+
+.hist-btns{display:flex;gap:8px;flex-shrink:0;}
+.h-btn{
+  padding:7px 13px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.h-btn:hover{border-color:var(--accent);color:var(--accent);}
+.h-btn.del:hover{border-color:var(--red);color:var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);}
+
+/* Stats bar */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin-bottom:20px;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;text-align:center;
+  transition:background 0.4s;
+}
+.stat-val{font-size:22px;font-weight:700;color:var(--accent);}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:3px;font-weight:600;letter-spacing:.5px;}
+
+.empty-hist{
+  text-align:center;padding:60px 20px;color:var(--muted);
+}
+.empty-hist .empty-icon{font-size:48px;opacity:.3;margin-bottom:12px;}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  padding:12px 20px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;font-size:14px;font-weight:600;
+  z-index:9999;
+  transform:translateY(80px);opacity:0;
+  transition:all 0.3s cubic-bezier(.34,1.56,.64,1);
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  max-width:300px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:color-mix(in srgb,var(--green) 50%,transparent);color:var(--green);}
+.toast.err{border-color:color-mix(in srgb,var(--red) 50%,transparent);color:var(--red);}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+#printArea{display:none;}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body,body::before,body::after{background:white!important;}
+  body::before,body::after{display:none!important;}
+  header,.tab-bar,.gen-btn,.qr-actions,.hist-btns,.hist-top-actions,.stats-bar,
+  .add-upi-section,.quick-amts,.clear-section,.theme-toggle,.live-badge{display:none!important;}
+  .main{padding:0!important;max-width:none!important;}
+  #printArea{display:block!important;}
+  .p-report{font-family:Arial,sans-serif;color:#000;padding:20px;}
+  .p-head{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px;}
+  .p-head h2{font-size:24px;margin-bottom:4px;}
+  .p-head p{font-size:13px;color:#555;}
+  .p-qr-section{text-align:center;margin:20px 0;padding:20px;border:1px solid #ddd;border-radius:8px;display:inline-block;}
+  .p-qr-section img{width:180px;height:180px;display:block;margin:0 auto 12px;}
+  .p-qr-section p{font-size:14px;margin:4px 0;}
+  .p-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+  .p-table th{background:#f0f0f0;border:1px solid #ccc;padding:8px 12px;text-align:left;font-weight:bold;}
+  .p-table td{border:1px solid #ddd;padding:8px 12px;}
+  .p-table tr:nth-child(even) td{background:#fafafa;}
+  .p-total td{font-weight:700;background:#e8f5e9!important;}
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:540px){
+  .main{padding:14px;}
+  header{padding:10px 14px;}
+  .tab-bar{padding:0 14px;}
+  .hist-item{flex-wrap:wrap;}
+  .hist-btns{width:100%;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .logo-text{font-size:18px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ======= HEADER ======= -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">UPI QR Pro</span>
+	<span class="logo-text"> @Shiv Computer</span> 
+  </div>
+  <div class="header-right">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="थीम बदलें">
+      <button class="theme-btn" id="btn-dark"   onclick="setTheme('dark')"  title="Dark">🌙</button>
+      <button class="theme-btn" id="btn-light"  onclick="setTheme('light')" title="Light">☀️</button>
+      <button class="theme-btn" id="btn-mint"   onclick="setTheme('mint')"  title="Mint">🌿</button>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
+  </div>
+</header>
+
+<!-- ======= TABS ======= -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-btn-gen" onclick="switchTab('gen',this)">⚡ QR बनाएं</button>
+  <button class="tab-btn" id="tab-btn-hist" onclick="switchTab('hist',this)">
+    📋 इतिहास <span class="tab-count" id="histCount">0</span>
+  </button>
+</div>
+
+<!-- ======= MAIN ======= -->
+<div class="main">
+
+  <!-- === GENERATE PANEL === -->
+  <div class="tab-panel active" id="panel-gen">
+    <div class="gen-grid">
+
+      <!-- Left col -->
+      <div>
+        <!-- UPI Selector Card -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title">UPI ID चुनें</div>
+          <div class="upi-list" id="upiList"></div>
+          <div>
+            <button class="add-upi-toggle" onclick="toggleForm()">＋ नया UPI ID जोड़ें</button>
+            <div class="add-form" id="addForm">
+              <div class="inp-group">
+                <label>नाम (आपका / दुकान का)</label>
+                <input type="text" id="newName" placeholder="जैसे: Rahul Store">
+              </div>
+              <div class="inp-group">
+                <label>UPI ID (VPA)</label>
+                <input type="text" id="newId" placeholder="जैसे: 9876543210@ybl">
+              </div>
+              <div class="btn-row">
+                <button class="save-btn" onclick="saveUpi()">💾 सेव करें</button>
+                <button class="cancel-btn" onclick="toggleForm()">रद्द करें</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount Card -->
+        <div class="card">
+          <div class="card-title">राशि दर्ज करें</div>
+          <div class="amt-wrap">
+            <span class="amt-prefix">₹</span>
+            <input type="number" id="amount" placeholder="0.00" min="0" step="0.01"
+              onkeydown="if(event.key==='Enter')generateQR()">
+          </div>
+          <div class="quick-amts">
+            <button class="q-btn" onclick="setAmt(10)">₹10</button>
+            <button class="q-btn" onclick="setAmt(20)">₹20</button>
+            <button class="q-btn" onclick="setAmt(50)">₹50</button>
+            <button class="q-btn" onclick="setAmt(100)">₹100</button>
+            <button class="q-btn" onclick="setAmt(200)">₹200</button>
+            <button class="q-btn" onclick="setAmt(500)">₹500</button>
+            <button class="q-btn" onclick="setAmt(1000)">₹1000</button>
+            <button class="q-btn" onclick="setAmt(2000)">₹2000</button>
+          </div>
+          <button class="gen-btn" onclick="generateQR()">⚡ QR बनाएं &nbsp;(Enter)</button>
+        </div>
+      </div>
+
+      <!-- Right col: QR Display -->
+      <div class="card qr-card">
+        <div class="card-title">QR कोड</div>
+        <div id="emptyState" class="empty-qr">
+          <div class="empty-icon">📲</div>
+          <div style="font-size:15px;font-weight:600">UPI ID चुनें और राशि डालें</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">फिर Enter या बटन दबाएं</div>
+        </div>
+        <div id="qrWrap" class="qr-wrap" style="display:none">
+          <div id="qrcode"></div>
+        </div>
+        <div id="qrMeta" class="qr-meta" style="display:none">
+          <div class="qr-payee" id="qrPayee"></div>
+          <div class="qr-upi-id" id="qrVpa"></div>
+          <div class="qr-amt-badge" id="qrAmt">₹0.00</div>
+        </div>
+        <div id="qrActions" class="qr-actions" style="display:none">
+          <button class="act-btn save-hist" onclick="saveHist()">💾 इतिहास में सेव</button>
+          <button class="act-btn" onclick="printCurrent()">🖨️ प्रिंट</button>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /panel-gen -->
+
+  <!-- === HISTORY PANEL === -->
+  <div class="tab-panel" id="panel-hist">
+
+    <!-- Stats -->
+    <div class="stats-bar" id="statsBar"></div>
+
+    <!-- Actions -->
+    <div class="hist-top-actions">
+      <button class="top-act" onclick="printReport()">🖨️ पूरी रिपोर्ट प्रिंट</button>
+      <button class="top-act" onclick="exportCSV()">📊 CSV Export</button>
+      <button class="top-act del" onclick="clearAll()">🗑️ सब हटाएं</button>
+    </div>
+
+    <div class="hist-list" id="histList"></div>
+
+  </div><!-- /panel-hist -->
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<!-- Print Area -->
+<div id="printArea"></div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+var upis = [];
+var selIdx = -1;
+var txList = [];   // renamed from 'history' to avoid clash with window.history
+var curQR = null;
+var qrInst = null;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.onload = function(){
+  loadAll();
+  applyTheme(localStorage.getItem('upiTheme') || 'mint');
+  renderUpis();
+  renderHist();
+  if(upis.length > 0 && selIdx < 0) selIdx = 0;
+  renderUpis();
+};
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+function loadAll(){
+  try{
+    upis    = JSON.parse(localStorage.getItem('upiList')  || '[]');
+    txList  = JSON.parse(localStorage.getItem('upiHist')  || '[]');
+    selIdx  = parseInt(localStorage.getItem('upiSel')     || '-1');
+    if(selIdx >= upis.length) selIdx = upis.length > 0 ? 0 : -1;
+  }catch(e){ upis=[]; txList=[]; selIdx=-1; }
+}
+function saveAll(){
+  localStorage.setItem('upiList', JSON.stringify(upis));
+  localStorage.setItem('upiHist', JSON.stringify(txList));
+  localStorage.setItem('upiSel',  selIdx);
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function setTheme(t){
+  localStorage.setItem('upiTheme', t);
+  applyTheme(t);
+}
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  ['dark','light','mint'].forEach(function(x){
+    var b = document.getElementById('btn-'+x);
+    if(b) b.classList.toggle('active', x === t);
+  });
+}
+
+/* ============================================================
+   UPI MANAGEMENT
+   ============================================================ */
+function renderUpis(){
+  var el = document.getElementById('upiList');
+  if(!upis.length){
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0">कोई UPI ID नहीं — नीचे जोड़ें</div>';
+    return;
+  }
+  el.innerHTML = upis.map(function(u,i){
+    return '<div class="upi-item'+(i===selIdx?' selected':'')+'" onclick="selectUpi('+i+')">'
+      +'<div class="upi-radio"></div>'
+      +'<div class="upi-info">'
+        +'<div class="upi-name">'+esc(u.name)+'</div>'
+        +'<div class="upi-id-text">'+esc(u.id)+'</div>'
+      +'</div>'
+      +'<button class="upi-del" onclick="event.stopPropagation();delUpi('+i+')" title="हटाएं">✕</button>'
+    +'</div>';
+  }).join('');
+}
+
+function selectUpi(i){
+  selIdx = i;
+  saveAll();
+  renderUpis();
+}
+
+function delUpi(i){
+  if(!confirm('"'+upis[i].name+'" हटाना चाहते हैं?')) return;
+  upis.splice(i,1);
+  if(selIdx >= upis.length) selIdx = upis.length-1;
+  saveAll();
+  renderUpis();
+  toast('UPI ID हटा दिया ✓','ok');
+}
+
+function toggleForm(){
+  var f = document.getElementById('addForm');
+  f.classList.toggle('open');
+  if(f.classList.contains('open')) document.getElementById('newName').focus();
+}
+
+function saveUpi(){
+  var name = document.getElementById('newName').value.trim();
+  var id   = document.getElementById('newId').value.trim();
+  if(!name){ toast('नाम डालें','err'); return; }
+  if(!id || id.indexOf('@')<0){ toast('सही UPI ID डालें (जैसे: 9876@ybl)','err'); return; }
+  upis.push({name:name, id:id});
+  selIdx = upis.length-1;
+  saveAll();
+  renderUpis();
+  document.getElementById('newName').value = '';
+  document.getElementById('newId').value   = '';
+  document.getElementById('addForm').classList.remove('open');
+  toast('"'+name+'" जोड़ा गया ✓','ok');
+}
+
+/* ============================================================
+   QR GENERATION
+   ============================================================ */
+function setAmt(v){
+  document.getElementById('amount').value = v;
+  document.getElementById('amount').focus();
+}
+
+function generateQR(){
+  if(selIdx < 0 || selIdx >= upis.length){
+    toast('पहले UPI ID चुनें','err'); return;
+  }
+  var upi = upis[selIdx];
+  var raw = document.getElementById('amount').value.trim();
+  var amt = parseFloat(raw);
+  if(isNaN(amt)||amt<0) amt=0;
+  var amtStr = amt>0 ? amt.toFixed(2) : '';
+
+  var link = 'upi://pay?pa='+encodeURIComponent(upi.id)+'&pn='+encodeURIComponent(upi.name)+'&cu=INR';
+  if(amtStr) link += '&am='+amtStr;
+
+  curQR = {upi:upi, amount:amtStr||'0.00', link:link, time:new Date().toISOString()};
+
+  var wrap  = document.getElementById('qrWrap');
+  var empty = document.getElementById('emptyState');
+
+  wrap.classList.remove('show');
+
+  setTimeout(function(){
+    document.getElementById('qrcode').innerHTML = '';
+    qrInst = null;
+    empty.style.display = 'none';
+    wrap.style.display   = 'block';
+
+    qrInst = new QRCode(document.getElementById('qrcode'),{
+      text: link,
+      width: 220, height: 220,
+      colorDark:  document.documentElement.getAttribute('data-theme')==='mint' ? '#064e3b' : '#1e3c72',
+      colorLight: document.documentElement.getAttribute('data-theme')==='mint' ? '#f0fff4' : '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById('qrPayee').textContent = upi.name;
+    document.getElementById('qrVpa').textContent   = upi.id;
+    document.getElementById('qrAmt').textContent   = amtStr ? '₹'+amtStr : 'राशि खुली';
+    document.getElementById('qrMeta').style.display    = 'block';
+    document.getElementById('qrActions').style.display = 'flex';
+
+    setTimeout(function(){ wrap.classList.add('show'); }, 60);
+  }, 280);
+}
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+function saveHist(){
+  if(!curQR){ toast('पहले QR बनाएं','err'); return; }
+  var canvas = document.querySelector('#qrcode canvas');
+  var img    = document.querySelector('#qrcode img');
+  var thumb  = canvas ? canvas.toDataURL('image/png') : (img ? img.src : '');
+
+  txList.unshift({
+    id:     Date.now(),
+    name:   curQR.upi.name,
+    vpa:    curQR.upi.id,
+    amount: curQR.amount,
+    link:   curQR.link,
+    time:   curQR.time,
+    thumb:  thumb
+  });
+  saveAll();
+  renderHist();
+  toast('इतिहास में सेव हो गया ✓','ok');
+}
+
+function renderHist(){
+  document.getElementById('histCount').textContent = txList.length;
+
+  // Stats
+  var total = txList.reduce(function(s,h){ return s+(parseFloat(h.amount)||0); },0);
+  var today = new Date().toDateString();
+  var todayCount = txList.filter(function(h){ return new Date(h.time).toDateString()===today; }).length;
+  document.getElementById('statsBar').innerHTML =
+    stat(txList.length,'कुल QR')+
+    stat('₹'+total.toFixed(0),'कुल राशि')+
+    stat(todayCount,'आज के QR');
+
+  var el = document.getElementById('histList');
+  if(!txList.length){
+    el.innerHTML = '<div class="empty-hist"><div class="empty-icon">📭</div><div style="font-size:15px;font-weight:600">कोई इतिहास नहीं</div><div style="font-size:13px;margin-top:6px">QR बनाने के बाद "इतिहास में सेव" दबाएं</div></div>';
+    return;
+  }
+  el.innerHTML = txList.map(function(h,i){
+    return '<div class="hist-item">'
+      +'<div class="hist-thumb">'+(h.thumb?'<img src="'+h.thumb+'">'
+        :'<span class="hist-thumb-placeholder">QR</span>')+'</div>'
+      +'<div class="hist-info">'
+        +'<div class="hist-name">'+esc(h.name)+'</div>'
+        +'<div class="hist-vpa">'+esc(h.vpa)+'</div>'
+        +'<div class="hist-row">'
+          +'<span class="hist-amt">₹'+esc(h.amount)+'</span>'
+          +'<span class="hist-time">'+fmtTime(h.time)+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="hist-btns">'
+        +'<button class="h-btn" onclick="printOne('+i+')">🖨️</button>'
+        +'<button class="h-btn del" onclick="delHist('+i+')">✕</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function stat(val,lbl){
+  return '<div class="stat-card"><div class="stat-val">'+val+'</div><div class="stat-lbl">'+lbl+'</div></div>';
+}
+
+function delHist(i){
+  txList.splice(i,1);
+  saveAll();
+  renderHist();
+  toast('हटा दिया','ok');
+}
+
+function clearAll(){
+  if(!txList.length) return;
+  if(!confirm('पूरा इतिहास मिटाना चाहते हैं?')) return;
+  txList=[];
+  saveAll();
+  renderHist();
+  toast('इतिहास साफ हो गया','ok');
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+function getImgSrc(){
+  var c = document.querySelector('#qrcode canvas');
+  var g = document.querySelector('#qrcode img');
+  return c ? c.toDataURL('image/png') : (g ? g.src : '');
+}
+
+function printCurrent(){
+  if(!curQR){ toast('पहले QR बनाएं','err'); return; }
+  var src = getImgSrc();
+  showPrint('<div class="p-report">'
+    +'<div class="p-head"><h2>UPI QR कोड</h2><p>'+new Date().toLocaleString('hi-IN')+'</p></div>'
+    +'<div style="text-align:center"><div class="p-qr-section">'
+      +(src?'<img src="'+src+'">':"")
+      +'<p><strong>नाम:</strong> '+esc(curQR.upi.name)+'</p>'
+      +'<p><strong>UPI ID:</strong> '+esc(curQR.upi.id)+'</p>'
+      +'<p><strong>राशि:</strong> ₹'+curQR.amount+'</p>'
+    +'</div></div>'
+  +'</div>');
+}
+
+function printOne(i){
+  var h = txList[i]; if(!h) return;
+  showPrint('<div class="p-report">'
+    +'<div class="p-head"><h2>UPI QR कोड</h2><p>'+new Date(h.time).toLocaleString('hi-IN')+'</p></div>'
+    +'<div style="text-align:center"><div class="p-qr-section">'
+      +(h.thumb?'<img src="'+h.thumb+'">':'')
+      +'<p><strong>नाम:</strong> '+esc(h.name)+'</p>'
+      +'<p><strong>UPI ID:</strong> '+esc(h.vpa)+'</p>'
+      +'<p><strong>राशि:</strong> ₹'+h.amount+'</p>'
+    +'</div></div>'
+  +'</div>');
+}
+
+function printReport(){
+  if(!txList.length){ toast('इतिहास खाली है','err'); return; }
+  var total = txList.reduce(function(s,h){ return s+(parseFloat(h.amount)||0); },0);
+  var rows  = txList.map(function(h){
+    var d = new Date(h.time);
+    return '<tr><td>'+d.toLocaleDateString('hi-IN')+'</td>'
+      +'<td>'+d.toLocaleTimeString('hi-IN')+'</td>'
+      +'<td>'+esc(h.name)+'</td>'
+      +'<td>'+esc(h.vpa)+'</td>'
+      +'<td style="font-weight:700">₹'+h.amount+'</td></tr>';
+  }).join('');
+  showPrint('<div class="p-report">'
+    +'<div class="p-head"><h2>UPI QR Transaction Report</h2>'
+    +'<p>प्रिंट: '+new Date().toLocaleString('hi-IN')+' | कुल: '+txList.length+' QR</p></div>'
+    +'<table class="p-table"><thead><tr><th>तारीख</th><th>समय</th><th>नाम</th><th>UPI ID</th><th>राशि</th></tr></thead>'
+    +'<tbody>'+rows
+    +'<tr class="p-total"><td colspan="4" style="text-align:right;padding-right:12px">कुल राशि:</td><td>₹'+total.toFixed(2)+'</td></tr>'
+    +'</tbody></table>'
+  +'</div>');
+}
+
+function showPrint(html){
+  var pw = window.open('','_blank','width=800,height=600');
+  if(!pw){ toast('Popup block है — browser में allow करें','err'); return; }
+  pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<title>UPI QR Print</title>'
+    +'<style>'
+    +'body{font-family:Arial,sans-serif;color:#000;padding:24px;background:#fff;}'
+    +'.p-report{max-width:720px;margin:0 auto;}'
+    +'.p-head{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px;}'
+    +'.p-head h2{font-size:22px;margin-bottom:4px;}'
+    +'.p-head p{font-size:13px;color:#555;}'
+    +'.p-qr-section{display:inline-block;text-align:center;padding:20px;border:1px solid #ddd;border-radius:8px;margin:10px auto;}'
+    +'.p-qr-section img{width:180px;height:180px;display:block;margin:0 auto 12px;}'
+    +'.p-qr-section p{font-size:14px;margin:5px 0;}'
+    +'.p-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}'
+    +'.p-table th{background:#f0f0f0;border:1px solid #ccc;padding:9px 12px;text-align:left;}'
+    +'.p-table td{border:1px solid #ddd;padding:8px 12px;}'
+    +'.p-table tr:nth-child(even) td{background:#fafafa;}'
+    +'.p-total td{font-weight:700;background:#e8f5e9!important;}'
+    +'</style></head><body>'
+    +html
+    +'</body></html>');
+  pw.document.close();
+  pw.focus();
+  setTimeout(function(){ pw.print(); }, 400);
+}
+
+/* ============================================================
+   CSV EXPORT
+   ============================================================ */
+function exportCSV(){
+  if(!txList.length){ toast('इतिहास खाली है','err'); return; }
+  var rows = [['तारीख','समय','नाम','UPI ID','राशि (Rs)']];
+  txList.forEach(function(h){
+    var d = new Date(h.time);
+    rows.push([
+      d.toLocaleDateString('en-IN'),
+      d.toLocaleTimeString('en-IN'),
+      h.name,
+      h.vpa,
+      h.amount
+    ]);
+  });
+  var csv = rows.map(function(r){
+    return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\r\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'UPI_History_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 200);
+  toast('CSV डाउनलोड हो रहा है ✓','ok');
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = (type==='ok'?'✓ ':'⚠ ')+msg;
+  el.className = 'toast '+(type||'ok')+' show';
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtTime(iso){
+  var d = new Date(iso);
+  return d.toLocaleString('hi-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+</script>
+</body>
+</html>
