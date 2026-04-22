@@ -1,44 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>Shiv Computer - AI Tools</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="SHIV.png">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    /* ✨ Basic Settings ✨ */
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #e0f7fa; /* Light Blue Background */
+    :root {
+      --bg: #dff3f9;
+      --header-bg: linear-gradient(135deg, #0052cc, #0099ff);
+      --nav-bg: #003f99;
+      --nav-link: #ffe600;
+      --nav-hover-bg: #ff2200;
+      --card-bg: #ffffff;
+      --card-border: #0072ff;
+      --card-text: #0052cc;
+      --card-hover-bg: #e0f0ff;
+      --card-glow: #0072ff;
+      --footer-bg: #002a6e;
+      --heading-color: #003080;
+      --h2-color: #002255;
+      --particle-color: rgba(0,90,255,0.3);
+    }
+    [data-theme="mint"] {
+      --bg: #e0faf0;
+      --header-bg: linear-gradient(135deg, #007a50, #00c98a);
+      --nav-bg: #005a38;
+      --nav-link: #fff176;
+      --nav-hover-bg: #ff6f00;
+      --card-bg: #f0fff8;
+      --card-border: #00b37d;
+      --card-text: #005a38;
+      --card-hover-bg: #c8ffe8;
+      --card-glow: #00c98a;
+      --footer-bg: #003322;
+      --heading-color: #004d30;
+      --h2-color: #003322;
+      --particle-color: rgba(0,180,100,0.3);
+    }
+    [data-theme="golden"] {
+      --bg: #1a1205;
+      --header-bg: linear-gradient(135deg, #2a1800, #7a4a00);
+      --nav-bg: #1a0e00;
+      --nav-link: #ffd700;
+      --nav-hover-bg: #c0392b;
+      --card-bg: #1f1608;
+      --card-border: #c8960a;
+      --card-text: #ffd700;
+      --card-hover-bg: #2e1f00;
+      --card-glow: #ffaa00;
+      --footer-bg: #0d0900;
+      --heading-color: #ffd700;
+      --h2-color: #ffcc44;
+      --particle-color: rgba(255,180,0,0.25);
     }
 
-    /* ✨ Canvas Style for Particles (Background) ✨ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      transition: background 0.5s;
+    }
+
+    /* ===== PARTICLES ===== */
     #particleCanvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1; 
+      inset: 0;
+      z-index: -1;
       pointer-events: none;
     }
 
-    /* ✨ Header & Nav Styles ✨ */
+    /* ===== STICKY HEADER ===== */
     header {
-      background: #0072ff;
-      color: white;
-      padding: 10px;
-      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--header-bg);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transition: background 0.5s;
     }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
     .logo {
-      width: 80px;
-      height: auto;
-      border-radius: 10px;
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,255,255,0.35);
+      box-shadow: 0 0 18px rgba(255,255,255,0.3);
+      object-fit: cover;
     }
-    header h1, header h3 {
+
+    .site-info h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
       color: #fff;
-      text-align: left;
+      letter-spacing: 2px;
+      text-shadow: 0 0 14px rgba(255,255,255,0.5);
+    }
+
+    .site-info h3 {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ===== THEME TOGGLES ===== */
+    .theme-toggles {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .theme-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      padding: 7px 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .theme-btn.light-btn {
+      background: linear-gradient(135deg, #e0f0ff, #b3d9ff);
+      color: #0055aa;
+      box-shadow: 0 2px 10px rgba(0,100,255,0.2);
+    }
+    .theme-btn.mint-btn {
+      background: linear-gradient(135deg, #b2f5d8, #00e59b);
+      color: #004d2e;
+      box-shadow: 0 2px 10px rgba(0,180,100,0.3);
+    }
+    .theme-btn.golden-btn {
+      background: linear-gradient(135deg, #2a1a00, #c8860a);
+      color: #ffd700;
+      box-shadow: 0 2px 10px rgba(200,140,0,0.4);
+    }
+    .theme-btn:hover { transform: scale(1.08) translateY(-2px); }
+    .theme-btn.active { outline: 3px solid rgba(255,255,255,0.7); transform: scale(1.06); }
+
+    /* ===== NAV ===== */
+    nav {
+      background: var(--nav-bg);
+      padding: 8px 12px;
+      overflow-x: auto;
+      transition: background 0.5s;
     }
 
     nav ul {
@@ -46,202 +175,378 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      background: #005bb5;
-      padding: 10px;
-      gap: 20px;
+      gap: 6px;
     }
 
     nav ul li a {
-      color: Yellow;
+      color: var(--nav-link);
       text-decoration: none;
-      font-weight: bold;
-      padding: 5px 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      padding: 5px 13px;
+      border-radius: 20px;
       transition: all 0.3s ease;
+      display: block;
+      white-space: nowrap;
     }
 
     nav ul li a:hover {
-      background-color: #ff0000;
-      border-radius: 9px;
-      box-shadow: 0 0 10px #ff0000, 0 0 20px #ff3333, 0 0 40px #ff6666;
+      background: var(--nav-hover-bg);
       color: #fff;
+      box-shadow: 0 0 14px var(--nav-hover-bg), 0 0 28px rgba(255,80,0,0.4);
+      transform: translateY(-2px);
     }
 
-    /* ✨ Main Content & AI Buttons ✨ */
+    /* ===== MAIN ===== */
     main {
-      padding: 40px 20px;
+      padding: 50px 20px 60px;
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 30px;
+    .main-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--h2-color);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 12px rgba(0,100,255,0.15);
+      animation: fadeSlideDown 0.7s ease both;
     }
 
-    .social-links {
+    .main-subtitle {
+      color: var(--heading-color);
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.9s ease both;
+    }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== GRID ===== */
+    .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      max-width: 1200px;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 18px;
+      max-width: 1300px;
       margin: auto;
-      padding: 10px;
     }
 
-    .social-links a {
+    .tool-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 12px;
+      color: var(--card-text);
       text-decoration: none;
-      display: block;
-      padding: 15px;
-      background: #ffffff;
-      border: 2px solid #0072ff;
-      border-radius: 12px;
-      color: #0072ff;
-      font-weight: bold;
-      transition: all 0.3s ease; /* Smooth transition */
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.4px;
+      transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: cardPop 0.5s ease both;
     }
 
-    /* Glow Effect on Buttons */
-    .social-links a:hover {
-      background: #facade;
-      color: #123524;
-      box-shadow: 0 0 10px #0072ff, 0 0 20px #3399ff, 0 0 40px #66ccff;
-      transform: scale(1.05); /* Slight Zoom */
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
     }
 
-    /* ✨ Footer Styles ✨ */
+    .tool-card .card-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+      transition: transform 0.3s ease;
+    }
+
+    .tool-card:hover {
+      background: var(--card-hover-bg);
+      transform: translateY(-7px) scale(1.04);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.18), 0 0 20px var(--card-glow);
+      border-color: var(--card-glow);
+    }
+
+    .tool-card:hover .card-icon {
+      transform: scale(1.25) rotate(-5deg);
+    }
+
+    @keyframes cardPop {
+      from { opacity: 0; transform: scale(0.88) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Staggered animation for cards */
+    .tool-card:nth-child(1)  { animation-delay: 0.05s }
+    .tool-card:nth-child(2)  { animation-delay: 0.08s }
+    .tool-card:nth-child(3)  { animation-delay: 0.11s }
+    .tool-card:nth-child(4)  { animation-delay: 0.14s }
+    .tool-card:nth-child(5)  { animation-delay: 0.17s }
+    .tool-card:nth-child(6)  { animation-delay: 0.20s }
+    .tool-card:nth-child(7)  { animation-delay: 0.23s }
+    .tool-card:nth-child(8)  { animation-delay: 0.26s }
+    .tool-card:nth-child(9)  { animation-delay: 0.29s }
+    .tool-card:nth-child(10) { animation-delay: 0.32s }
+    .tool-card:nth-child(11) { animation-delay: 0.35s }
+    .tool-card:nth-child(12) { animation-delay: 0.38s }
+    .tool-card:nth-child(n+13) { animation-delay: 0.40s }
+
+    /* ===== FOOTER ===== */
     footer {
-      background-color: #003d80;
-      color: white;
+      background: var(--footer-bg);
+      color: rgba(255,255,255,0.85);
       text-align: center;
-      padding: 20px 10px;
-      margin-top: 40px;
-      font-size: 15px;
+      padding: 28px 16px;
+      font-size: 0.85rem;
+      transition: background 0.5s;
     }
 
-    .footer-container p {
-      margin: 5px 0;
-    }
+    .footer-container p { margin: 5px 0; }
+    .footer-line { width: 80px; height: 2px; background: var(--card-glow); margin: 14px auto; border-radius: 2px; }
 
-    /* ✨ WhatsApp Button Style ✨ */
     .whatsapp-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       text-decoration: none;
       color: white;
-      font-weight: bold;
-      font-size: 16px;
-      transition: transform 0.3s ease, color 0.3s ease;
-      margin-top: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+      padding: 8px 18px;
+      border-radius: 30px;
+      background: #25D366;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35);
     }
 
-    .whatsapp-btn img {
-      width: 30px;
-      height: 30px;
-      transition: transform 0.3s ease;
-    }
-
+    .whatsapp-btn img { width: 24px; height: 24px; }
     .whatsapp-btn:hover {
-      transform: scale(1.1);
-      color: #25D366;
-      text-shadow: 0 0 10px #25D366, 0 0 20px #25D366;
+      transform: scale(1.08);
+      box-shadow: 0 0 20px #25D366, 0 0 40px rgba(37,211,102,0.4);
     }
 
-    .whatsapp-btn:hover img {
-      transform: rotate(10deg) scale(1.2);
-      filter: drop-shadow(0 0 10px #25D366);
-    }
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 6px; }
   </style>
 </head>
 <body>
 
+<canvas id="particleCanvas"></canvas>
+
 <header>
-  <div style="display: flex; align-items: center; background: #0072ff; padding:10px;">
-    <img src="logo.png" alt="Logo" class="logo">
-    <div class="site-info" style="margin-left: 15px;">
-      <h1 style="margin:0;">SHIV COMPUTER</h1>
-      <h3 style="margin:0;">KARANPUR SURATGANJ BARABANKI</h3>
+  <div class="header-top">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" class="logo">
+      <div class="site-info">
+        <h1>SHIV COMPUTER</h1>
+        <h3>Karanpur Suratganj · Barabanki</h3>
+      </div>
+    </div>
+    <div class="theme-toggles">
+      <button class="theme-btn light-btn active" onclick="setTheme('light',this)" title="Light Theme">☀️ Light</button>
+      <button class="theme-btn mint-btn" onclick="setTheme('mint',this)" title="Mint Theme">🌿 Mint</button>
+      <button class="theme-btn golden-btn" onclick="setTheme('golden',this)" title="Golden Night">🌙 Golden</button>
     </div>
   </div>
   <nav>
     <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="contact.html">Contact</a></li>
-      <li><a href="Collage.html">College</a></li>
-      <li><a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=q3n4zc18&dl=1">APP</a></li>
-      <li><a href="Photo.html">Photo</a></li>
-      <li><a href="AI.html">AI</a></li>
-      <li><a href="gamecenter.html">Game Center</a></li>
-      <li><a href="account.html">Accounting</a></li>
-      <li><a href="htedit.html">Code Edit 1</a></li>
-      <li><a href="codeedit.html">Code Edit 2</a></li>
-      <li><a href="https://www.blogger.com/profile/16830436167123469896">Blog</a></li>
-      <li><a href="download.html">Downloads</a></li>
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="about.html">👤 About</a></li>
+      <li><a href="courses.html">📚 Courses</a></li>
+      <li><a href="contact.html">📞 Contact</a></li>
+      <li><a href="Collage.html">🎓 College</a></li>
+      <li><a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=q3n4zc18&dl=1">📱 APP</a></li>
+      <li><a href="Photo.html">📷 Photo</a></li>
+      <li><a href="AI.html">🤖 AI</a></li>
+      <li><a href="gamecenter.html">🎮 Game Center</a></li>
+      <li><a href="account.html">🧾 Accounting</a></li>
+      <li><a href="htedit.html">💻 Code Edit 1</a></li>
+      <li><a href="codeedit.html">🖊️ Code Edit 2</a></li>
+      <li><a href="https://www.blogger.com/profile/16830436167123469896">✍️ Blog</a></li>
+      <li><a href="download.html">⬇️ Downloads</a></li>
     </ul>
   </nav>
 </header>
 
 <main>
-    <h2>AI TOOLS</h2>
-    <div class="social-links">
-	  <a href="smart_pro.html">Smart Pro</a>
-      <a href="https://chatgpt.com/">Chat GPT</a>
-      <a href="https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA">Home</a>
-      <a href="https://www.perplexity.ai/">Perplexity</a>
-      <a href="https://grok.com/">Grok</a>
-      <a href="https://claude.ai/new">Claude</a>
-      <a href="https://www.imagine.art/dashboard/image">Imagine</a>
-      <a href="https://www.meta.ai/">Meta AI</a>
-      <a href="https://suno.com/create?signup_source=splashpage&referrer=%2Fhome&redirected_from=signin">Suno Ai</a>
-      <a href="https://gemini.google.com/app?is_sa=1&is_sa=1&android-min-version=301356232&ios-min-version=322.0&campaign_id=bkws&utm_source=sem&utm_source=google&utm_medium=paid-media&utm_medium=cpc&utm_campaign=bkws&utm_campaign=2024hiIN_gemfeb&pt=9008&mt=8&ct=p-growth-sem-bkws&gclsrc=aw.ds&gad_source=1&gad_campaignid=20437330548&gbraid=0AAAAApk5BhlPB8WOycrC-ydpBa8MnRvXj&gclid=Cj0KCQjwwZDFBhCpARIsAB95qO1oAzcFH_2HH60QZdV8az1acovuOSiWb4T_h8EcT2-xa93jxhATVqkaAtr1EALw_wcB">Gemini</a>
-      <a href="https://www.ck12.org/student/">CK 12</a>
-      <a href="https://api.whatsapp.com/send/?phone=917204228312&text&type=phone_number&app_absent=0">CK 12 Whatsapp</a>
-      <a href="calculator.html">Calculator</a>
-      <a href="calc.html">Percentage Cal</a>
-      <a href="server.html">Error</a>
-      <a href="invoice.html">Genrate Invoice</a>
-      <a href="chatcode.html">Help</a>
-      <a href="age.html">उम्र सुने</a>
-      <a href="scan.html">ImageINFO</a>
-      <a href="sun.html">Flower Animation</a>
-      <a href="data.html">Creat ID Card</a>
-      <a href="qrgen.html">QR Genrate</a>
-      <a href="UPID to QR .html">Acept Payment</a>
-      <a href="https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304">DSC SETUP</a>
-      <a href="exam.html">Online Test</a>
-      <a href="scroll2.html">Make Text Scroll</a>
-      <a href="iedit.html">Picture Maneger</a>
-      <a href="final.html">Costom Bounce</a>
-      <a href="fimng2.html">Accounting</a>
-      <a href="count.html">Live Counting</a>
-      <a href="coun.html">Live Counting</a>
-      <a href="carg.html">Super Car</a>
-      <a href="pdftojpeg.html">Pdf to JPEG</a>
-      <a href="imagetopdf.html">Image to PDF</a>
-      <a href="imgtoico.html">Image to ICO</a>
-      <a href="pdfredu.html">PDF Reducer</a>
-      <a href="gst.html">GST Calc</a>
-      <a href="candy2.html">Candy Drop</a>
-      <a href="fpajal.html">Fruit Puzale</a>
-      <a href="voiceinput.html">Voice Input Tool</a>
-      <a href="gltime.html">Get Local time</a>
-      <a href="tre.html">Bot Trenning</a>
-      <a href="inventry.html">Stock & Inventry</a>
-      <a href="stock_report.html">Stock Report</a>
-	  <a href="UPI_QR_Pro.html">Payment QR</a>
-    </div>
+  <h2 class="main-title">🤖 AI Tools</h2>
+  <p class="main-subtitle">Your all-in-one digital toolkit — powered by intelligence</p>
+
+  <div class="tools-grid">
+    <a href="smart_pro.html" class="tool-card"><span class="card-icon">⚡</span>Smart Pro</a>
+    <a href="https://chatgpt.com/" class="tool-card"><span class="card-icon">🧠</span>Chat GPT</a>
+    <a href="https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA" class="tool-card"><span class="card-icon">▶️</span>YouTube</a>
+    <a href="https://www.perplexity.ai/" class="tool-card"><span class="card-icon">🔍</span>Perplexity</a>
+    <a href="https://grok.com/" class="tool-card"><span class="card-icon">🌀</span>Grok</a>
+    <a href="https://claude.ai/new" class="tool-card"><span class="card-icon">🤍</span>Claude</a>
+    <a href="https://www.imagine.art/dashboard/image" class="tool-card"><span class="card-icon">🎨</span>Imagine Art</a>
+    <a href="https://www.meta.ai/" class="tool-card"><span class="card-icon">🦾</span>Meta AI</a>
+    <a href="https://suno.com/create" class="tool-card"><span class="card-icon">🎵</span>Suno AI</a>
+    <a href="https://gemini.google.com/app" class="tool-card"><span class="card-icon">💎</span>Gemini</a>
+    <a href="https://www.ck12.org/student/" class="tool-card"><span class="card-icon">📖</span>CK 12</a>
+    <a href="https://api.whatsapp.com/send/?phone=917204228312" class="tool-card"><span class="card-icon">💬</span>CK 12 WhatsApp</a>
+    <a href="calculator.html" class="tool-card"><span class="card-icon">🔢</span>Calculator</a>
+    <a href="calc.html" class="tool-card"><span class="card-icon">📊</span>Percentage Cal</a>
+    <a href="server.html" class="tool-card"><span class="card-icon">🛑</span>Error</a>
+    <a href="invoice.html" class="tool-card"><span class="card-icon">🧾</span>Generate Invoice</a>
+    <a href="chatcode.html" class="tool-card"><span class="card-icon">🆘</span>Help</a>
+    <a href="age.html" class="tool-card"><span class="card-icon">🗣️</span>उम्र सुने</a>
+    <a href="scan.html" class="tool-card"><span class="card-icon">🖼️</span>Image INFO</a>
+    <a href="sun.html" class="tool-card"><span class="card-icon">🌸</span>Flower Animation</a>
+    <a href="data.html" class="tool-card"><span class="card-icon">🪪</span>Create ID Card</a>
+    <a href="qrgen.html" class="tool-card"><span class="card-icon">📲</span>QR Generate</a>
+    <a href="UPID to QR .html" class="tool-card"><span class="card-icon">💳</span>Accept Payment</a>
+    <a href="https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304" class="tool-card"><span class="card-icon">🔏</span>DSC Setup</a>
+    <a href="exam.html" class="tool-card"><span class="card-icon">📝</span>Online Test</a>
+    <a href="scroll2.html" class="tool-card"><span class="card-icon">📜</span>Text Scroll</a>
+    <a href="iedit.html" class="tool-card"><span class="card-icon">🖼️</span>Picture Manager</a>
+    <a href="final.html" class="tool-card"><span class="card-icon">🏀</span>Custom Bounce</a>
+    <a href="fimng2.html" class="tool-card"><span class="card-icon">💼</span>Accounting</a>
+    <a href="count.html" class="tool-card"><span class="card-icon">🔴</span>Live Counting</a>
+    <a href="coun.html" class="tool-card"><span class="card-icon">🟢</span>Live Counter</a>
+    <a href="carg.html" class="tool-card"><span class="card-icon">🏎️</span>Super Car</a>
+    <a href="pdftojpeg.html" class="tool-card"><span class="card-icon">📄</span>PDF to JPEG</a>
+    <a href="imagetopdf.html" class="tool-card"><span class="card-icon">📎</span>Image to PDF</a>
+    <a href="imgtoico.html" class="tool-card"><span class="card-icon">🖱️</span>Image to ICO</a>
+    <a href="pdfredu.html" class="tool-card"><span class="card-icon">🗜️</span>PDF Reducer</a>
+    <a href="gst.html" class="tool-card"><span class="card-icon">🧮</span>GST Calc</a>
+    <a href="candy2.html" class="tool-card"><span class="card-icon">🍬</span>Candy Drop</a>
+    <a href="fpajal.html" class="tool-card"><span class="card-icon">🍎</span>Fruit Puzzle</a>
+    <a href="voiceinput.html" class="tool-card"><span class="card-icon">🎤</span>Voice Input</a>
+    <a href="gltime.html" class="tool-card"><span class="card-icon">⏰</span>Local Time</a>
+    <a href="tre.html" class="tool-card"><span class="card-icon">🤖</span>Bot Training</a>
+    <a href="inventry.html" class="tool-card"><span class="card-icon">📦</span>Stock & Inventory</a>
+    <a href="stock_report.html" class="tool-card"><span class="card-icon">📈</span>Stock Report</a>
+    <a href="UPI_QR_Pro.html" class="tool-card"><span class="card-icon">💰</span>Payment QR</a>
+  </div>
 </main>
 
 <footer>
-    <div class="footer-container">
-      <p>&copy; 2025 Shiv Computer. All rights reserved.</p>
-      <p>📍 27,Karnpur, Uttar Pradesh-225304 | 📞 +91-80901 53304 | ✉️ ceshivkumar@gmail.com</p>
-      
-      <a aria-label="Chat on WhatsApp" href="https://wa.me/80901553043?text=Hello%20Shiv!" class="whatsapp-btn">
-        <img alt="WhatsApp" src="wlogo.png" />
-        <span>WhatsApp</span>
-      </a>
-    </div>
+  <div class="footer-container">
+    <div class="footer-line"></div>
+    <p>© 2025 <strong>Shiv Computer</strong>. All rights reserved.</p>
+    <p>📍 27, Karnpur, Uttar Pradesh – 225304 &nbsp;|&nbsp; 📞 +91-80901 53304 &nbsp;|&nbsp; ✉️ ceshivkumar@gmail.com</p>
+    <div class="footer-line"></div>
+    <a href="https://wa.me/80901553043?text=Hello%20Shiv!" class="whatsapp-btn">
+      <img src="wlogo.png" alt="WhatsApp">
+      WhatsApp Us
+    </a>
+  </div>
 </footer>
-<canvas id="particleCanvas"></canvas>
+
+<script>
+  /* ===== THEME TOGGLE ===== */
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('shiv-theme', theme);
+    initParticles();
+  }
+
+  // Restore saved theme
+  const saved = localStorage.getItem('shiv-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      if (b.classList.contains(saved + '-btn')) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  }
+
+  /* ===== PARTICLE SYSTEM ===== */
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], animId;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function getParticleColor() {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t === 'mint')   return ['rgba(0,180,100,', 'rgba(0,220,140,'];
+    if (t === 'golden') return ['rgba(255,170,0,',  'rgba(200,120,0,'];
+    return ['rgba(0,100,255,', 'rgba(0,180,255,'];
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+      alpha: Math.random() * 0.5 + 0.15,
+      pulse: Math.random() * Math.PI * 2
+    };
+  }
+
+  function initParticles() {
+    cancelAnimationFrame(animId);
+    particles = Array.from({ length: 90 }, createParticle);
+    animate();
+  }
+
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const colors = getParticleColor();
+
+    particles.forEach(p => {
+      p.x += p.dx; p.y += p.dy;
+      p.pulse += 0.02;
+      const a = p.alpha + Math.sin(p.pulse) * 0.1;
+
+      if (p.x < 0 || p.x > canvas.width)  p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = colors[0] + a + ')';
+      ctx.fill();
+    });
+
+    // Draw connecting lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = colors[1] + (0.12 * (1 - dist/120)) + ')';
+          ctx.lineWidth = 0.7;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  resize();
+  initParticles();
+</script>
 </body>
 </html>
