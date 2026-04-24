@@ -1,264 +1,1646 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <title>Shiv Computer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="SHIV.png">
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #e0f7fa;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Shiv</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,800;1,300&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============ THEME VARIABLES ============ */
+        :root {
+            /* Default (will be overridden by JS) */
+            --bg1: #0a0a1a;
+            --bg2: #0d0d2b;
+            --bg3: #111133;
+            --card-bg: rgba(20,20,60,0.7);
+            --card-border: rgba(100,120,255,0.25);
+            --primary: #6c8fff;
+            --accent: #a78bfa;
+            --accent2: #38bdf8;
+            --text: #e8eaf6;
+            --text-muted: #8892b0;
+            --glow: 0 0 30px rgba(108,143,255,0.4);
+            --glow2: 0 0 60px rgba(167,139,250,0.3);
+            --star-color: #ffffff;
+            --nebula1: rgba(60,30,120,0.3);
+            --nebula2: rgba(20,60,130,0.2);
+            --sun-color: transparent;
+            --horizon: transparent;
+            --theme-name: "night";
+        }
 
-    header {
-      background: #0072ff;
-      color: white;
-      padding: 10px;
-      text-align: center;
-    }
-.logo {
-  width: 80px;    /* Logo छोटा करने के लिए */
-  height: auto;
-  border-radius: 10px; /* Optional – थोड़ा rounded look */
-}
-header h1, header h3 {
-  color: #fff;
-  text-align: left;
-}
+        /* ===== MORNING THEME ===== */
+        body.theme-morning {
+            --bg1: #fef3e2;
+            --bg2: #fff8f0;
+            --bg3: #fffbf5;
+            --card-bg: rgba(255,245,230,0.85);
+            --card-border: rgba(255,140,0,0.25);
+            --primary: #e07b00;
+            --accent: #f59e0b;
+            --accent2: #ef4444;
+            --text: #1a0f00;
+            --text-muted: #78450a;
+            --glow: 0 0 40px rgba(255,160,20,0.4);
+            --glow2: 0 0 80px rgba(245,158,11,0.3);
+            --star-color: transparent;
+            --nebula1: rgba(255,200,100,0.2);
+            --nebula2: rgba(255,120,30,0.15);
+            --theme-name: "morning";
+        }
 
-    nav ul {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: #005bb5;
-      padding: 10px;
-      gap: 20px;
-    }
+        /* ===== AFTERNOON THEME ===== */
+        body.theme-afternoon {
+            --bg1: #e8f4fd;
+            --bg2: #f0f9ff;
+            --bg3: #f8fcff;
+            --card-bg: rgba(230,246,255,0.88);
+            --card-border: rgba(0,150,220,0.25);
+            --primary: #0284c7;
+            --accent: #06b6d4;
+            --accent2: #10b981;
+            --text: #0c2333;
+            --text-muted: #1e4d6b;
+            --glow: 0 0 40px rgba(2,132,199,0.3);
+            --glow2: 0 0 80px rgba(6,182,212,0.25);
+            --star-color: transparent;
+            --nebula1: rgba(100,200,255,0.15);
+            --nebula2: rgba(0,180,240,0.1);
+            --theme-name: "afternoon";
+        }
 
-    nav ul li a {
-      color: Yellow;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 5px 10px;
-    }
+        /* ===== EVENING THEME ===== */
+        body.theme-evening {
+            --bg1: #1a0a2e;
+            --bg2: #2d1b4e;
+            --bg3: #3d2260;
+            --card-bg: rgba(40,15,70,0.82);
+            --card-border: rgba(200,100,255,0.25);
+            --primary: #c084fc;
+            --accent: #f59e0b;
+            --accent2: #fb7185;
+            --text: #f3e8ff;
+            --text-muted: #c4b5fd;
+            --glow: 0 0 40px rgba(192,132,252,0.4);
+            --glow2: 0 0 80px rgba(245,158,11,0.3);
+            --star-color: rgba(255,255,255,0.6);
+            --nebula1: rgba(150,50,200,0.3);
+            --nebula2: rgba(200,80,30,0.25);
+            --theme-name: "evening";
+        }
 
-    nav ul li a:hover {
-      background-color: #ff0000;
-      border-radius: 9px;
-    }
+        /* ===== NIGHT THEME ===== */
+        body.theme-night {
+            --bg1: #020208;
+            --bg2: #040412;
+            --bg3: #06061a;
+            --card-bg: rgba(8,8,35,0.85);
+            --card-border: rgba(80,100,255,0.2);
+            --primary: #818cf8;
+            --accent: #38bdf8;
+            --accent2: #34d399;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --glow: 0 0 40px rgba(129,140,248,0.35);
+            --glow2: 0 0 80px rgba(56,189,248,0.25);
+            --star-color: rgba(255,255,255,0.9);
+            --nebula1: rgba(30,20,80,0.5);
+            --nebula2: rgba(10,40,80,0.4);
+            --theme-name: "night";
+        }
 
-    main {
-      padding: 40px 20px;
-      text-align: center;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    h2 {
-      margin-bottom: 30px;
-    }
+        html { scroll-behavior: smooth; }
 
-    .social-links {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      max-width: 2000px;
-      margin: auto;
-      padding: 10px;
-    }
+        body {
+            background: linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%);
+            color: var(--text);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 2s ease, color 1s ease;
+        }
 
-    .social-links a {
-      text-decoration: none;
-      display: block;
-      padding: 15px;
-      background: #ffffff;
-      border: 2px solid #0072ff;
-      border-radius: 12px;
-      color: #0072ff;
-      font-weight: bold;
-      transition: all 0.5s ease;
-    }
+        /* ============ CANVAS BACKGROUND ============ */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    .social-links a:hover {
-      background: #facade;
-      color: #123524;
-    }
-  </style>
+        /* ============ THEME INDICATOR ============ */
+        .theme-badge {
+            position: fixed;
+            top: 45px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            box-shadow: var(--glow);
+            animation: badgePulse 3s ease-in-out infinite;
+        }
+        @keyframes badgePulse {
+            0%,100% { box-shadow: var(--glow); }
+            50% { box-shadow: var(--glow2); }
+        }
+
+        /* ============ SCROLL PROGRESS ============ */
+        .scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 9999;
+            transition: width 0.1s;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* ============ NAVIGATION ============ */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.1);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--card-border);
+            transition: all 1.5s ease;
+        }
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-shadow: var(--glow);
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: color 0.3s, text-shadow 0.3s;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent);
+        }
+
+        /* ============ HERO SECTION ============ */
+        #hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px 20px;
+            overflow: hidden;
+        }
+
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbFloat 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .hero-orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, var(--nebula1), transparent 70%);
+            top: -100px; left: -100px;
+            animation-delay: 0s;
+        }
+        .hero-orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--nebula2), transparent 70%);
+            bottom: -80px; right: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(30px,-20px) scale(1.05); }
+            66% { transform: translate(-20px,30px) scale(0.95); }
+        }
+
+        .phd-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            backdrop-filter: blur(20px);
+            padding: 10px 25px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            animation: fadeSlideDown 1s ease forwards, badgePulse 3s 1s ease-in-out infinite;
+            opacity: 0;
+            box-shadow: var(--glow);
+        }
+        .phd-badge span {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        .hero-name {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeSlideUp 1.2s 0.3s ease forwards;
+            opacity: 0;
+            text-shadow: none;
+            filter: drop-shadow(0 0 20px var(--primary));
+        }
+
+        .hero-name-hi {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 20px;
+            animation: fadeSlideUp 1.2s 0.5s ease forwards;
+            opacity: 0;
+            text-shadow: 0 0 30px var(--accent);
+        }
+
+        .hero-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 35px;
+            animation: fadeSlideUp 1.2s 0.7s ease forwards;
+            opacity: 0;
+        }
+        .role-pill {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(15px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .role-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: var(--glow);
+            transform: translateY(-3px);
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.8;
+            animation: fadeSlideUp 1.2s 0.9s ease forwards;
+            opacity: 0;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeSlideUp 1.2s 1.1s ease forwards;
+            opacity: 0;
+        }
+        .btn-primary {
+            padding: 14px 35px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3), var(--glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4), var(--glow2);
+        }
+        .btn-outline {
+            padding: 14px 35px;
+            background: transparent;
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            border-radius: 50px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background: var(--card-bg);
+            box-shadow: var(--glow);
+            transform: translateY(-4px);
+        }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: fadeSlideUp 1.2s 1.4s ease forwards, scrollBounce 2s 2.6s ease-in-out infinite;
+            opacity: 0;
+        }
+        .scroll-hint span {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+        .scroll-line {
+            width: 1.5px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+        @keyframes scrollBounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ============ SECTIONS ============ */
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 100px 20px;
+        }
+
+        .container { max-width: 1150px; margin: 0 auto; }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+        .section-label {
+            display: inline-block;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--text);
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            margin: 15px auto 0;
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* ============ ABOUT / PHD INFO ============ */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 50px;
+            align-items: start;
+        }
+        .about-avatar {
+            position: relative;
+        }
+        .avatar-ring {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--accent2));
+            padding: 4px;
+            margin: 0 auto;
+            animation: spinGlow 8s linear infinite;
+            box-shadow: var(--glow2);
+        }
+        @keyframes spinGlow {
+            0% { box-shadow: var(--glow); filter: hue-rotate(0deg); }
+            100% { box-shadow: var(--glow2); filter: hue-rotate(360deg); }
+        }
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .avatar-icon {
+            font-size: 4.5rem;
+            filter: drop-shadow(0 0 15px var(--accent));
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        @keyframes iconPulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .avatar-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-box:hover {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            transform: scale(1.03);
+        }
+        .stat-num {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .about-content h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        .about-content p {
+            color: var(--text-muted);
+            line-height: 1.9;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .phd-highlight {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-left: 3px solid var(--accent);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+            backdrop-filter: blur(20px);
+        }
+        .phd-highlight h4 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .phd-highlight p {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin: 0;
+        }
+
+        /* ============ EXPERTISE CARDS ============ */
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .expertise-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(25px);
+            padding: 35px 30px;
+            border-radius: 20px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+        .expertise-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .expertise-card:hover::before {
+            transform: translateX(0);
+        }
+        .expertise-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), var(--glow);
+            border-color: var(--accent);
+        }
+        .card-icon-wrap {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3), var(--glow);
+            transition: transform 0.3s ease;
+        }
+        .expertise-card:hover .card-icon-wrap {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .card-icon-wrap i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        .expertise-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .expertise-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.75;
+        }
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+        .skill-tag {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border);
+            color: var(--accent2);
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ============ SKILLS / PROGRESS BARS ============ */
+        .skills-section {
+            background: transparent;
+        }
+        .skills-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .skill-category h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .skill-item {
+            margin-bottom: 22px;
+        }
+        .skill-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .skill-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .skill-pct {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+        .skill-bar-bg {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: visible;
+            position: relative;
+        }
+        .skill-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            box-shadow: 0 0 12px var(--primary);
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+        }
+        .skill-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* ============ PROJECTS ============ */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 30px;
+        }
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5), var(--glow);
+            border-color: var(--accent);
+        }
+        .project-header {
+            padding: 30px 30px 20px;
+            position: relative;
+        }
+        .project-icon {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+        .project-version {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border: 1px solid var(--card-border);
+            padding: 4px 10px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        .project-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .project-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .project-footer {
+            padding: 15px 30px 25px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .tech-badge {
+            font-size: 0.7rem;
+            padding: 5px 12px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--card-border);
+            color: var(--accent2);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent), var(--accent2));
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            padding: 25px 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        .timeline-item:hover {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            transform: translateX(5px);
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -42px;
+            top: 28px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: 3px solid var(--bg1);
+            box-shadow: 0 0 15px var(--primary);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%,100% { box-shadow: 0 0 10px var(--primary); }
+            50% { box-shadow: 0 0 25px var(--accent); }
+        }
+        .timeline-year {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .timeline-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .timeline-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* ============ CONTACT ============ */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+        .contact-info h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        .contact-info p {
+            color: var(--text-muted);
+            line-height: 1.9;
+            margin-bottom: 30px;
+        }
+        .contact-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+        }
+        .contact-item:hover {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        .contact-item i {
+            font-size: 1.2rem;
+            color: var(--accent);
+            width: 24px;
+        }
+        .contact-item span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ============ FOOTER ============ */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+        }
+        .footer-brand {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px var(--primary));
+        }
+        .footer-tagline {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============ FLOATING PARTICLES ============ */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: particleDrift linear infinite;
+        }
+        @keyframes particleDrift {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-20px) rotate(720deg); opacity: 0; }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 900px) {
+            .about-grid, .contact-grid, .skills-wrapper { grid-template-columns: 1fr; }
+            nav { padding: 15px 20px; }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 600px) {
+            .hero-cta { flex-direction: column; align-items: center; }
+        }
+
+        /* ===== CURSOR GLOW ===== */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle, var(--nebula1) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: left 0.15s ease, top 0.15s ease;
+        }
+
+        /* Clock in corner */
+        .live-clock {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            padding: 10px 18px;
+            border-radius: 12px;
+            box-shadow: var(--glow);
+        }
+    </style>
 </head>
-<body>
- <header>
-  <div style="display: flex; align-items: center; background: #0072ff; padding:10px;">
-    <img src="logo.png" alt="Logo" class="logo">
-    <div class="site-info" style="margin-left: 15px;">
-      <h1 style="margin:0;">SHIV COMPUTER</h1>
-      <h3 style="margin:0;">KARANPUR SURATGANJ BARABANKI</h3>
-    </div>
-  </div>
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="contact.html">Contact</a></li>
-      <li><a href="Collage.html">College</a></li>
-      <li><a href="Photo.html">Photo</a></li>
-      <li><a href="AI.html">AI</a></li>
-    </ul>
-  </nav>
-</header>
-  </style>
-</head>
-<body>
+<body class="theme-night">
 
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-  <main>
-    <h2>About Us</h2>
-    <p>We offer industry-relevant computer education with practical knowledge and expert faculty.</p>
-        <p>डा. शिव कुमार – प्रोफ़ाइल परिचय</p>
-        <p>Shiv Kumar (शिवकुमार)
-📍 27, Karnpur, Uttar Pradesh – 225304
-📞 +91-8090155304
-📧 ceshivkumar@gmail.com
+    <!-- Cursor Glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
 
-🎓 शैक्षणिक योग्यता (Education)
-Ph.D. in Computer Applications – Kanpur University
+    <!-- Animated Canvas Background -->
+    <canvas id="bg-canvas"></canvas>
 
-शोध विषय: Cyber Security Analysis & Digital Forensics
+    <!-- Theme Indicator -->
+    <div class="theme-badge" id="themeBadge">🌙 NIGHT MODE</div>
 
-MCA (Master of Computer Applications)
+    <!-- Live Clock -->
+    <div class="live-clock" id="liveClock">00:00:00</div>
 
-B.Sc. in Computer Science
+    <!-- Navigation -->
+    <nav id="mainNav">
+        <div class="nav-logo">DR. SHIV</div>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#expertise">Expertise</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#journey">Journey</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
 
-Diploma in Computer Hardware & Networking
+    <!-- ===== HERO ===== -->
+    <section id="hero">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
 
-🛠️ तकनीकी कौशल (Technical Skills)
-Cyber Security & Forensics: Digital Forensics, Network Analysis, Wireshark
+        <div class="phd-badge">
+            <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+            <span>PhD · COMPUTER SCIENCE</span>
+        </div>
 
-Networking: Routing, Server Configuration (IIS, XAMPP), Services Optimization
+        <h1 class="hero-name">Dr. Shiv Kumar</h1>
+        <div class="hero-name-hi">डॉ. शिव कुमार</div>
 
-Programming Languages:
+        <div class="hero-roles">
+            <span class="role-pill">🛡️ Cybersecurity Expert</span>
+            <span class="role-pill">⚙️ System Architect</span>
+            <span class="role-pill">💻 Software Developer</span>
+            <span class="role-pill">🔬 Researcher</span>
+        </div>
 
-Python (Document/PDF Report Generation, Automation)
+        <p class="hero-tagline">
+            "Forging industrial-grade solutions at the intersection of security, performance, and innovation — from PhD research to production systems."
+        </p>
 
-.NET SDK (Calculator & Desktop Apps)
+        <div class="hero-cta">
+            <a href="#projects" class="btn-primary">VIEW PROJECTS</a>
+            <a href="https://shivtool.github.io/info/download.html" class="btn-outline">view</a>
+        </div>
 
-PHP + MySQL (Web Backend Systems)
+        <div class="scroll-hint">
+            <span>SCROLL</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
 
-HTML, CSS (Frontend Development)
+    <!-- ===== ABOUT ===== -->
+    <section id="about">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// About Me</span>
+                <h2 class="section-title">The Mind Behind The Machine</h2>
+            </div>
+            <div class="about-grid">
+                <div class="about-avatar reveal">
+                    <div class="avatar-ring">
+                        <div class="avatar-inner">
+                            <span class="avatar-icon">👨‍💻</span>
+                            <span class="avatar-text">PhD · CS</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-num">10+</div>
+                            <div class="stat-label">Years Exp.</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num">PhD</div>
+                            <div class="stat-label">Computer Science</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num">7.2</div>
+                            <div class="stat-label">FeeBook v</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num">3+</div>
+                            <div class="stat-label">Major Projects</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-content reveal">
+                    <h>Industrial-Grade Technologist</h3>
+                    <p>
+                         Dr. Shiv Kumar — एक PhD धारक जिन्होंने Computer Science में डॉक्टरेट की डिग्री हासिल की है। मेरा काम सिर्फ coding तक सीमित नहीं है — मैं systems को architect करता हूँ, security vulnerabilities को research करता हूँ, और production-grade software बनाता हूँ जो real-world में काम करे।
+                    </p>
+                    <p>
+                        SHIV COMPUTER के माध्यम से, मैं industrial technology solutions प्रदान करता हूँ जो PhD-level research और practical engineering को combine करते हैं।
+                    </p>
+                    <div class="phd-highlight">
+                        <h4>🎓 PHD RESEARCH FOCUS</h4>
+                        <p>Advanced Cybersecurity Systems, Threat Detection Algorithms, and Secure Distributed Architectures — applied to real-world industrial problems.</p>
+                    </div>
+                    <div class="phd-highlight">
+                        <h4>🔬 SPECIALIZATION</h4>
+                        <p>Media Forensics & Deepfake Detection, Network Surveillance Systems, High-Performance Desktop Applications in Python, Rust & C++.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Software Development Projects:
+    <!-- ===== EXPERTISE ===== -->
+    <section id="expertise">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// Core Expertise</span>
+                <h2 class="section-title">Domain Mastery</h2>
+            </div>
+            <div class="expertise-grid">
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Cyber Security</h3>
+                    <p>Advanced threat detection, vulnerability assessment, data privacy strategies, and secure system architecture — grounded in PhD-level research.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Threat Detection</span>
+                        <span class="skill-tag">Forensics</span>
+                        <span class="skill-tag">Encryption</span>
+                    </div>
+                </div>
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-code"></i></div>
+                    <h3>Software Engineering</h3>
+                    <p>Expert in Python, Rust, C++, and Android. Specializing in high-performance desktop applications, system utilities, and cross-platform solutions.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Rust</span>
+                        <span class="skill-tag">C++</span>
+                        <span class="skill-tag">Android</span>
+                    </div>
+                </div>
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-microchip"></i></div>
+                    <h3>System Optimization</h3>
+                    <p>Windows debloating, registry deep-dive, driver-level performance tuning, and hardware utilization maximization scripts for enterprise environments.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Windows</span>
+                        <span class="skill-tag">Registry</span>
+                        <span class="skill-tag">Performance</span>
+                    </div>
+                </div>
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-brain"></i></div>
+                    <h3>AI & Deepfake Detection</h3>
+                    <p>Cutting-edge media forensics using AI/ML for deepfake image, audio, and video detection. Research-backed implementation for real-world use.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">ML/AI</span>
+                        <span class="skill-tag">OpenCV</span>
+                        <span class="skill-tag">Forensics</span>
+                    </div>
+                </div>
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-network-wired"></i></div>
+                    <h3>Network Engineering</h3>
+                    <p>LAN scanning, DVR/CCTV management, network surveillance tools, and protocol-level analysis for enterprise and security deployments.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">TCP/IP</span>
+                        <span class="skill-tag">LAN Scan</span>
+                        <span class="skill-tag">DVR/CCTV</span>
+                    </div>
+                </div>
+                <div class="expertise-card reveal">
+                    <div class="card-icon-wrap"><i class="fas fa-database"></i></div>
+                    <h3>Enterprise Solutions</h3>
+                    <p>Professional-grade management systems like FeeBook v7.2.6 — robust accounting, fee management, and institutional administration software.</p>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Accounting</span>
+                        <span class="skill-tag">Database</span>
+                        <span class="skill-tag">ERP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Fee Collection Software
+    <!-- ===== SKILLS ===== -->
+    <section id="skills" class="skills-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// Technical Skills</span>
+                <h2 class="section-title">Skill Matrix</h2>
+            </div>
+            <div class="skills-wrapper">
+                <div class="skill-category reveal">
+                    <h3><i class="fas fa-code"></i> Programming Languages</h3>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Python</span><span class="skill-pct">96%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="96"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">C / C++</span><span class="skill-pct">90%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="90"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Rust</span><span class="skill-pct">85%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Android / Java</span><span class="skill-pct">80%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80"></div></div>
+                    </div>
+                </div>
+                <div class="skill-category reveal">
+                    <h3><i class="fas fa-shield-alt"></i> Security & Systems</h3>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Cybersecurity</span><span class="skill-pct">97%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="97"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Network Engineering</span><span class="skill-pct">92%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="92"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">Media Forensics / AI</span><span class="skill-pct">88%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="88"></div></div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-meta"><span class="skill-name">System Architecture</span><span class="skill-pct">94%</span></div>
+                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="94"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-School ERP (Multi-device sync, portable versions)
+    <!-- ===== PROJECTS ===== -->
+    <section id="projects">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// Industrial Projects</span>
+                <h2 class="section-title">Flagship Builds</h2>
+            </div>
+            <div class="projects-grid">
+                <div class="project-card reveal">
+                    <div class="project-header">
+                        <span class="project-icon">📊</span>
+                        <span class="project-version">v7.2.6</span>
+                        <h3 class="project-title">FeeBook Management System</h3>
+                        <p class="project-desc">Professional-grade institutional fee and accounting management software. Handles fee collection, ledger management, receipt generation, and financial reporting for educational institutions at enterprise scale.</p>
+                    </div>
+                    <div class="project-footer">
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">Database</span>
+                        <span class="tech-badge">Desktop App</span>
+                    </div>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-header">
+                        <span class="project-icon">🔍</span>
+                        <span class="project-version">v1.0.0</span>
+                        <h3 class="project-title">Media Forensic Tool</h3>
+                        <p class="project-desc">Advanced AI-powered deepfake detection engine for images, audio, and video. Uses PhD research in media forensics and machine learning to identify manipulated content with high accuracy.</p>
+                    </div>
+                    <div class="project-footer">
+                        <span class="tech-badge">AI/ML</span>
+                        <span class="tech-badge">OpenCV</span>
+                        <span class="tech-badge">Forensics</span>
+                    </div>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-header">
+                        <span class="project-icon">📡</span>
+                        <span class="project-version">Python Script</span>
+                        <h3 class="project-title">Network Surveillance Scanner</h3>
+                        <p class="project-desc">Powerful Python-based LAN scanner to discover, identify, and manage DVR/CCTV devices across enterprise networks. Features automated device fingerprinting and management console.</p>
+                    </div>
+                    <div class="project-footer">
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">Networking</span>
+                        <span class="tech-badge">LAN/CCTV</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Chatbot (Voice Input, Dark Mode, Chat History, AI Integration)
+    <!-- ===== JOURNEY / TIMELINE ===== -->
+    <section id="journey">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// Academic & Professional</span>
+                <h2 class="section-title">The Journey</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2026 · PRESENT</div>
+                    <div class="timeline-title">SHIV COMPUTER — Industrial Tech Solutions</div>
+                    <p class="timeline-desc">Providing PhD-backed industrial technology solutions. Developing enterprise-grade software, cybersecurity tools, and research-based digital solutions for clients.</p>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">RESEARCH · PHD</div>
+                    <div class="timeline-title">PhD in Computer Science — Completed</div>
+                    <p class="timeline-desc">Doctoral research in Cybersecurity, System Architecture, and Media Forensics. Published research on advanced threat detection and secure distributed systems.</p>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">PROJECTS</div>
+                    <div class="timeline-title">FeeBook v7.2.6 — Major Release</div>
+                    <p class="timeline-desc">Reached version 7.2.6 of FeeBook Management System — reflecting years of iterative engineering and real-world deployments across educational institutions.</p>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">RESEARCH</div>
+                    <div class="timeline-title">Media Forensics & Deepfake Detection</div>
+                    <p class="timeline-desc">Developed the Media Forensic Tool — applying AI/ML research to real-world deepfake detection, addressing one of the key challenges of the digital age.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Chrome Extension (YouTube Shorts Auto Scroll)
+    <!-- ===== CONTACT ===== -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">// Get In Touch</span>
+                <h2 class="section-title">Contact & Collaborate</h2>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info reveal">
+                    <h3>Let's Build Something</h3>
+                    <p>PhD-level expertise meets industrial engineering. Whether it's a cybersecurity audit, custom software, or research collaboration — मैं हमेशा तैयार हूँ।</p>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <i class="fas fa-building"></i>
+                            <span>SHIV COMPUTER — Industrial Technology Solutions</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>PhD, Computer Science</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Cybersecurity · Forensics · System Architecture</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-code"></i>
+                            <span>Python · Rust · C++ · Android Development</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="display:flex;flex-direction:column;gap:20px;justify-content:center;">
+                    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:40px;backdrop-filter:blur(25px);">
+                        <div style="text-align:center;margin-bottom:30px;">
+                            <div style="font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:3px;color:var(--accent);margin-bottom:10px;">AVAILABLE FOR</div>
+                            <div style="font-family:'Cinzel',serif;font-size:1.5rem;color:var(--text);">Consulting & Projects</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:0.9rem;">
+                                <span style="color:var(--accent);">✦</span> Custom Software Development
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:0.9rem;">
+                                <span style="color:var(--accent);">✦</span> Cybersecurity Consulting
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:0.9rem;">
+                                <span style="color:var(--accent);">✦</span> Research Collaboration
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:0.9rem;">
+                                <span style="color:var(--accent);">✦</span> System Architecture Design
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:0.9rem;">
+                                <span style="color:var(--accent);">✦</span> Media Forensics Analysis
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Standalone Windows App → Shiv Image Metadata Viewer
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-brand">SHIV COMPUTER</div>
+        <p class="footer-tagline">Industrial-Grade Technology Solutions</p>
+        <p class="footer-copy">© 2026 Dr. Shiv Kumar, PhD · All Rights Reserved · Powered by Research & Innovation</p>
+    </footer>
 
-🌐 ऑनलाइन प्रोजेक्ट्स
-Shiv Computer (GitHub Pages)
-👉 8090155304.github.io/info/index.html
+    <!-- ============ JAVASCRIPT ============ -->
+    <script>
+    // ===== TIME-BASED THEME =====
+    function getTimeTheme() {
+        const h = new Date().getHours();
+        if (h >= 5 && h < 11) return { cls: 'theme-morning', label: '🌅 Good Morning', name: 'morning' };
+        if (h >= 11 && h < 17) return { cls: 'theme-afternoon', label: '☀️ Good AFTERNOON', name: 'afternoon' };
+        if (h >= 17 && h < 21) return { cls: 'theme-evening', label: '🌆 Good EVENING', name: 'evening' };
+        return { cls: 'theme-night', label: '🌙 NIGHT MODE', name: 'night' };
+    }
 
-Practical Computer Education Platform
+    function applyTheme() {
+        const body = document.body;
+        const badge = document.getElementById('themeBadge');
+        const { cls, label } = getTimeTheme();
+        body.className = cls;
+        badge.textContent = label;
+        // Restart canvas after theme change
+        setTimeout(initCanvas, 100);
+    }
+    applyTheme();
+    // Check every minute for theme change
+    setInterval(applyTheme, 60000);
 
-Contact & Course Info Available
+    // ===== LIVE CLOCK =====
+    function updateClock() {
+        const now = new Date();
+        const t = [now.getHours(), now.getMinutes(), now.getSeconds()]
+            .map(n => String(n).padStart(2, '0')).join(':');
+        document.getElementById('liveClock').textContent = t;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
 
-📚 अन्य रुचियाँ (Other Interests)
-हिंदी भाषा सुधारना (बाल हिन्दी व्याकरण तथा रचना पुस्तक)
+    // ===== SCROLL PROGRESS =====
+    window.addEventListener('scroll', () => {
+        const sp = document.getElementById('scrollProgress');
+        const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        sp.style.width = pct + '%';
+    });
 
-समाज सुधार: महिलाओं और जानवरों सहित सभी को समानता दिलाने का दृष्टिकोण
+    // ===== CURSOR GLOW =====
+    document.addEventListener('mousemove', e => {
+        const el = document.getElementById('cursorGlow');
+        el.style.left = e.clientX + 'px';
+        el.style.top = e.clientY + 'px';
+    });
 
-गेम डेवलपमेंट (Mobile + Desktop Friendly)
+    // ===== SCROLL REVEAL =====
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('visible'), i * 100);
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObserver.observe(el));
 
-Windows Optimization (Unwanted services disable करके सिस्टम तेज़ करना)
+    // ===== SKILL BARS =====
+    const skillBars = document.querySelectorAll('.skill-bar-fill');
+    const barObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const bar = entry.target;
+                setTimeout(() => { bar.style.width = bar.dataset.width + '%'; }, 300);
+                barObserver.unobserve(bar);
+            }
+        });
+    }, { threshold: 0.5 });
+    skillBars.forEach(b => barObserver.observe(b));
 
-🗝️ Key Highlights
-Cyber Security & Digital Forensics में विशेषज्ञता
+    // ===== CANVAS BACKGROUND =====
+    let animFrameId = null;
+    function initCanvas() {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        if (animFrameId) cancelAnimationFrame(animFrameId);
 
-Web Development और Desktop Application Development दोनों में अनुभव
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-Practical Learning और Tech Projects के ज़रिए दूसरों को सिखाने का जुनून
+        const theme = getTimeTheme().name;
 
-Vision: समानता पर आधारित समाज का निर्माण</p>
-<p>डा. शिव कुमार भारत के प्रतिष्ठित साइबर सुरक्षा विशेषज्ञ व उद्यमी हैं, जिन्होंने कानपुर विश्वविद्यालय से कंप्यूटर विज्ञान में डॉक्टरेट की उपाधि प्राप्त की है। वे दो सफल व्यवसाय—शिव कंप्यूटर और शिव गारमेंट्स—के संस्थापक हैं। 
+        // Different particle systems per theme
+        let particles = [];
 
-उनका कार्यक्षेत्र साइबर सुरक्षा विश्लेषण, डिजिटल डिफेंस और साइबर जागरूकता में फैला हुआ है। डा. शिव कुमार सक्रिय रूप से विभिन्न क्षेत्रों में सायबर हमला एवं डिजिटल कमजोरियों की पहचान करके खुद को और अन्य लोगों को सुरक्षित रखने के उपाय करते हैं। वे समाज और कंपनियों में डिजिटल सुरक्षा और जागरूकता फैलाने के मिशन पर हैं, ताकि हर व्यक्ति सुरक्षित, जागरूक व तकनीकी रूप से सशक्त बन सके।
+        if (theme === 'night') {
+            // Stars
+            for (let i = 0; i < 200; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.5 + 0.3,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.003 + 0.001,
+                    type: 'star'
+                });
+            }
+        } else if (theme === 'morning') {
+            // Warm rising particles
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: canvas.height + Math.random() * 100,
+                    r: Math.random() * 3 + 1,
+                    alpha: Math.random() * 0.5 + 0.1,
+                    vy: -(Math.random() * 0.5 + 0.2),
+                    vx: (Math.random() - 0.5) * 0.3,
+                    type: 'warmrise'
+                });
+            }
+        } else if (theme === 'afternoon') {
+            // Floating light orbs
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 2 + 0.5,
+                    alpha: Math.random() * 0.3 + 0.05,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    type: 'orb'
+                });
+            }
+        } else if (theme === 'evening') {
+            // Twilight sparkles
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.8 + 0.3,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.004 + 0.001,
+                    phase: Math.random() * Math.PI * 2,
+                    type: 'twilight'
+                });
+            }
+        }
 
-उनकी खासियत है –  
-- तकनीकी समस्याओं का व्यावहारिक समाधान  
-- कंप्यूटर और नेटवर्क सुरक्षा  
-- डिजिटल कमजोरियों की पहचान और सुधार  
-- व्यवसाय प्रबंधन व विकास  
-- समाज में साइबर सुरक्षा और डिजिटल खतरों के प्रति जागरूकता फैलाना
+        let t = 0;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            t += 0.01;
 
-डा. शिव कुमार एक समर्पित, विजनरी एवं सामाजिक रूप से प्रतिबद्ध साइबर सुरक्षा प्रोफेशनल हैं, जो आगे बढ़ने और दूसरों को आगे बढ़ाने का जुनून रखते हैं। </p>
-  </main>
+            particles.forEach(p => {
+                ctx.save();
+
+                if (p.type === 'star') {
+                    const alpha = (Math.sin(t * p.speed * 100 + p.x) * 0.4 + 0.6) * p.alpha;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+                    ctx.fill();
+                } else if (p.type === 'warmrise') {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,180,50,${p.alpha})`;
+                    ctx.fill();
+                } else if (p.type === 'orb') {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(100,200,255,${p.alpha})`;
+                    ctx.fill();
+                } else if (p.type === 'twilight') {
+                    const alpha = (Math.sin(t * p.speed * 100 + p.phase) * 0.5 + 0.5) * p.alpha;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(220,130,255,${alpha})`;
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            });
+
+            animFrameId = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    initCanvas();
+    window.addEventListener('resize', () => {
+        document.getElementById('bg-canvas').width = window.innerWidth;
+        document.getElementById('bg-canvas').height = window.innerHeight;
+        initCanvas();
+    });
+
+    // ===== FLOATING PARTICLES (DOM) =====
+    function createParticles() {
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                p.style.cssText = `
+                    width:${size}px; height:${size}px;
+                    left:${Math.random() * 100}%;
+                    background: var(--accent);
+                    opacity: ${Math.random() * 0.4 + 0.1};
+                    animation-duration: ${Math.random() * 15 + 10}s;
+                    animation-delay: ${Math.random() * 5}s;
+                `;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 30000);
+            }, i * 500);
+        }
+    }
+    createParticles();
+    setInterval(createParticles, 20000);
+
+    // ===== NAV SHRINK ON SCROLL =====
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('mainNav');
+        if (window.scrollY > 80) {
+            nav.style.padding = '10px 40px';
+            nav.style.background = 'rgba(0,0,0,0.3)';
+        } else {
+            nav.style.padding = '18px 40px';
+            nav.style.background = 'rgba(0,0,0,0.1)';
+        }
+    });
+    </script>
 </body>
 </html>
-
-</main>
-
-  <footer>
-    <div class="footer-container">
-      <p>&copy; 2025 Shiv Computer. All rights reserved.</p>
-      <p>📍 27,Karnpur, Uttar Pradesh-225304 | 📞 +91-80901 53304 | ✉️ ceshivkumar@gmail.com</p>
-      <a aria-label="Chat on WhatsApp" 
-   href="https://wa.me/80901553043?text=Hello%20Shiv!" 
-   class="whatsapp-btn">
-  <img alt="WhatsApp" src="wlogo.png" />
-  <span>WhatsApp</span>
-</a>
-
-<style>
-  .whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: white; /* Default text color white */
-    font-weight: bold;
-    font-size: 16px;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
-
-  .whatsapp-btn img {
-    width: 8mm;   /* Logo width 8mm */
-    height: 8mm;  /* Logo height 8mm */
-    transition: transform 0.3s ease;
-  }
-
-  .whatsapp-btn:hover {
-    transform: scale(1.1);  /* Zoom-in effect */
-    color: #25D366; /* WhatsApp green on hover */
-  }
-
-  .whatsapp-btn:hover img {
-    transform: rotate(10deg) scale(1.2); /* Icon rotate + zoom */
-  }
-</style>
-
-    </div>
-  </footer>
-
-  <style>
-    footer {
-      background-color: #003d80;
-      color: white;
-      text-align: center;
-      padding: 20px 10px;
-      margin-top: 40px;
-      font-size: 15px;
-    }
-
-    .footer-container p {
-      margin: 5px 0;
-    }
-  </style>
-
-</body>
-</html>
-
