@@ -1,21 +1,46 @@
 {
-  "name": "Shiv Computer",
-  "short_name": "Shiv",
-  "description": "Your go-to Place for Practical Computer Education.",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#f0f8ff",
-  "theme_color": "#93c47d",
+  "short_name": "ShivTool",
+  "name": "SHIV COMPUTER - Advanced Tools",
+  "description": "Professional Web Application for System Tools and School Management.",
   "icons": [
     {
-      "src": "SHIV.png",
+      "src": "icon-192x192.png",
+      "type": "image/png",
       "sizes": "192x192",
-      "type": "image/png"
+      "purpose": "any maskable"
     },
     {
-      "src": "SHIV1.png",
+      "src": "icon-512x512.png",
+      "type": "image/png",
       "sizes": "512x512",
-      "type": "image/png"
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "start_url": "/info/home.html",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "categories": ["productivity", "utilities", "education"],
+  "screenshots": [
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "FeeBook",
+      "url": "/feebook/",
+      "icons": [{ "src": "feebook-icon.png", "sizes": "192x192" }]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "prefer_related_applications": false
 }
