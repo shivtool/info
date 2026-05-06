@@ -17,7 +17,7 @@
     }
   ],
   "start_url": "/info/home.html",
-  "scope": "/",
+  "scope":"/info/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "any",
