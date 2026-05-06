@@ -718,14 +718,15 @@
   resize();
   initParticles();
 
-  /* ===== SERVICE WORKER ===== */
-  if ('serviceWorker' in navigator) {
+/* ===== SERVICE WORKER ===== */
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(r => console.log('SW registered:', r.scope))
-        .catch(e => console.log('SW failed:', e));
+        // पाथ को 'service-worker.js' से बदलकर './info/service-worker.js' करें
+        navigator.serviceWorker.register('./info/service-worker.js')
+            .then(r => console.log('SW registered scope:', r.scope))
+            .catch(e => console.log('SW failed:', e));
     });
-  }
+}
 </script>
 </body>
 </html>
