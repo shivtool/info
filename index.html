@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Shiv Computer</title>
   <link rel="icon" type="image/png" href="SHIV.png">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4CAF50">
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -718,15 +717,14 @@
   resize();
   initParticles();
 
-/* ===== SERVICE WORKER ===== */
-if ('serviceWorker' in navigator) {
+  /* ===== SERVICE WORKER ===== */
+  if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // पाथ को 'service-worker.js' से बदलकर './info/service-worker.js' करें
-        navigator.serviceWorker.register('./info/service-worker.js')
-            .then(r => console.log('SW registered scope:', r.scope))
-            .catch(e => console.log('SW failed:', e));
+      navigator.serviceWorker.register('service-worker.js')
+        .then(r => console.log('SW registered:', r.scope))
+        .catch(e => console.log('SW failed:', e));
     });
-}
+  }
 </script>
 </body>
 </html>
