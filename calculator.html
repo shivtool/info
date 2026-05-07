@@ -1,482 +1,1236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="SHIV.png">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHIV Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #050714;
+      --bg-card: rgba(12, 14, 35, 0.85);
+      --neon-cyan: #00f5ff;
+      --neon-pink: #ff2d9b;
+      --neon-purple: #b200ff;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff88;
+      --text-main: #e8ecff;
+      --text-dim: rgba(200, 210, 255, 0.45);
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.1);
+      --btn-num: rgba(20, 25, 70, 0.8);
+      --btn-op: rgba(80, 10, 120, 0.75);
+      --btn-fn: rgba(0, 60, 100, 0.75);
+      --btn-eq: rgba(0, 120, 60, 0.8);
+      --btn-clr: rgba(140, 10, 50, 0.75);
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 8s ease infinite;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            animation: floatingBubbles 12s ease-in-out infinite;
-            pointer-events: none;
-        }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      padding: 20px;
+    }
 
-        body::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                conic-gradient(from 0deg, transparent 0deg, rgba(255, 255, 255, 0.03) 60deg, transparent 120deg),
-                conic-gradient(from 120deg, transparent 0deg, rgba(255, 255, 255, 0.05) 60deg, transparent 120deg),
-                conic-gradient(from 240deg, transparent 0deg, rgba(255, 255, 255, 0.03) 60deg, transparent 120deg);
-            animation: rotate 20s linear infinite;
-            pointer-events: none;
-        }
+    /* ═══ ANIMATED BACKGROUND ═══ */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        @keyframes floatingBubbles {
-            0%, 100% { 
-                transform: translate(0, 0) scale(1);
-                opacity: 0.6;
-            }
-            25% { 
-                transform: translate(-10px, -15px) scale(1.1);
-                opacity: 0.8;
-            }
-            50% { 
-                transform: translate(15px, -10px) scale(0.9);
-                opacity: 0.7;
-            }
-            75% { 
-                transform: translate(-5px, 10px) scale(1.05);
-                opacity: 0.9;
-            }
-        }
+    .bg-orbs {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: orbFloat linear infinite;
+    }
+    .orb1 { width: 400px; height: 400px; background: var(--neon-purple); top: -100px; left: -100px; animation-duration: 20s; }
+    .orb2 { width: 350px; height: 350px; background: var(--neon-cyan); bottom: -100px; right: -80px; animation-duration: 25s; animation-direction: reverse; }
+    .orb3 { width: 250px; height: 250px; background: var(--neon-pink); top: 40%; right: 15%; animation-duration: 18s; animation-delay: -8s; }
+    .orb4 { width: 200px; height: 200px; background: var(--neon-gold); bottom: 20%; left: 10%; animation-duration: 22s; animation-delay: -5s; }
 
-        .calculator {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            transform: scale(0.8);
-            animation: scaleIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards, float 6s ease-in-out infinite;
-            position: relative;
-            z-index: 10;
-        }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -40px) scale(1.1); }
+      50% { transform: translate(-20px, 30px) scale(0.9); }
+      75% { transform: translate(40px, 20px) scale(1.05); }
+    }
 
-        .calculator::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, 
-                rgba(255, 255, 255, 0.2),
-                rgba(255, 255, 255, 0.1),
-                rgba(255, 255, 255, 0.2));
-            border-radius: 27px;
-            z-index: -1;
-            animation: borderGlow 3s ease-in-out infinite alternate;
-        }
+    /* ═══ MAIN LAYOUT ═══ */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      max-width: 980px;
+      width: 100%;
+    }
 
-        @keyframes float {
-            0%, 100% { transform: scale(1) translateY(0px); }
-            50% { transform: scale(1) translateY(-5px); }
-        }
+    /* ═══ CALCULATOR CARD ═══ */
+    .calculator {
+      flex: 0 0 auto;
+      width: 370px;
+      background: var(--bg-card);
+      backdrop-filter: blur(30px);
+      border-radius: 28px;
+      padding: 24px;
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 0 0 1px rgba(0,245,255,0.08),
+        0 30px 80px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      animation: slideInLeft 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
 
-        @keyframes borderGlow {
-            0% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
 
-        @keyframes scaleIn {
-            to {
-                transform: scale(1);
-            }
-        }
+    /* ═══ TITLE ═══ */
+    .calc-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 18px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      position: relative;
+    }
 
-        .display {
-            width: 100%;
-            height: 80px;
-            background: rgba(0, 0, 0, 0.3);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 2rem;
-            text-align: right;
-            padding: 0 20px;
-            margin-bottom: 20px;
-            outline: none;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
+    .calc-title::after {
+      content: '';
+      display: block;
+      width: 60%;
+      height: 1px;
+      margin: 8px auto 0;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    }
 
-        .display::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 1rem;
-            text-align: center;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+    /* ═══ DISPLAY AREA ═══ */
+    .display-wrapper {
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 14px 18px 10px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(0,245,255,0.12);
+      box-shadow: inset 0 2px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,245,255,0.04);
+      position: relative;
+      min-height: 90px;
+    }
 
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: rgba(255, 255, 255, 0.15);
-            font-size: 0.8rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+    .expression-line {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      text-align: right;
+      min-height: 18px;
+      letter-spacing: 1px;
+      word-break: break-all;
+    }
 
-        .display:empty + .watermark,
-        .display[value=""] + .watermark {
-            opacity: 1;
-        }
+    .main-display {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      text-align: right;
+      text-shadow: 0 0 20px rgba(0,245,255,0.5);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      word-break: break-all;
+      transition: color 0.2s;
+    }
 
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            max-width: 400px;
-        }
+    .main-display.result-mode { color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+    .main-display.error-mode { color: var(--neon-pink); text-shadow: 0 0 20px rgba(255,45,155,0.5); }
 
-        .btn {
-            height: 60px;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            outline: none;
-            position: relative;
-            overflow: hidden;
-        }
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      color: rgba(0,245,255,0.12);
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+    }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.6s;
-        }
+    /* ═══ BUTTON GRID ═══ */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
 
-        .btn:active::before {
-            width: 300px;
-            height: 300px;
-        }
+    .btn {
+      height: 56px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.5px;
+      outline: none;
+    }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.15s;
+    }
 
-        .btn:active {
-            transform: translateY(0);
-        }
+    .btn:hover::before { background: rgba(255,255,255,0.08); }
+    .btn:active { transform: scale(0.93) !important; }
 
-        .number {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
+    .btn:hover { transform: translateY(-2px); }
 
-        .operator {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            color: white;
-        }
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      width: 10px; height: 10px;
+      background: rgba(255,255,255,0.35);
+      animation: rippleOut 0.5s ease-out forwards;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    @keyframes rippleOut {
+      to { width: 200px; height: 200px; opacity: 0; }
+    }
 
-        .function {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
-            font-size: 1rem;
-        }
+    /* Button Types */
+    .btn.number {
+      background: var(--btn-num);
+      color: var(--text-main);
+      border: 1px solid rgba(100,120,255,0.2);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .btn.number:hover { box-shadow: 0 8px 25px rgba(80,100,255,0.3), inset 0 1px 0 rgba(255,255,255,0.08); }
 
-        .equals {
-            background: linear-gradient(135deg, #43e97b, #38f9d7);
-            color: white;
-            grid-column: span 2;
-        }
+    .btn.operator {
+      background: var(--btn-op);
+      color: #e0aaff;
+      border: 1px solid rgba(178,0,255,0.25);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.operator:hover { box-shadow: 0 8px 25px rgba(178,0,255,0.35); }
 
-        .clear {
-            background: linear-gradient(135deg, #fa709a, #fee140);
-            color: white;
-        }
+    .btn.function {
+      background: var(--btn-fn);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0,245,255,0.2);
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.function:hover { box-shadow: 0 8px 25px rgba(0,245,255,0.25); }
 
-        .zero {
-            grid-column: span 2;
-        }
+    .btn.equals {
+      background: linear-gradient(135deg, rgba(0,180,100,0.8), rgba(0,220,130,0.6));
+      color: #fff;
+      border: 1px solid rgba(0,255,136,0.3);
+      grid-column: span 2;
+      font-size: 1.5rem;
+      font-weight: 900;
+      box-shadow: 0 4px 20px rgba(0,200,100,0.3);
+      text-shadow: 0 0 12px rgba(0,255,136,0.6);
+    }
+    .btn.equals:hover { box-shadow: 0 8px 30px rgba(0,255,136,0.4); }
 
-        .title {
-            text-align: center;
-            color: white;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
+    .btn.clear {
+      background: var(--btn-clr);
+      color: var(--neon-pink);
+      border: 1px solid rgba(255,45,155,0.25);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.clear:hover { box-shadow: 0 8px 25px rgba(255,45,155,0.35); }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+    .btn.zero { grid-column: span 2; }
 
-        .pulse {
-            animation: pulse 0.3s ease-in-out;
-        }
+    /* ═══ RIGHT PANEL ═══ */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideInRight 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.1s forwards;
+      opacity: 0;
+    }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(5px); }
-        }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
 
-        .shake {
-            animation: shake 0.8s ease-in-out;
-        }
-    </style>
+    /* ═══ STEPS PANEL ═══ */
+    .panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(30px);
+      border-radius: 22px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title.cyan { color: var(--neon-cyan); }
+    .panel-title.pink { color: var(--neon-pink); }
+
+    .panel-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: blinkDot 1.5s ease-in-out infinite;
+    }
+    @keyframes blinkDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ═══ STEPS ═══ */
+    .steps-container {
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .steps-container::-webkit-scrollbar { width: 4px; }
+    .steps-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .steps-container::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; opacity: 0.5; }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      background: rgba(0,245,255,0.04);
+      border: 1px solid rgba(0,245,255,0.08);
+      animation: stepIn 0.3s ease-out;
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      background: rgba(0,245,255,0.1);
+      border-radius: 6px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .step-result {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      color: var(--neon-green);
+      margin-top: 2px;
+    }
+
+    .steps-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      padding: 20px 0;
+      letter-spacing: 1px;
+    }
+
+    /* ═══ HISTORY ═══ */
+    .history-container {
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .history-container::-webkit-scrollbar { width: 4px; }
+    .history-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .history-container::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      padding: 20px 0;
+      letter-spacing: 1px;
+    }
+
+    .history-item {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      background: rgba(255,45,155,0.05);
+      border: 1px solid rgba(255,45,155,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+      animation: historyIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes historyIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .history-item:hover {
+      background: rgba(255,45,155,0.1);
+      border-color: rgba(255,45,155,0.25);
+      transform: translateX(4px);
+    }
+
+    .history-expr {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.5px;
+      word-break: break-all;
+    }
+
+    .history-result {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px rgba(255,45,155,0.4);
+      margin-top: 2px;
+    }
+
+    .history-time {
+      font-size: 0.65rem;
+      color: rgba(200,210,255,0.25);
+      margin-top: 3px;
+      letter-spacing: 1px;
+    }
+
+    .history-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .clear-history-btn {
+      background: rgba(255,45,155,0.1);
+      border: 1px solid rgba(255,45,155,0.2);
+      color: var(--neon-pink);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.7rem;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .clear-history-btn:hover {
+      background: rgba(255,45,155,0.2);
+      box-shadow: 0 0 12px rgba(255,45,155,0.3);
+    }
+
+    .history-count {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .shake { animation: shake 0.4s ease-in-out; }
+    .display-pulse { animation: displayPulse 0.3s ease-out; }
+    @keyframes displayPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* ═══ MOBILE TABS ═══ */
+    .mobile-tabs {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .app-wrapper { flex-direction: column; align-items: center; gap: 12px; }
+      .right-panel { width: 100%; max-width: 420px; }
+      .calculator { width: 100%; max-width: 420px; }
+
+      /* Hide right panel on mobile by default; JS shows correct one */
+      .right-panel { display: none; }
+      .right-panel.mob-active { display: flex; }
+
+      .mobile-tabs {
+        display: flex;
+        width: 100%;
+        max-width: 420px;
+        gap: 10px;
+      }
+
+      .mob-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 10px;
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        font-family: 'Orbitron', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+
+      .mob-tab-icon { font-size: 1.1rem; }
+
+      .mob-tab.active {
+        color: var(--neon-cyan);
+        border-color: rgba(0,245,255,0.35);
+        background: rgba(0,245,255,0.08);
+        box-shadow: 0 0 20px rgba(0,245,255,0.15), inset 0 1px 0 rgba(0,245,255,0.1);
+      }
+
+      .mob-tab:nth-child(2).active {
+        color: var(--neon-pink);
+        border-color: rgba(255,45,155,0.35);
+        background: rgba(255,45,155,0.08);
+        box-shadow: 0 0 20px rgba(255,45,155,0.15), inset 0 1px 0 rgba(255,45,155,0.1);
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="calculator">
-        <h1 class="title">🌟Calculator 🌟</h1>
-        <div style="position: relative;">
-            <input type="text" class="display" id="display" readonly>
-            <div class="watermark" id="watermark">SHIV COMPUTER</div>
-        </div>
-        <div class="buttons">
-            <!-- Row 1: Scientific Functions -->
-            <button class="btn function" onclick="clearAll()">C</button>
-            <button class="btn function" onclick="appendFunction('sin(')">sin</button>
-            <button class="btn function" onclick="appendFunction('cos(')">cos</button>
-            <button class="btn function" onclick="appendFunction('tan(')">tan</button>
-            <button class="btn function" onclick="appendFunction('log(')">log</button>
 
-            <!-- Row 2: More Functions -->
-            <button class="btn function" onclick="deleteLast()">⌫</button>
-            <button class="btn function" onclick="appendFunction('sqrt(')">√</button>
-            <button class="btn function" onclick="appendToDisplay('^')">x²</button>
-            <button class="btn function" onclick="appendToDisplay('(')">(</button>
-            <button class="btn function" onclick="appendToDisplay(')')">)</button>
+<!-- Animated Background -->
+<div class="bg-grid"></div>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
 
-            <!-- Row 3: Numbers and Operators -->
-            <button class="btn number" onclick="appendToDisplay('7')">7</button>
-            <button class="btn number" onclick="appendToDisplay('8')">8</button>
-            <button class="btn number" onclick="appendToDisplay('9')">9</button>
-            <button class="btn operator" onclick="appendToDisplay('/')">÷</button>
-            <button class="btn function" onclick="appendToDisplay('*')">×</button>
+<div class="app-wrapper">
 
-            <!-- Row 4 -->
-            <button class="btn number" onclick="appendToDisplay('4')">4</button>
-            <button class="btn number" onclick="appendToDisplay('5')">5</button>
-            <button class="btn number" onclick="appendToDisplay('6')">6</button>
-            <button class="btn operator" onclick="appendToDisplay('-')">-</button>
-            <button class="btn function" onclick="appendToDisplay('%')">%</button>
+  <!-- ══════════ CALCULATOR ══════════ -->
+  <div class="calculator">
+    <div class="calc-title">✦ SHIV COMPUTER ✦</div>
 
-            <!-- Row 5 -->
-            <button class="btn number" onclick="appendToDisplay('1')">1</button>
-            <button class="btn number" onclick="appendToDisplay('2')">2</button>
-            <button class="btn number" onclick="appendToDisplay('3')">3</button>
-            <button class="btn operator" onclick="appendToDisplay('+')">+</button>
-            <button class="btn function" onclick="appendFunction('π')">π</button>
-
-            <!-- Row 6 -->
-            <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
-            <button class="btn number" onclick="appendToDisplay('.')">.</button>
-            <button class="btn equals" onclick="calculateResult()">=</button>
-        </div>
+    <!-- Display -->
+    <div class="display-wrapper" id="displayWrapper">
+      <div class="expression-line" id="expressionLine">—</div>
+      <div class="main-display" id="mainDisplay">0</div>
+      <div class="watermark" id="watermark">SHIV CALCULATOR</div>
     </div>
 
-    <script>
-        let display = document.getElementById('display');
-        let currentInput = '';
-        let shouldResetDisplay = false;
+    <!-- Buttons -->
+    <div class="buttons">
+      <!-- Row 1 -->
+      <button class="btn clear" onclick="clearAll()">C</button>
+      <button class="btn function" onclick="insertFunc('sin(')">sin</button>
+      <button class="btn function" onclick="insertFunc('cos(')">cos</button>
+      <button class="btn function" onclick="insertFunc('tan(')">tan</button>
+      <button class="btn function" onclick="insertFunc('log(')">log</button>
 
-        function appendToDisplay(value) {
-            if (shouldResetDisplay) {
-                currentInput = '';
-                shouldResetDisplay = false;
-            }
-            
-            currentInput += value;
-            display.value = currentInput;
-            updateWatermark();
-            addPulseEffect();
+      <!-- Row 2 -->
+      <button class="btn function" onclick="deleteLast()">⌫</button>
+      <button class="btn function" onclick="insertFunc('√(')">√</button>
+      <button class="btn function" onclick="insertRaw('^')">xⁿ</button>
+      <button class="btn function" onclick="insertRaw('(')">(</button>
+      <button class="btn function" onclick="insertRaw(')')">)</button>
+
+      <!-- Row 3 -->
+      <button class="btn number" onclick="insertRaw('7')">7</button>
+      <button class="btn number" onclick="insertRaw('8')">8</button>
+      <button class="btn number" onclick="insertRaw('9')">9</button>
+      <button class="btn operator" onclick="insertRaw('/')">÷</button>
+      <button class="btn operator" onclick="insertRaw('*')">×</button>
+
+      <!-- Row 4 -->
+      <button class="btn number" onclick="insertRaw('4')">4</button>
+      <button class="btn number" onclick="insertRaw('5')">5</button>
+      <button class="btn number" onclick="insertRaw('6')">6</button>
+      <button class="btn operator" onclick="insertRaw('-')">−</button>
+      <button class="btn function" onclick="insertRaw('%')">%</button>
+
+      <!-- Row 5 -->
+      <button class="btn number" onclick="insertRaw('1')">1</button>
+      <button class="btn number" onclick="insertRaw('2')">2</button>
+      <button class="btn number" onclick="insertRaw('3')">3</button>
+      <button class="btn operator" onclick="insertRaw('+')">+</button>
+      <button class="btn function" onclick="insertPi()">π</button>
+
+      <!-- Row 6 -->
+      <button class="btn number zero" onclick="insertRaw('0')">0</button>
+      <button class="btn number" onclick="insertRaw('.')">.</button>
+      <button class="btn equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <!-- ══════════ MOBILE TAB BUTTONS ══════════ -->
+  <div class="mobile-tabs" id="mobileTabs">
+    <button class="mob-tab active" id="tabSteps" onclick="switchTab('steps')">
+      <span class="mob-tab-icon">📋</span>
+      <span>STEPS</span>
+    </button>
+    <button class="mob-tab" id="tabHistory" onclick="switchTab('history')">
+      <span class="mob-tab-icon">🕐</span>
+      <span>HISTORY</span>
+    </button>
+  </div>
+
+  <!-- ══════════ RIGHT PANEL ══════════ -->
+  <div class="right-panel">
+
+    <!-- Steps Panel -->
+    <div class="panel">
+      <div class="panel-title cyan">CALCULATION STEPS</div>
+      <div class="steps-container" id="stepsContainer">
+        <div class="steps-empty" id="stepsEmpty">Press = to see step-by-step solution</div>
+      </div>
+    </div>
+
+    <!-- History Panel -->
+    <div class="panel">
+      <div class="panel-title pink">HISTORY</div>
+      <div class="history-container" id="historyContainer">
+        <div class="history-empty" id="historyEmpty">No calculations yet</div>
+      </div>
+      <div class="history-actions">
+        <span class="history-count" id="historyCount">0 ENTRIES</span>
+        <button class="clear-history-btn" onclick="clearHistory()">CLEAR ALL</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ════════════════════════════════════════
+  //  STATE
+  // ════════════════════════════════════════
+  let currentInput = '';
+  let shouldReset   = false;
+  let historyArr    = [];       // in-memory mirror of IndexedDB
+  let db            = null;
+
+  const mainDisplay     = document.getElementById('mainDisplay');
+  const expressionLine  = document.getElementById('expressionLine');
+  const watermark       = document.getElementById('watermark');
+  const stepsContainer  = document.getElementById('stepsContainer');
+  const historyContainer= document.getElementById('historyContainer');
+  const historyCount    = document.getElementById('historyCount');
+  const displayWrapper  = document.getElementById('displayWrapper');
+
+  // ════════════════════════════════════════
+  //  INDEXEDDB  SETUP
+  // ════════════════════════════════════════
+  function initDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('ShivCalcDB', 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('history')) {
+          const store = d.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+          store.createIndex('ts', 'ts', { unique: false });
         }
-
-        function appendFunction(func) {
-            if (shouldResetDisplay) {
-                currentInput = '';
-                shouldResetDisplay = false;
-            }
-            
-            if (func === 'π') {
-                currentInput += Math.PI;
-            } else {
-                currentInput += func;
-            }
-            display.value = currentInput;
-            updateWatermark();
-            addPulseEffect();
+        if (!d.objectStoreNames.contains('steps')) {
+          d.createObjectStore('steps', { keyPath: 'id' });   // single record, id='last'
         }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror   = e => { console.warn('IDB error', e); resolve(null); };
+    });
+  }
 
-        function clearAll() {
-            currentInput = '';
-            display.value = '';
-            updateWatermark();
-            addPulseEffect();
+  // Save one history entry
+  function dbSaveHistory(item) {
+    if (!db) return;
+    const tx    = db.transaction('history', 'readwrite');
+    const store = tx.objectStore('history');
+    store.add(item);
+    // Keep only last 50
+    store.index('ts').openCursor(null, 'prev').onsuccess = e => {
+      let cur = e.target.result;
+      let skip = 0;
+      if (!cur) return;
+      // Count total & delete old
+      store.count().onsuccess = ev => {
+        let total = ev.target.result;
+        if (total > 50) {
+          store.index('ts').openCursor().onsuccess = ec => {
+            let c2 = ec.target.result;
+            if (c2 && total > 50) { c2.delete(); total--; c2.continue(); }
+          };
         }
+      };
+    };
+  }
 
-        function deleteLast() {
-            currentInput = currentInput.slice(0, -1);
-            display.value = currentInput;
-            updateWatermark();
-            addPulseEffect();
+  // Load all history from IDB (newest first)
+  function dbLoadHistory() {
+    return new Promise(resolve => {
+      if (!db) return resolve([]);
+      const tx    = db.transaction('history', 'readonly');
+      const store = tx.objectStore('history');
+      const items = [];
+      store.index('ts').openCursor(null, 'prev').onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) { items.push(cur.value); cur.continue(); }
+        else resolve(items);
+      };
+    });
+  }
+
+  // Clear history in IDB
+  function dbClearHistory() {
+    if (!db) return;
+    const tx = db.transaction('history', 'readwrite');
+    tx.objectStore('history').clear();
+  }
+
+  // Save last steps
+  function dbSaveSteps(steps, expr) {
+    if (!db) return;
+    const tx = db.transaction('steps', 'readwrite');
+    tx.objectStore('steps').put({ id: 'last', steps, expr, ts: Date.now() });
+  }
+
+  // Load last steps
+  function dbLoadSteps() {
+    return new Promise(resolve => {
+      if (!db) return resolve(null);
+      const tx  = db.transaction('steps', 'readonly');
+      const req = tx.objectStore('steps').get('last');
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror   = () => resolve(null);
+    });
+  }
+
+  // ════════════════════════════════════════
+  //  DISPLAY
+  // ════════════════════════════════════════
+  function updateDisplay() {
+    if (currentInput === '') {
+      mainDisplay.textContent = '0';
+      expressionLine.textContent = '—';
+      watermark.style.opacity = '1';
+    } else {
+      mainDisplay.textContent = currentInput;
+      expressionLine.textContent = prettyExpr(currentInput);
+      watermark.style.opacity = '0';
+    }
+    mainDisplay.className = 'main-display';
+  }
+
+  function prettyExpr(expr) {
+    return expr
+      .replace(/\*/g, '×')
+      .replace(/\//g, '÷')
+      .replace(/sqrt/g, '√')
+      .replace(/Math\.PI/g, 'π');
+  }
+
+  // ════════════════════════════════════════
+  //  AUTO-CLOSE BRACKETS
+  // ════════════════════════════════════════
+  function autoCloseBrackets(expr) {
+    let open = 0;
+    for (const ch of expr) {
+      if (ch === '(') open++;
+      else if (ch === ')') open--;
+    }
+    if (open > 0) expr += ')'.repeat(open);
+    return expr;
+  }
+
+  // ════════════════════════════════════════
+  //  INPUT HANDLERS
+  // ════════════════════════════════════════
+  function insertRaw(val) {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += val;
+    updateDisplay();
+  }
+
+  function insertFunc(fn) {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += fn;
+    updateDisplay();
+  }
+
+  function insertPi() {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += 'π';
+    updateDisplay();
+  }
+
+  function deleteLast() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+
+  function clearAll() {
+    currentInput = '';
+    shouldReset  = false;
+    updateDisplay();
+    clearStepsUI();
+  }
+
+  // ════════════════════════════════════════
+  //  EVALUATION  (safe parser, no raw eval)
+  // ════════════════════════════════════════
+  function safeEval(expr) {
+    // Strip trailing operators/dots that make expression incomplete  
+    expr = expr.replace(/[+\-*/^.]+$/, '').trim();
+    if (!expr) throw new Error('Empty');
+    // Auto-close any unclosed brackets first
+    expr = autoCloseBrackets(expr);
+
+    // Replace user symbols → JS Math
+    expr = expr.replace(/π/g, '(' + Math.PI + ')');
+    expr = expr.replace(/sin\(/g,  'Math.sin(Math.PI/180*(');
+    expr = expr.replace(/cos\(/g,  'Math.cos(Math.PI/180*(');
+    expr = expr.replace(/tan\(/g,  'Math.tan(Math.PI/180*(');
+    expr = expr.replace(/log\(/g,  'Math.log10(');
+    expr = expr.replace(/√\(/g,    'Math.sqrt(');
+    expr = expr.replace(/\^/g,     '**');
+    expr = expr.replace(/%/g,      '/100');
+
+    // When we wrapped sin/cos/tan we need to close the inner bracket too
+    // e.g. sin(45+5)  →  Math.sin(Math.PI/180*(45+5))
+    // The outer closing ) is already there from user input.
+    // But we inserted an extra ( so we need one extra ) per trig call.
+    // Count them and append.
+    const trigCount = (expr.match(/Math\.(sin|cos|tan)\(/g) || []).length;
+    expr = autoCloseBrackets(expr);   // re-run after substitutions
+
+    // Whitelist check — only safe characters allowed
+    if (/[^0-9+\-*/().%\s,MathsincotaqlgqrPIE_]/.test(expr.replace(/Math\.(sin|cos|tan|sqrt|log10|PI)/g, ''))) {
+      throw new Error('Unsafe');
+    }
+
+    const result = Function('"use strict"; return (' + expr + ')')();
+    if (!isFinite(result) || isNaN(result)) throw new Error('Invalid result');
+    return result;
+  }
+
+  // ════════════════════════════════════════
+  //  STEP BUILDER
+  // ════════════════════════════════════════
+  function buildSteps(original) {
+    const steps = [];
+    const closed = autoCloseBrackets(original);
+
+    steps.push({ label: '📥 Input Expression', value: prettyExpr(closed) });
+
+    if (closed !== original)
+      steps.push({ label: '🔧 Auto-Closed Brackets', value: 'Added ' + (closed.length - original.length) + ' missing ")" bracket(s)' });
+
+    if (original.includes('π'))
+      steps.push({ label: '🔵 Substitute π', value: 'π ≈ ' + Math.PI.toFixed(8) });
+
+    if (/sin\(/.test(original))
+      steps.push({ label: '📐 sin( ) — Degrees Mode', value: 'sin(θ°) = Math.sin(θ × π/180)' });
+    if (/cos\(/.test(original))
+      steps.push({ label: '📐 cos( ) — Degrees Mode', value: 'cos(θ°) = Math.cos(θ × π/180)' });
+    if (/tan\(/.test(original))
+      steps.push({ label: '📐 tan( ) — Degrees Mode', value: 'tan(θ°) = Math.tan(θ × π/180)' });
+    if (/log\(/.test(original))
+      steps.push({ label: '🔢 log( ) = log₁₀', value: 'Using base-10 logarithm' });
+    if (/√\(/.test(original))
+      steps.push({ label: '√ Square Root', value: 'Computing √ of inner value' });
+    if (/\^/.test(original))
+      steps.push({ label: '⬆ Exponentiation ^', value: 'a^b  →  a raised to power b' });
+    if (/%/.test(original))
+      steps.push({ label: '% Percentage', value: 'x%  →  x ÷ 100' });
+
+    const hasMultiOps = /[+\-*/].*[+\-*/]/.test(original);
+    if (hasMultiOps)
+      steps.push({ label: '📏 Order of Operations', value: 'BODMAS: Brackets → Orders → ÷× → +−' });
+
+    // Intermediate evaluation on sub-expressions
+    const subExprs = extractSubExpressions(closed);
+    subExprs.forEach(sub => {
+      try {
+        const r = safeEval(sub);
+        const rr = parseFloat(r.toFixed(8));
+        if (sub !== closed)   // don't duplicate full expression
+          steps.push({ label: '🔎 Sub-expression', value: prettyExpr(sub) + '  =  ' + rr });
+      } catch(e) {}
+    });
+
+    steps.push({ label: '⚙ Evaluating Full Expression', value: prettyExpr(closed) + '  →  ?' });
+
+    return steps;
+  }
+
+  // Extract meaningful sub-expressions (bracketed groups)
+  function extractSubExpressions(expr) {
+    const subs = [];
+    let depth = 0, start = -1;
+    for (let i = 0; i < expr.length; i++) {
+      if (expr[i] === '(') {
+        if (depth === 0) start = i + 1;
+        depth++;
+      } else if (expr[i] === ')') {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          const inner = expr.slice(start, i).trim();
+          if (inner && /\d/.test(inner)) subs.push(inner);
         }
+      }
+    }
+    return subs;
+  }
 
-        function calculateResult() {
-            try {
-                let expression = currentInput;
-                
-                // Replace mathematical functions and operators
-                expression = expression.replace(/sin\(/g, 'Math.sin(');
-                expression = expression.replace(/cos\(/g, 'Math.cos(');
-                expression = expression.replace(/tan\(/g, 'Math.tan(');
-                expression = expression.replace(/log\(/g, 'Math.log10(');
-                expression = expression.replace(/sqrt\(/g, 'Math.sqrt(');
-                expression = expression.replace(/\^/g, '**');
-                expression = expression.replace(/π/g, Math.PI);
+  // ════════════════════════════════════════
+  //  CALCULATE
+  // ════════════════════════════════════════
+  function calculate() {
+    if (!currentInput.trim()) return;
 
-                let result = eval(expression);
-                
-                if (isNaN(result) || !isFinite(result)) {
-                    throw new Error('Invalid calculation');
-                }
+    const originalExpr = currentInput;
 
-                display.value = result;
-                currentInput = result.toString();
-                shouldResetDisplay = true;
-                updateWatermark();
-                addPulseEffect();
-                
-            } catch (error) {
-                display.value = 'Error';
-                currentInput = '';
-                shouldResetDisplay = true;
-                updateWatermark();
-                addShakeEffect();
-            }
-        }
+    try {
+      const steps  = buildSteps(originalExpr);
+      const result = safeEval(originalExpr);
+      const rounded = parseFloat(result.toFixed(10));
+      const displayResult = rounded.toString();
 
-        function updateWatermark() {
-            const watermark = document.getElementById('watermark');
-            if (display.value === '' || display.value === '0') {
-                watermark.style.opacity = '1';
-            } else {
-                watermark.style.opacity = '0';
-            }
-        }
+      // Display
+      mainDisplay.textContent  = displayResult;
+      mainDisplay.className    = 'main-display result-mode';
+      expressionLine.textContent = prettyExpr(autoCloseBrackets(originalExpr)) + ' =';
+      watermark.style.opacity  = '0';
+      pulseDisplay();
 
-        function addPulseEffect() {
-            display.classList.add('pulse');
-            setTimeout(() => {
-                display.classList.remove('pulse');
-            }, 300);
-        }
+      // Final step
+      steps.push({ label: '✅ Final Answer', value: displayResult, isResult: true });
 
-        function addShakeEffect() {
-            display.classList.add('shake');
-            setTimeout(() => {
-                display.classList.remove('shake');
-            }, 500);
-        }
+      // Render steps
+      renderSteps(steps);
 
-        // Initialize watermark on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateWatermark();
-        });
+      // Save steps to IDB
+      dbSaveSteps(steps, originalExpr);
 
-        // Keyboard support
-        document.addEventListener('keydown', function(event) {
-            const key = event.key;
-            
-            if (key >= '0' && key <= '9') {
-                appendToDisplay(key);
-            } else if (key === '.') {
-                appendToDisplay('.');
-            } else if (key === '+') {
-                appendToDisplay('+');
-            } else if (key === '-') {
-                appendToDisplay('-');
-            } else if (key === '*') {
-                appendToDisplay('*');
-            } else if (key === '/') {
-                event.preventDefault();
-                appendToDisplay('/');
-            } else if (key === 'Enter' || key === '=') {
-                event.preventDefault();
-                calculateResult();
-            } else if (key === 'Escape' || key.toLowerCase() === 'c') {
-                clearAll();
-            } else if (key === 'Backspace') {
-                event.preventDefault();
-                deleteLast();
-            } else if (key === '(') {
-                appendToDisplay('(');
-            } else if (key === ')') {
-                appendToDisplay(')');
-            }
-            updateWatermark();
-        });
-    </script>
+      // History
+      const now  = new Date();
+      const time = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const entry = { expr: originalExpr, result: displayResult, time, ts: Date.now() };
+      historyArr.unshift(entry);
+      if (historyArr.length > 50) historyArr.pop();
+      dbSaveHistory(entry);
+      renderHistory();
+
+      currentInput = displayResult;
+      shouldReset  = true;
+
+      // On mobile: auto-show steps tab
+      if (window.innerWidth <= 700) switchTab('steps');
+
+    } catch(err) {
+      // Show what went wrong, never just "ERROR"
+      mainDisplay.textContent = 'Invalid!';
+      mainDisplay.className   = 'main-display error-mode';
+      expressionLine.textContent = '⚠ Check expression';
+      shakeDisplay();
+
+      // Helpful step hint
+      stepsContainer.innerHTML = `
+        <div class="step-item" style="border-color:rgba(255,45,155,0.3);background:rgba(255,45,155,0.06)">
+          <span class="step-num" style="color:var(--neon-pink)">!</span>
+          <div>
+            <div class="step-text">Expression Problem Detected</div>
+            <div class="step-result" style="color:var(--neon-pink)">Tip: Check brackets, operators &amp; functions</div>
+          </div>
+        </div>
+        <div class="step-item" style="border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)">
+          <span class="step-num" style="color:var(--neon-gold)">💡</span>
+          <div>
+            <div class="step-text">Your input was</div>
+            <div class="step-result" style="color:var(--neon-gold)">${prettyExpr(currentInput)}</div>
+          </div>
+        </div>
+      `;
+
+      // Don't clear input — let user fix it
+      shouldReset = false;
+    }
+  }
+
+  // ════════════════════════════════════════
+  //  RENDER STEPS UI
+  // ════════════════════════════════════════
+  function renderSteps(steps) {
+    stepsContainer.innerHTML = '';
+    steps.forEach((step, i) => {
+      const div = document.createElement('div');
+      div.className = 'step-item';
+      div.innerHTML = `
+        <span class="step-num">S${i+1}</span>
+        <div>
+          <div class="step-text">${step.label}</div>
+          <div class="step-result">${step.value}</div>
+        </div>`;
+      if (step.isResult) {
+        div.style.background   = 'rgba(0,255,136,0.07)';
+        div.style.borderColor  = 'rgba(0,255,136,0.2)';
+        div.querySelector('.step-result').style.cssText =
+          'color:var(--neon-green);text-shadow:0 0 10px rgba(0,255,136,0.5);font-size:1.1rem;font-family:Orbitron,monospace;font-weight:700';
+      }
+      stepsContainer.appendChild(div);
+    });
+    stepsContainer.scrollTop = stepsContainer.scrollHeight;
+  }
+
+  function clearStepsUI() {
+    stepsContainer.innerHTML = '<div class="steps-empty">Press = to see step-by-step solution</div>';
+  }
+
+  // ════════════════════════════════════════
+  //  RENDER HISTORY UI
+  // ════════════════════════════════════════
+  function renderHistory() {
+    historyContainer.innerHTML = '';
+    if (historyArr.length === 0) {
+      historyContainer.innerHTML = '<div class="history-empty">No calculations yet</div>';
+      historyCount.textContent = '0 ENTRIES';
+      return;
+    }
+    historyCount.textContent = historyArr.length + (historyArr.length === 1 ? ' ENTRY' : ' ENTRIES');
+    historyArr.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="history-expr">${prettyExpr(item.expr)}</div>
+        <div class="history-result">= ${item.result}</div>
+        <div class="history-time">${item.time}</div>`;
+      div.onclick = () => {
+        currentInput = item.result;
+        shouldReset  = false;
+        updateDisplay();
+      };
+      historyContainer.appendChild(div);
+    });
+  }
+
+  function clearHistory() {
+    historyArr = [];
+    dbClearHistory();
+    renderHistory();
+  }
+
+  // ════════════════════════════════════════
+  //  ANIMATIONS
+  // ════════════════════════════════════════
+  function pulseDisplay() {
+    displayWrapper.classList.remove('display-pulse');
+    void displayWrapper.offsetWidth;
+    displayWrapper.classList.add('display-pulse');
+    setTimeout(() => displayWrapper.classList.remove('display-pulse'), 400);
+  }
+  function shakeDisplay() {
+    displayWrapper.classList.remove('shake');
+    void displayWrapper.offsetWidth;
+    displayWrapper.classList.add('shake');
+    setTimeout(() => displayWrapper.classList.remove('shake'), 500);
+  }
+
+  // ════════════════════════════════════════
+  //  RIPPLE
+  // ════════════════════════════════════════
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const r    = document.createElement('span');
+      r.className = 'ripple';
+      const rect = this.getBoundingClientRect();
+      r.style.left = (e.clientX - rect.left) + 'px';
+      r.style.top  = (e.clientY - rect.top)  + 'px';
+      this.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    });
+  });
+
+  // ════════════════════════════════════════
+  //  KEYBOARD
+  // ════════════════════════════════════════
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') insertRaw(e.key);
+    else if (e.key === '.')  insertRaw('.');
+    else if (e.key === '+')  insertRaw('+');
+    else if (e.key === '-')  insertRaw('-');
+    else if (e.key === '*')  insertRaw('*');
+    else if (e.key === '/')  { e.preventDefault(); insertRaw('/'); }
+    else if (e.key === '(')  insertRaw('(');
+    else if (e.key === ')')  insertRaw(')');
+    else if (e.key === '^')  insertRaw('^');
+    else if (e.key === '%')  insertRaw('%');
+    else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+    else if (e.key === 'Backspace') { e.preventDefault(); deleteLast(); }
+    else if (e.key === 'Escape')    clearAll();
+  });
+
+  // ════════════════════════════════════════
+  //  INIT — load from IndexedDB
+  // ════════════════════════════════════════
+  async function init() {
+    await initDB();
+
+    // Load history
+    historyArr = await dbLoadHistory();
+    renderHistory();
+
+    // Load last steps
+    const lastSteps = await dbLoadSteps();
+    if (lastSteps && lastSteps.steps && lastSteps.steps.length) {
+      renderSteps(lastSteps.steps);
+    } else {
+      clearStepsUI();
+    }
+
+    updateDisplay();
+  }
+
+  // ════════════════════════════════════════
+  //  MOBILE TABS
+  // ════════════════════════════════════════
+  let activeTab = 'steps';
+
+  function switchTab(tab) {
+    activeTab = tab;
+    const rightPanel = document.querySelector('.right-panel');
+    const stepsPanel = document.getElementById('stepsPanel');
+    const histPanel  = document.getElementById('histPanel');
+    const tabSteps   = document.getElementById('tabSteps');
+    const tabHist    = document.getElementById('tabHistory');
+
+    if (tab === 'steps') {
+      stepsPanel.style.display = '';
+      histPanel.style.display  = 'none';
+      tabSteps.classList.add('active');
+      tabHist.classList.remove('active');
+    } else {
+      stepsPanel.style.display  = 'none';
+      histPanel.style.display   = '';
+      tabHist.classList.add('active');
+      tabSteps.classList.remove('active');
+    }
+    // Make right panel visible on mobile
+    rightPanel.classList.add('mob-active');
+  }
+
+  function initMobileTabs() {
+    if (window.innerWidth <= 700) {
+      // panels get IDs for tab switching
+      const panels = document.querySelectorAll('.right-panel .panel');
+      if (panels[0]) panels[0].id = 'stepsPanel';
+      if (panels[1]) panels[1].id = 'histPanel';
+      // default: show steps
+      switchTab('steps');
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    const rightPanel = document.querySelector('.right-panel');
+    if (window.innerWidth > 700) {
+      rightPanel.classList.remove('mob-active');
+      rightPanel.style.display = '';
+      const stepsPanel = document.getElementById('stepsPanel');
+      const histPanel  = document.getElementById('histPanel');
+      if (stepsPanel) stepsPanel.style.display = '';
+      if (histPanel)  histPanel.style.display  = '';
+    } else {
+      switchTab(activeTab);
+    }
+  });
+
+  init().then(() => initMobileTabs());
+</script>
 </body>
 </html>
