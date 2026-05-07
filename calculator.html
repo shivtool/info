@@ -1153,7 +1153,9 @@
     else if (e.key === '%')  insertRaw('%');
     else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
     else if (e.key === 'Backspace') { e.preventDefault(); deleteLast(); }
-    else if (e.key === 'Escape')    clearAll();
+    else if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') clearAll();
+    else if (e.key === 'h' || e.key === 'H') switchTab('history');
+    else if (e.key === 's' || e.key === 'S') switchTab('steps');
   });
 
   // ════════════════════════════════════════
@@ -1190,19 +1192,23 @@
     const tabSteps   = document.getElementById('tabSteps');
     const tabHist    = document.getElementById('tabHistory');
 
+    const isMobile = window.innerWidth <= 700;
+
     if (tab === 'steps') {
-      stepsPanel.style.display = '';
-      histPanel.style.display  = 'none';
-      tabSteps.classList.add('active');
-      tabHist.classList.remove('active');
+      if (isMobile && stepsPanel) stepsPanel.style.display = '';
+      if (isMobile && histPanel)  histPanel.style.display  = 'none';
+      if (tabSteps) tabSteps.classList.add('active');
+      if (tabHist)  tabHist.classList.remove('active');
+      // On desktop scroll steps into view
+      if (!isMobile && stepsPanel) stepsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
-      stepsPanel.style.display  = 'none';
-      histPanel.style.display   = '';
-      tabHist.classList.add('active');
-      tabSteps.classList.remove('active');
+      if (isMobile && stepsPanel) stepsPanel.style.display  = 'none';
+      if (isMobile && histPanel)  histPanel.style.display   = '';
+      if (tabHist)  tabHist.classList.add('active');
+      if (tabSteps) tabSteps.classList.remove('active');
+      if (!isMobile && histPanel) histPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    // Make right panel visible on mobile
-    rightPanel.classList.add('mob-active');
+    if (isMobile) rightPanel.classList.add('mob-active');
   }
 
   function initMobileTabs() {
