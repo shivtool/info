@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="mint">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Calculator — Professional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── THEME TOKENS ── */
+        [data-theme="mint"] {
+            --bg:          #f0f7f4;
+            --surface:     #ffffff;
+            --surface2:    #e8f5ef;
+            --border:      #b2dbc7;
+            --accent:      #1a7a4a;
+            --accent2:     #0e5233;
+            --accent-soft: #d4eddf;
+            --text:        #1a2e25;
+            --text-muted:  #5a7a68;
+            --badge:       #1a7a4a;
+            --row-odd:     #f8fcfa;
+            --header-bg:   #1a7a4a;
+            --header-text: #ffffff;
+            --total-bg:    #e0f4ea;
+            --total-text:  #0e5233;
+            --tag-bg:      #c8eed9;
+        }
+        [data-theme="dark"] {
+            --bg:          #0d1117;
+            --surface:     #161b22;
+            --surface2:    #1c2533;
+            --border:      #30363d;
+            --accent:      #3fb950;
+            --accent2:     #2ea043;
+            --accent-soft: #1a2d1a;
+            --text:        #e6edf3;
+            --text-muted:  #8b949e;
+            --badge:       #3fb950;
+            --row-odd:     #1a2130;
+            --header-bg:   #238636;
+            --header-text: #ffffff;
+            --total-bg:    #1a2d1a;
+            --total-text:  #3fb950;
+            --tag-bg:      #2a3a2a;
+        }
+        [data-theme="light"] {
+            --bg:          #fafafa;
+            --surface:     #ffffff;
+            --surface2:    #f4f4f5;
+            --border:      #e4e4e7;
+            --accent:      #2563eb;
+            --accent2:     #1d4ed8;
+            --accent-soft: #dbeafe;
+            --text:        #09090b;
+            --text-muted:  #71717a;
+            --badge:       #2563eb;
+            --row-odd:     #f8faff;
+            --header-bg:   #2563eb;
+            --header-text: #ffffff;
+            --total-bg:    #eff6ff;
+            --total-text:  #1d4ed8;
+            --tag-bg:      #dbeafe;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ── HEADER BAR ── */
+        .top-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-leaf { font-size: 26px; }
+        .logo-sub { font-size: 11px; font-family: 'DM Sans', sans-serif; font-weight: 400; color: var(--text-muted); display: block; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        /* THEME SWITCHER */
+        .theme-switcher { display: flex; gap: 8px; align-items: center; }
+        .theme-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-right: 4px; }
+        .theme-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .theme-btn:hover, .theme-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* ── MAIN LAYOUT ── */
+        .main { max-width: 960px; margin: 0 auto; padding: 30px 20px 60px; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .section-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+        /* ── CATEGORY TABS ── */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab.active, .tab:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* ── ADD DEVICE PANEL ── */
+        .add-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        }
+        .panel-heading {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-heading::before { content: ''; display: block; width: 3px; height: 16px; background: var(--accent); border-radius: 2px; }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1.2fr 2fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 680px) { .input-row { grid-template-columns: 1fr 1fr; } }
+
+        .field label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 7px;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            transition: 0.2s;
+            outline: none;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .field input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+        /* ── HYBRID TOGGLE ── */
+        .hybrid-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .hybrid-toggle-row:hover { border-color: var(--accent); }
+        .hybrid-toggle-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+        .hybrid-toggle-label { font-size: 13px; font-weight: 600; color: var(--text); }
+        .hybrid-badge {
+            font-size: 10px; font-weight: 700; padding: 3px 10px;
+            border-radius: 20px; background: #fff3cd; color: #856404;
+            border: 1px solid #ffc107; letter-spacing: 0.06em; text-transform: uppercase;
+        }
+        .hybrid-fields {
+            display: none;
+            background: linear-gradient(135deg, #fffbea, #f0fdf4);
+            border: 1.5px solid #fbbf24;
+            border-radius: 10px;
+            padding: 18px 20px 14px;
+            margin-bottom: 14px;
+            animation: slideDown 0.2s ease;
+        }
+        [data-theme="dark"] .hybrid-fields { background: linear-gradient(135deg, #1a1a00, #0a1f0a); border-color: #856404; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+        .hybrid-fields.visible { display: block; }
+        .hybrid-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #92400e; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        [data-theme="dark"] .hybrid-title { color: #fbbf24; }
+        .hybrid-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 680px) { .hybrid-grid { grid-template-columns: 1fr 1fr; } }
+        .hybrid-note {
+            font-size: 11.5px; color: var(--text-muted);
+            padding: 8px 12px;
+            background: var(--surface);
+            border-radius: 6px;
+            border-left: 3px solid #fbbf24;
+            margin-top: 8px;
+        }
+        .hour-warning { color: #e53e3e; font-size: 11px; margin-top: 4px; display: none; }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 4px; }
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-add:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+        .btn-report { background: var(--surface2); color: var(--accent); border: 2px solid var(--accent); }
+        .btn-report:hover { background: var(--accent-soft); }
+        .btn-clear { background: var(--surface2); color: #e53e3e; border: 2px solid #fed7d7; flex: 0 0 auto; padding: 12px 16px; }
+        .btn-clear:hover { background: #fff5f5; }
+
+        /* ── DEVICE LIST TABLE ── */
+        .device-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        }
+        .device-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border);
+        }
+        .device-count {
+            font-size: 12px;
+            background: var(--tag-bg);
+            color: var(--accent);
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: var(--surface2);
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:nth-child(odd) { background: var(--row-odd); }
+        tbody tr:hover { background: var(--accent-soft); }
+        tbody td {
+            padding: 13px 16px;
+            font-size: 13.5px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+        tbody td:last-child { border-bottom: none; }
+        .del-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: 0.15s;
+        }
+        .del-btn:hover { background: #fff5f5; }
+        .cat-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: var(--tag-bg);
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+        /* ── REPORT ── */
+        #reportArea { display: none; }
+
+        .report-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        }
+
+        /* REPORT HEADER */
+        .report-header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 32px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .report-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .report-subtitle { font-size: 13px; opacity: 0.82; }
+        .report-meta { text-align: right; font-size: 13px; opacity: 0.9; line-height: 1.7; }
+        .report-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: 0.7; margin-top: 6px; }
+
+        /* SUMMARY CARDS */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .summary-card {
+            padding: 20px 24px;
+            border-right: 1px solid var(--border);
+            text-align: center;
+        }
+        .summary-card:last-child { border-right: none; }
+        .s-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
+        .s-value { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent); }
+        .s-unit { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+        /* CATEGORY SECTIONS */
+        .cat-section { border-bottom: 1px solid var(--border); }
+        .cat-header {
+            padding: 14px 24px;
+            background: var(--surface2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .cat-name {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cat-total { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+
+        .report-table { width: 100%; border-collapse: collapse; }
+        .report-table thead th {
+            background: transparent;
+            padding: 10px 24px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .report-table tbody td {
+            padding: 12px 24px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+        .report-table tbody tr:last-child td { border-bottom: none; }
+        .report-table tbody tr:nth-child(odd) { background: var(--row-odd); }
+        .report-table .align-right { text-align: right; }
+        .co2-highlight { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+        /* GRAND TOTAL */
+        .grand-total {
+            background: var(--total-bg);
+            padding: 24px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid var(--border);
+        }
+        .gt-label { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--total-text); }
+        .gt-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; color: var(--total-text); }
+        .gt-unit { font-size: 13px; color: var(--text-muted); }
+
+        /* ECO FOOTER */
+        .eco-footer {
+            padding: 24px 36px;
+            border-top: 1px solid var(--border);
+            background: var(--surface2);
+        }
+        .eco-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .eco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+        .eco-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        .eco-icon { font-size: 24px; margin-bottom: 6px; }
+        .eco-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+        .eco-bold { font-weight: 700; color: var(--text); font-size: 13px; }
+        .slogan-box {
+            text-align: center;
+            padding: 16px;
+            background: var(--accent);
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .slogan { font-family: 'Playfair Display', serif; font-size: 16px; color: white; }
+        .slogan-sub { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 4px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* FORMULA SECTION */
+        .formula-section {
+            padding: 20px 36px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+        .formula-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--surface2);
+            padding: 8px 14px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 6px;
+            color: var(--accent);
+        }
+
+        /* PRINT ACTIONS */
+        .action-bar {
+            display: flex;
+            gap: 14px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .btn-print { background: #f6ad55; color: #7b341e; border: none; }
+        .btn-print:hover { background: #ed8936; }
+        .btn-new { background: var(--surface2); color: var(--text); border: 1.5px solid var(--border); }
+
+        /* ── MOBILE RESPONSIVE ── */
+        @media (max-width: 600px) {
+            /* TOP BAR */
+            .top-bar { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+            .logo { font-size: 16px; }
+            .logo-leaf { font-size: 20px; }
+            .logo-sub { font-size: 9px; }
+            .theme-switcher { width: 100%; justify-content: flex-end; }
+            .theme-label { display: none; }
+            .theme-btn { padding: 5px 10px; font-size: 11px; }
+
+            /* MAIN */
+            .main { padding: 14px 12px 50px; }
+            .section-title { font-size: 20px; }
+            .section-sub { font-size: 12px; margin-bottom: 16px; }
+
+            /* TABS — horizontal scroll */
+            .tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; gap: 8px; -webkit-overflow-scrolling: touch; }
+            .tabs::-webkit-scrollbar { height: 3px; }
+            .tab { white-space: nowrap; padding: 7px 14px; font-size: 12px; flex-shrink: 0; }
+
+            /* ADD PANEL */
+            .add-panel { padding: 16px 14px; border-radius: 12px; }
+            .panel-heading { font-size: 12px; margin-bottom: 14px; }
+            .input-row { grid-template-columns: 1fr; gap: 10px; }
+            .field input, .field select { padding: 13px 12px; font-size: 15px; }
+
+            /* HYBRID */
+            .hybrid-toggle-row { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+            .hybrid-toggle-label { font-size: 12px; flex: 1; }
+            .hybrid-badge { font-size: 9px; }
+            .hybrid-fields { padding: 14px 12px 10px; }
+            .hybrid-grid { grid-template-columns: 1fr; }
+
+            /* BUTTONS */
+            .btn-row { flex-direction: column; gap: 8px; }
+            .btn { padding: 14px; font-size: 15px; }
+            .btn-clear { flex: 1; padding: 14px; }
+
+            /* DEVICE LIST — card view on mobile */
+            .device-list { border-radius: 12px; }
+            .device-list-header { padding: 12px 14px; }
+            .device-list table { display: none; }
+            .mobile-cards { display: block; }
+
+            /* REPORT HEADER */
+            .report-header { flex-direction: column; gap: 12px; padding: 20px 18px; }
+            .report-title { font-size: 19px; }
+            .report-meta { text-align: left; font-size: 12px; }
+
+            /* SUMMARY — 2x3 grid on mobile */
+            .summary-row { grid-template-columns: 1fr 1fr; }
+            .summary-card { padding: 14px 10px; border-right: 1px solid var(--border); }
+            .summary-card:nth-child(2n) { border-right: none; }
+            .summary-card:nth-child(n+3) { border-top: 1px solid var(--border); }
+            .s-value { font-size: 17px; }
+            .s-label { font-size: 9.5px; }
+
+            /* CATEGORY HEADER */
+            .cat-header { padding: 10px 14px; flex-wrap: wrap; gap: 4px; }
+
+            /* REPORT TABLE — horizontal scroll */
+            .report-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .report-table thead th, .report-table tbody td { padding: 10px 12px; font-size: 11.5px; white-space: nowrap; }
+
+            /* GRAND TOTAL */
+            .grand-total { flex-direction: column; gap: 10px; padding: 18px 18px; text-align: center; }
+            .gt-label { font-size: 15px; }
+            .gt-value { font-size: 26px; }
+
+            /* HYBRID SAVING CARD */
+            #hybridSavingCard > div { flex-direction: column; gap: 8px; }
+
+            /* ECO FOOTER */
+            .eco-footer { padding: 16px 14px; }
+            .eco-grid { grid-template-columns: 1fr; gap: 10px; }
+            .slogan { font-size: 14px; }
+
+            /* FORMULA */
+            .formula-section { padding: 14px 14px; font-size: 11.5px; }
+            .formula-code { font-size: 10px; word-break: break-all; white-space: pre-wrap; }
+
+            /* ACTION BAR */
+            .action-bar { flex-direction: column; gap: 10px; margin-top: 16px; }
+        }
+
+        /* TABLET */
+        @media (min-width: 601px) and (max-width: 860px) {
+            .top-bar { padding: 12px 18px; }
+            .input-row { grid-template-columns: 1fr 1fr; }
+            .summary-row { grid-template-columns: repeat(3, 1fr); }
+            .summary-card:nth-child(3) { border-right: none; }
+            .summary-card:nth-child(n+4) { border-top: 1px solid var(--border); }
+            .report-header { padding: 22px 24px; }
+            .grand-total { padding: 20px 24px; }
+            .eco-footer { padding: 18px 24px; }
+            .eco-grid { grid-template-columns: 1fr 1fr; }
+            .formula-section { padding: 16px 24px; }
+            .hybrid-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Mobile card view for device list */
+        .mobile-cards { display: none; }
+        @media (max-width: 600px) {
+            .mobile-cards { display: block; padding: 8px 0; }
+        }
+        .m-card {
+            margin: 0 12px 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            position: relative;
+        }
+        .m-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .m-card-name { font-weight: 700; font-size: 14px; color: var(--text); }
+        .m-card-co2 { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent); }
+        .m-card-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+        .m-chip {
+            font-size: 11px; padding: 2px 9px; border-radius: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+        }
+        .m-del { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e53e3e; font-size: 18px; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+
+        /* ── PRINT ── */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .top-bar { display: none; }
+            .main { padding: 0; max-width: 100%; }
+            .report-container { box-shadow: none; border: 1px solid #ddd; }
+            #reportArea { display: block !important; }
+            .summary-row { grid-template-columns: repeat(5, 1fr) !important; }
+            .eco-grid { grid-template-columns: repeat(3, 1fr) !important; }
+            .report-table-wrap { overflow: visible; }
+            @page { size: A4; margin: 12mm 14mm; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar no-print">
+    <div class="logo">
+        <span class="logo-leaf">🌿</span>
+        <div>
+            Carbon Footprint Calculator
+            <span class="logo-sub">Professional Edition — Multi-Device</span>
+        </div>
+    </div>
+    <div class="theme-switcher">
+        <span class="theme-label">Theme:</span>
+        <button class="theme-btn active" onclick="setTheme('mint', this)">🌿 Mint</button>
+        <button class="theme-btn" onclick="setTheme('dark', this)">🌑 Dark</button>
+        <button class="theme-btn" onclick="setTheme('light', this)">☀️ Light</button>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- INPUT SECTION -->
+    <div class="no-print">
+        <h1 class="section-title">Device Carbon Footprint</h1>
+        <p class="section-sub">Multiple devices ki carbon emissions ek professional report mein calculate karein — Home, Office, Company ke liye</p>
+
+        <!-- CATEGORY TABS -->
+        <div class="tabs">
+            <div class="tab active" onclick="selectCat('Home', this)">🏠 Home</div>
+            <div class="tab" onclick="selectCat('Office', this)">🏢 Office</div>
+            <div class="tab" onclick="selectCat('Company', this)">🏭 Company</div>
+            <div class="tab" onclick="selectCat('Lab / IT', this)">💻 Lab / IT</div>
+            <div class="tab" onclick="selectCat('Factory', this)">⚙️ Factory</div>
+        </div>
+
+        <div class="add-panel">
+            <div class="panel-heading">Add Device</div>
+            <div class="input-row">
+                <div class="field">
+                    <label>Device Name</label>
+                    <input type="text" id="devName" placeholder="e.g. AC, PC, Server, LED TV">
+                </div>
+                <div class="field">
+                    <label>Power (Watts)</label>
+                    <input type="number" id="devWatts" placeholder="e.g. 1500" min="0">
+                </div>
+                <div class="field">
+                    <label>Usage (Hours/Day)</label>
+                    <input type="number" id="devHours" placeholder="e.g. 8" min="0" max="24">
+                </div>
+                <div class="field">
+                    <label>Energy Source</label>
+                    <select id="energySource">
+                        <option value="0.82">Grid Mixed / Coal (0.82)</option>
+                        <option value="2.42">Pure Coal Plant (2.42)</option>
+                        <option value="2.68">Diesel Genset (2.68)</option>
+                        <option value="0.41">Natural Gas (0.41)</option>
+                        <option value="0.05">Hydro Power (0.05)</option>
+                        <option value="0.00">Solar Energy (0.00)</option>
+                        <option value="0.012">Nuclear (0.012)</option>
+                        <option value="0.011">Wind (0.011)</option>
+                    </select>
+                </div>
+            </div>
+            <!-- HYBRID TOGGLE -->
+            <label class="hybrid-toggle-row" onclick="toggleHybrid()">
+                <input type="checkbox" id="hybridCheck" onclick="event.stopPropagation(); toggleHybrid()">
+                <span class="hybrid-toggle-label">☀️⚡ Hybrid System — Solar + Grid mixed use?</span>
+                <span class="hybrid-badge">Ghar se kaam / WFH</span>
+            </label>
+
+            <!-- HYBRID FIELDS -->
+            <div class="hybrid-fields" id="hybridFields">
+                <div class="hybrid-title">☀️ Solar + ⚡ Grid — Hour-wise Split</div>
+                <div class="hybrid-grid">
+                    <div class="field">
+                        <label>Solar Hours / Day</label>
+                        <input type="number" id="solarHours" placeholder="e.g. 6" min="0" max="24" oninput="validateHybridHours()">
+                    </div>
+                    <div class="field">
+                        <label>Grid Hours / Day</label>
+                        <input type="number" id="gridHours" placeholder="e.g. 2" min="0" max="24" oninput="validateHybridHours()">
+                    </div>
+                    <div class="field">
+                        <label>Grid Source</label>
+                        <select id="gridSource">
+                            <option value="0.82">Grid Mixed / Coal (0.82)</option>
+                            <option value="2.42">Pure Coal Plant (2.42)</option>
+                            <option value="2.68">Diesel Genset (2.68)</option>
+                            <option value="0.41">Natural Gas (0.41)</option>
+                            <option value="0.05">Hydro Power (0.05)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="hourWarning" class="hour-warning">⚠️ Solar + Grid hours device ke total hours se zyada nahi ho sakte!</div>
+                <div class="hybrid-note">
+                    💡 <strong>Kaise kaam karta hai:</strong> Device ke total watts ke sath Solar hours (CO₂ = 0) aur Grid hours (selected factor) alag-alag calculate honge. Net emission = sirf Grid portion ka CO₂.
+                    Rooftop Solar ya Solar battery use karne wale PM / WFH employees ke liye.
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-add" onclick="addDevice()">＋ Add Device</button>
+                <button class="btn btn-report" onclick="generateReport()">📋 Generate Report</button>
+                <button class="btn btn-clear" onclick="clearAll()" title="Clear All">🗑</button>
+            </div>
+        </div>
+
+        <!-- DEVICE LIST -->
+        <div class="device-list">
+            <div class="device-list-header">
+                <strong style="font-size:14px;">Added Devices</strong>
+                <span class="device-count" id="deviceCount">0 Devices</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Category</th>
+                        <th>Device</th>
+                        <th>Watts</th>
+                        <th>Hours/Day</th>
+                        <th>kWh/Day</th>
+                        <th>CO₂/Day (kg)</th>
+                        <th>Source</th>
+                        <th>Mode</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="deviceTableBody">
+                    <tr id="emptyRow">
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <div>Koi device nahi add kiya gaya. Upar se device add karein.</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mobile-cards" id="mobileCards"></div>
+        </div>
+    </div>
+
+    <!-- REPORT AREA -->
+    <div id="reportArea">
+        <div class="report-container">
+
+            <!-- REPORT HEADER -->
+            <div class="report-header">
+                <div>
+                    <div class="report-title">🌿 Carbon Emission Analysis</div>
+                    <div class="report-subtitle">Multi-Device Professional Report — All Categories</div>
+                </div>
+                <div class="report-meta">
+                    <div id="rptDate"></div>
+                    <div>Certified Calculation</div>
+                    <div>Emission Science Lab</div>
+                    <div class="report-id" id="rptId"></div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-card">
+                    <div class="s-label">Total Devices</div>
+                    <div class="s-value" id="sumDevices">0</div>
+                    <div class="s-unit">units</div>
+                </div>
+                <div class="summary-card">
+                    <div class="s-label">Total Power</div>
+                    <div class="s-value" id="sumWatts">0</div>
+                    <div class="s-unit">Watts</div>
+                </div>
+                <div class="summary-card">
+                    <div class="s-label">Energy/Day</div>
+                    <div class="s-value" id="sumKwh">0.000</div>
+                    <div class="s-unit">kWh/day</div>
+                </div>
+                <div class="summary-card">
+                    <div class="s-label">☀️ Solar Saved</div>
+                    <div class="s-value" id="sumSolarSaved" style="color:#f59e0b">0.000</div>
+                    <div class="s-unit">kg CO₂ offset</div>
+                </div>
+                <div class="summary-card" style="border-right:none">
+                    <div class="s-label">Net CO₂ / Day</div>
+                    <div class="s-value" id="sumCO2Day">0.000</div>
+                    <div class="s-unit">kg CO₂</div>
+                </div>
+            </div>
+
+            <!-- CATEGORY SECTIONS -->
+            <div id="reportCatSections"></div>
+
+            <!-- HYBRID SOLAR SAVING HIGHLIGHT -->
+            <div id="hybridSavingCard" style="display:none; padding:18px 36px; background:linear-gradient(135deg,#f0fdf4,#fffbeb); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div>
+                        <div style="font-size:13px; font-weight:700; color:#16a34a; margin-bottom:4px;">☀️ Hybrid Solar Contribution — Carbon Offset</div>
+                        <div style="font-size:12px; color:#555;">Solar se chalane ki wajah se yeh carbon utsarjan NAHI hua (bachaya gaya)</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; color:#16a34a;">−<span id="hSavedKg">0.0000</span> kg CO₂</div>
+                        <div style="font-size:12px; color:#555;"><span id="hSavedPct">0</span>% carbon aapne Solar se bachaya 🌿</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAND TOTAL -->
+            <div class="grand-total">
+                <div>
+                    <div class="gt-label">🌍 Total Carbon Footprint (Per Day)</div>
+                    <div class="gt-unit">sabhi categories ka sammilit carbon utsarjan</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="gt-value"><span id="gtCO2">0.0000</span></div>
+                    <div class="gt-unit">kg CO₂ / Day</div>
+                </div>
+            </div>
+
+            <!-- FORMULA SECTION -->
+            <div class="formula-section">
+                <strong>📐 Calculation Formula & Methodology</strong><br>
+                Energy consumption = (Power in Watts × Usage Hours) ÷ 1000 = kWh/day<br>
+                Carbon Emission = kWh × Emission Factor (kg CO₂/kWh per IPCC &amp; IEA standards)<br>
+                <span class="formula-code">CO₂ (kg) = (Watts × Hours / 1000) × Emission_Factor</span>
+            </div>
+
+            <!-- ECO FOOTER -->
+            <div class="eco-footer">
+                <div class="eco-title">🌱 Environmental Awareness — Save Energy, Save Earth</div>
+                <div class="eco-grid">
+                    <div class="eco-card">
+                        <div class="eco-icon">🌳</div>
+                        <div class="eco-bold" id="ecoTrees">0 Trees</div>
+                        <div class="eco-text">planted per year to offset this carbon (1 tree ≈ 22 kg CO₂/yr)</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-icon">🚗</div>
+                        <div class="eco-bold" id="ecoKm">0 km</div>
+                        <div class="eco-text">equivalent petrol car driving per day (0.21 kg CO₂/km)</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-icon">💡</div>
+                        <div class="eco-bold" id="ecoLed">0 Bulbs</div>
+                        <div class="eco-text">equivalent 10W LED bulbs burning all day</div>
+                    </div>
+                </div>
+                <div class="slogan-box">
+                    <div class="slogan">Save Energy · Save Environment · Save Future 🌿</div>
+                    <div class="slogan-sub">Urja bachao · Paryavaran bachao · Bhavishya bachao</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-bar no-print">
+            <button class="btn btn-print" onclick="window.print()">🖨️ A4 Print / PDF Save</button>
+            <button class="btn btn-new" onclick="backToForm()">← Naya Device Add Karein</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ── STATE ──
+    let devices = [];
+    let currentCategory = 'Home';
+
+    const sourceNames = {
+        "0.82": "Grid / Coal",
+        "2.42": "Coal Plant",
+        "2.68": "Diesel Genset",
+        "0.41": "Natural Gas",
+        "0.05": "Hydro Power",
+        "0.00": "Solar",
+        "0.012": "Nuclear",
+        "0.011": "Wind"
+    };
+
+    const catIcons = { 'Home': '🏠', 'Office': '🏢', 'Company': '🏭', 'Lab / IT': '💻', 'Factory': '⚙️' };
+
+    // ── THEME ──
+    function setTheme(t, btn) {
+        document.documentElement.setAttribute('data-theme', t);
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // ── CATEGORY ──
+    function selectCat(cat, el) {
+        currentCategory = cat;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    // ── HYBRID TOGGLE ──
+    function toggleHybrid() {
+        const cb = document.getElementById('hybridCheck');
+        const hf = document.getElementById('hybridFields');
+        hf.classList.toggle('visible', cb.checked);
+        if (!cb.checked) {
+            document.getElementById('solarHours').value = '';
+            document.getElementById('gridHours').value  = '';
+            document.getElementById('hourWarning').style.display = 'none';
+        }
+    }
+
+    // ── HYBRID HOUR VALIDATION ──
+    function validateHybridHours() {
+        const totalHours = parseFloat(document.getElementById('devHours').value) || 0;
+        const sh = parseFloat(document.getElementById('solarHours').value) || 0;
+        const gh = parseFloat(document.getElementById('gridHours').value) || 0;
+        const warn = document.getElementById('hourWarning');
+        if (totalHours > 0 && (sh + gh) > totalHours) {
+            warn.style.display = 'block';
+        } else {
+            warn.style.display = 'none';
+        }
+    }
+
+    // ── ADD DEVICE ──
+    function addDevice() {
+        const name   = document.getElementById('devName').value.trim();
+        const watts  = parseFloat(document.getElementById('devWatts').value);
+        const hours  = parseFloat(document.getElementById('devHours').value);
+        const srcKey = document.getElementById('energySource').value;
+        const factor = parseFloat(srcKey);
+        const isHybrid = document.getElementById('hybridCheck').checked;
+
+        if (!name) { alert('Device ka naam likhein.'); return; }
+        if (isNaN(watts) || watts <= 0) { alert('Valid watts likhein.'); return; }
+        if (isNaN(hours) || hours <= 0 || hours > 24) { alert('0 se 24 ke beech hours likhein.'); return; }
+
+        let solarH = 0, gridH = 0, gridFactor = factor, solarCO2Saved = 0;
+        let kwh, co2, mode = 'Standard';
+
+        if (isHybrid) {
+            solarH      = parseFloat(document.getElementById('solarHours').value) || 0;
+            gridH       = parseFloat(document.getElementById('gridHours').value) || 0;
+            gridFactor  = parseFloat(document.getElementById('gridSource').value);
+
+            if (solarH + gridH > hours) {
+                alert('Solar + Grid hours device ke total hours se zyada nahi ho sakte!'); return;
+            }
+            // Remaining hours (unspecified) assume grid
+            const remainH = hours - solarH - gridH;
+            const effectiveGridH = gridH + remainH;
+
+            const solarKwh = (watts * solarH) / 1000;
+            const gridKwh  = (watts * effectiveGridH) / 1000;
+            kwh  = (watts * hours) / 1000;
+            co2  = gridKwh * gridFactor;          // Solar = 0 emission
+            solarCO2Saved = solarKwh * gridFactor; // How much CO₂ was avoided
+            mode = `☀️${solarH}h + ⚡${effectiveGridH.toFixed(1)}h (Hybrid)`;
+        } else {
+            kwh = (watts * hours) / 1000;
+            co2 = kwh * factor;
+        }
+
+        devices.push({
+            id: Date.now(), category: currentCategory, name, watts, hours,
+            kwh, co2, factor, srcKey, isHybrid,
+            solarH, gridH: isHybrid ? (hours - solarH) : 0,
+            gridFactor: isHybrid ? gridFactor : factor,
+            solarCO2Saved, mode
+        });
+
+        // Reset fields
+        document.getElementById('devName').value  = '';
+        document.getElementById('devWatts').value = '';
+        document.getElementById('devHours').value = '';
+        if (isHybrid) {
+            document.getElementById('solarHours').value = '';
+            document.getElementById('gridHours').value  = '';
+        }
+
+        renderTable();
+    }
+
+    // ── RENDER TABLE ──
+    function renderTable() {
+        const tbody = document.getElementById('deviceTableBody');
+        const mCards = document.getElementById('mobileCards');
+        tbody.innerHTML = '';
+        mCards.innerHTML = '';
+
+        if (devices.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="10">
+                <div class="empty-state"><div class="empty-icon">📭</div>
+                <div>Koi device nahi add kiya gaya. Upar se device add karein.</div></div></td></tr>`;
+            document.getElementById('deviceCount').textContent = '0 Devices';
+            return;
+        }
+        document.getElementById('deviceCount').textContent = devices.length + ' Device' + (devices.length > 1 ? 's' : '');
+
+        devices.forEach((d, i) => {
+            // ── Desktop table row ──
+            const tr = document.createElement('tr');
+            const modeBadge = d.isHybrid
+                ? `<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;padding:2px 8px;border-radius:12px;font-weight:700;">☀️⚡ Hybrid</span>`
+                : `<span style="font-size:10px;background:var(--tag-bg);color:var(--accent);padding:2px 8px;border-radius:12px;font-weight:700;">Standard</span>`;
+            tr.innerHTML = `
+                <td class="mono">${i + 1}</td>
+                <td><span class="cat-badge">${catIcons[d.category] || '📦'} ${d.category}</span></td>
+                <td><strong>${d.name}</strong></td>
+                <td class="mono">${d.watts} W</td>
+                <td class="mono">${d.hours} h</td>
+                <td class="mono">${d.kwh.toFixed(3)}</td>
+                <td class="co2-highlight mono">${d.co2.toFixed(4)}</td>
+                <td style="font-size:12px;color:var(--text-muted)">${d.isHybrid ? sourceNames[String(d.gridFactor)]||d.gridFactor : sourceNames[d.srcKey]||d.srcKey}</td>
+                <td>${modeBadge}</td>
+                <td><button class="del-btn" onclick="deleteDevice(${d.id})">✕</button></td>`;
+            tbody.appendChild(tr);
+
+            // ── Mobile card ──
+            const hybridChip = d.isHybrid
+                ? `<span class="m-chip" style="background:#fff3cd;color:#856404;border-color:#ffc107;">☀️${d.solarH}h ⚡${(d.hours-d.solarH).toFixed(1)}h</span>`
+                : '';
+            const savedChip = d.isHybrid && d.solarCO2Saved > 0
+                ? `<span class="m-chip" style="color:#16a34a;border-color:#86efac;">☀️ Saved ${d.solarCO2Saved.toFixed(3)} kg</span>`
+                : '';
+            const card = document.createElement('div');
+            card.className = 'm-card';
+            card.innerHTML = `
+                <button class="m-del" onclick="deleteDevice(${d.id})">✕</button>
+                <div class="m-card-top">
+                    <div>
+                        <span class="cat-badge" style="margin-bottom:4px;display:inline-block;">${catIcons[d.category]||'📦'} ${d.category}</span><br>
+                        <span class="m-card-name">${d.name}</span>
+                    </div>
+                    <div class="m-card-co2">${d.co2.toFixed(4)}<span style="font-size:10px;font-weight:400;color:var(--text-muted)"> kg CO₂</span></div>
+                </div>
+                <div class="m-card-row">
+                    <span class="m-chip">${d.watts} W</span>
+                    <span class="m-chip">${d.hours} h/day</span>
+                    <span class="m-chip">${d.kwh.toFixed(3)} kWh</span>
+                    ${hybridChip}${savedChip}
+                </div>`;
+            mCards.appendChild(card);
+        });
+    }
+
+    // ── DELETE ──
+    function deleteDevice(id) {
+        devices = devices.filter(d => d.id !== id);
+        renderTable();
+    }
+
+    // ── CLEAR ALL ──
+    function clearAll() {
+        if (devices.length && !confirm('Sabhi devices clear karein?')) return;
+        devices = [];
+        renderTable();
+    }
+
+    // ── GENERATE REPORT ──
+    function generateReport() {
+        if (devices.length === 0) { alert('Pehle kuch devices add karein!'); return; }
+
+        const totalWatts     = devices.reduce((s, d) => s + d.watts, 0);
+        const totalKwh       = devices.reduce((s, d) => s + d.kwh,   0);
+        const totalCO2       = devices.reduce((s, d) => s + d.co2,   0);
+        const totalSolarSaved= devices.reduce((s, d) => s + (d.solarCO2Saved||0), 0);
+
+        document.getElementById('sumDevices').textContent    = devices.length;
+        document.getElementById('sumWatts').textContent      = totalWatts.toFixed(0);
+        document.getElementById('sumKwh').textContent        = totalKwh.toFixed(3);
+        document.getElementById('sumCO2Day').textContent     = totalCO2.toFixed(4);
+        document.getElementById('sumSolarSaved').textContent = totalSolarSaved.toFixed(4);
+        document.getElementById('gtCO2').textContent         = totalCO2.toFixed(4);
+
+        // Eco equivalents
+        const treesYear = ((totalCO2 * 365) / 22).toFixed(1);
+        const carKm     = (totalCO2 / 0.21).toFixed(1);
+        const ledBulbs  = ((totalKwh * 1000) / 10 / 24).toFixed(0);
+        document.getElementById('ecoTrees').textContent = treesYear + ' Trees/Year';
+        document.getElementById('ecoKm').textContent    = carKm + ' km';
+        document.getElementById('ecoLed').textContent   = ledBulbs + ' Bulbs';
+
+        // Hybrid saving card — show only if any hybrid device
+        const hybridDevices = devices.filter(d => d.isHybrid);
+        const hybridSaving  = document.getElementById('hybridSavingCard');
+        if (hybridDevices.length > 0 && hybridSaving) {
+            hybridSaving.style.display = 'block';
+            document.getElementById('hSavedKg').textContent   = totalSolarSaved.toFixed(4);
+            document.getElementById('hSavedPct').textContent  =
+                totalSolarSaved > 0
+                    ? (totalSolarSaved / (totalCO2 + totalSolarSaved) * 100).toFixed(1)
+                    : '0.0';
+        } else if (hybridSaving) {
+            hybridSaving.style.display = 'none';
+        }
+
+        // Date & ID
+        const now = new Date();
+        document.getElementById('rptDate').textContent = 'Date: ' + now.toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+        document.getElementById('rptId').textContent   = 'RPT-' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(now.getTime()).slice(-5);
+
+        // Category sections
+        const cats = [...new Set(devices.map(d => d.category))];
+        const secHtml = cats.map(cat => {
+            const catDevs = devices.filter(d => d.category === cat);
+            const catCO2  = catDevs.reduce((s, d) => s + d.co2, 0);
+            const catSolar= catDevs.reduce((s, d) => s + (d.solarCO2Saved||0), 0);
+
+            const rows = catDevs.map((d, i) => {
+                const modeTd = d.isHybrid
+                    ? `<span style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap;">☀️${d.solarH}h ⚡${(d.hours-d.solarH).toFixed(1)}h</span>`
+                    : `<span style="font-size:10px;background:var(--tag-bg);color:var(--accent);padding:2px 7px;border-radius:10px;font-weight:700;">Standard</span>`;
+                const solarNote = d.isHybrid && d.solarCO2Saved > 0
+                    ? `<br><span style="font-size:10px;color:#16a34a;">☀️ Saved: ${d.solarCO2Saved.toFixed(4)} kg</span>`
+                    : '';
+                return `<tr>
+                    <td class="mono" style="padding-left:24px;">${i+1}</td>
+                    <td><strong>${d.name}</strong>${solarNote}</td>
+                    <td class="mono align-right">${d.watts} W</td>
+                    <td class="mono align-right">${d.hours} h</td>
+                    <td class="mono align-right">${d.kwh.toFixed(3)} kWh</td>
+                    <td class="align-right">${modeTd}</td>
+                    <td class="co2-highlight mono align-right">${d.co2.toFixed(4)} kg</td>
+                </tr>`;
+            }).join('');
+
+            const solarRow = catSolar > 0
+                ? `<tr style="background:var(--accent-soft)">
+                    <td colspan="5" style="padding:8px 24px;font-size:12px;color:#16a34a;font-weight:600;">
+                        ☀️ Solar se bachaya gaya carbon (is category mein)</td>
+                    <td colspan="2" class="mono align-right" style="color:#16a34a;font-weight:700;padding-right:24px;">
+                        −${catSolar.toFixed(4)} kg</td></tr>`
+                : '';
+
+            return `<div class="cat-section">
+                <div class="cat-header">
+                    <div class="cat-name">${catIcons[cat]||'📦'} ${cat}</div>
+                    <div class="cat-total">${catCO2.toFixed(4)} kg CO₂/day</div>
+                </div>
+                <div class="report-table-wrap">
+                <table class="report-table">
+                    <thead><tr>
+                        <th>#</th><th>Device</th>
+                        <th class="align-right">Power</th>
+                        <th class="align-right">Hours</th>
+                        <th class="align-right">Energy</th>
+                        <th class="align-right">Mode</th>
+                        <th class="align-right">Net CO₂/Day</th>
+                    </tr></thead>
+                    <tbody>${rows}${solarRow}</tbody>
+                </table>
+                </div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('reportCatSections').innerHTML = secHtml;
+        document.getElementById('reportArea').style.display = 'block';
+        document.getElementById('reportArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── BACK ──
+    function backToForm() {
+        document.getElementById('reportArea').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
