@@ -9,7 +9,8 @@
     body {
       font-family: Arial;
       margin: 0;
-      background: #e0f7fa;
+      background-image: url("http://www.transparenttextures.com/patterns/buried.png");
+      background-repeat: repeat;
     }
 
     header {
@@ -68,33 +69,54 @@ header h1, header h3 {
       padding: 10px;
     }
 
-  .social-links a {
-      text-decoration: none;
-      display: block;
-      padding: 15px;
-      /* Glassmorphism background: transparent white with low opacity */
-      background: rgba(255, 255, 255, 0.2);
-      /* Glassmorphism blur effect */
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      /* Border with slight transparency for a better glass look */
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 28px;
-      color: #0072ff;
-      font-weight: bold;
-      transition: all 0.5s ease;
-      /* Added shadow for depth */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+    .social-links a {
+        text-decoration: none;
+        display: block;
+        padding: 15px;
+        position: relative; /* टेक्सचर और एनिमेशन के लिए आवश्यक */
+        overflow: hidden;
+    
+        /* ग्लास का आधार */
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(244, 10, 10, 0.365);
+        border-radius: 28px;
+        color: #cd04e8;
+        font-weight: bold;
+        transition: all 0.5s ease;
+        box-shadow: 0 8px 10px 0 rgba(247, 2, 2, 0.796);
+    }
 
-  .social-links a:hover {
-      /* Hover effect remains dynamic */
-      background: rgba(195, 9, 237, 0.4);
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      color: #ffffff;
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-  }
+        /* ग्लास में टेक्सचर और लाइव फील के लिए */
+    .social-links a::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* यह नॉइज़ टेक्सचर है जो ग्लास को रियल बनाएगा */
+        background: transparent;
+        opacity: 1.2;
+        pointer-events: none;
+    }
+
+        /* बैकग्राउंड में एनिमेटेड लाइव ग्रैडिएंट */
+    .social-links a:hover {
+        background: linear-gradient(60deg, #c309ed, #ff1500d5);
+        background-size: 200% 200%;
+        animation: gradientShift 2s ease infinite;
+        color: #89ecbe;
+        border-color: rgba(255, 3, 3, 0.509);
+        box-shadow: 0 0 20px rgba(195, 9, 237, 0.863);
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
   </style>
 </head>
 <body>
