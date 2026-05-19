@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelForge — Drawing Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+:root {
+  --bg:#1a1a2e; --panel:#16213e; --toolbar:#0f3460; --accent:#e94560; --accent2:#f5a623;
+  --text:#f6f465; --text-dim:#8899aa; --border:#2a3a5c; --btn:#1e2d4a; --btn-hover:#253759;
+  --shadow:0 4px 24px rgba(0,0,0,.4); --radius:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+
+/* MENUBAR */
+#menubar{background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;height:34px;gap:4px;z-index:100;flex-shrink:0}
+.app-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--accent);letter-spacing:-.5px;margin-right:12px;padding-right:12px;border-right:1px solid var(--border)}
+.menu-item{position:relative;padding:4px 10px;font-size:12px;cursor:pointer;border-radius:4px;transition:background .15s}
+.menu-item:hover{background:var(--btn-hover)}
+.menu-item:hover>.dropdown{display:block}
+.dropdown{display:none;position:absolute;top:100%;left:0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);min-width:190px;z-index:999;padding:4px 0}
+.dropdown-item{padding:7px 16px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:background .1s}
+.dropdown-item:hover{background:var(--btn-hover);color:var(--accent)}
+.dropdown-item .shortcut{color:var(--text-dim);font-size:11px}
+.dropdown-sep{height:1px;background:var(--border);margin:4px 0}
+
+/* TOOLBAR */
+#toolbar{background:var(--toolbar);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:4px 10px;gap:6px;flex-wrap:wrap;flex-shrink:0;z-index:50}
+.tool-group{display:flex;align-items:center;gap:3px;padding:0 6px;border-right:1px solid var(--border)}
+.tool-group:last-child{border-right:none}
+.tool-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;padding:0 4px;white-space:nowrap}
+.tool-btn{width:32px;height:32px;border:1px solid transparent;border-radius:var(--radius);background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;position:relative}
+.tool-btn:hover{background:var(--btn-hover);border-color:var(--border)}
+.tool-btn.active{background:var(--accent);border-color:var(--accent);color:#e5b0b0d3}
+.tool-btn[title]:hover::after{content:attr(title);position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;white-space:nowrap;pointer-events:none;z-index:999}
+.size-control,.opacity-control{display:flex;align-items:center;gap:6px}
+.size-control input[type=range]{width:70px;accent-color:var(--accent);cursor:pointer}
+.opacity-control input[type=range]{width:70px;accent-color:var(--accent2);cursor:pointer}
+.size-value{font-size:11px;color:var(--accent2);min-width:28px;text-align:right}
+.color-wells{display:flex;align-items:center;gap:4px;position:relative;width:52px;height:40px}
+.color-well{width:28px;height:28px;border-radius:var(--radius);border:2px solid transparent;cursor:pointer;transition:transform .15s;overflow:hidden;position:absolute}
+.color-well:hover{transform:scale(1.1)}
+.color-well.primary{border-color:var(--accent);z-index:2;top:0;left:0}
+.color-well.secondary{border-color:var(--text-dim);z-index:1;top:10px;left:14px}
+.color-well input[type=color]{width:200%;height:200%;border:none;cursor:pointer;opacity:0;position:absolute;top:-50%;left:-50%}
+.color-swatch{position:absolute;inset:0;pointer-events:none}
+.palette{display:flex;flex-wrap:wrap;gap:3px;max-width:180px}
+.swatch{width:18px;height:18px;border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,.1);transition:transform .1s}
+.swatch:hover{transform:scale(1.3);border-color:#fff}
+
+/* MAIN */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* SIDE TOOLS */
+#sidetool{width:48px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 4px;gap:3px;overflow-y:auto;flex-shrink:0}
+.side-btn{width:36px;height:36px;border:1px solid transparent;border-radius:var(--radius);background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .15s;position:relative}
+.side-btn:hover{background:var(--btn-hover);border-color:var(--border)}
+.side-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.side-btn[title]:hover::after{content:attr(title);position:absolute;left:44px;top:50%;transform:translateY(-50%);background:#000;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;white-space:nowrap;pointer-events:none;z-index:999}
+.side-sep{width:80%;height:1px;background:var(--border);margin:2px 0}
+
+/* CANVAS AREA */
+#canvas-area{flex:1;overflow:auto;background:repeating-conic-gradient(#2a3a5c 0% 25%,#1a2a4c 0% 50%) 0 0/20px 20px;display:flex;align-items:flex-start;justify-content:flex-start;padding:20px;position:relative}
+#canvas-area.drag-over{outline:3px dashed var(--accent);outline-offset:-3px}
+#canvas-wrap{position:relative;display:inline-block;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#main-canvas{display:block;image-rendering:pixelated}
+#overlay-canvas{position:absolute;top:0;left:0;pointer-events:none}
+
+/* OBJECT LAYER — lives above overlay, receives pointer events */
+#object-layer{position:absolute;top:0;left:0;pointer-events:none;z-index:10}
+
+/* STATUS */
+#statusbar{background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:3px 12px;gap:16px;font-size:11px;color:var(--text-dim);flex-shrink:0;height:24px}
+.status-item{display:flex;align-items:center;gap:4px}
+.status-item span{color:var(--text)}
+
+/* SHAPE PANEL */
+#shape-panel{background:var(--panel);border-right:1px solid var(--border);width:0;overflow:hidden;flex-shrink:0;transition:width .2s;display:flex;flex-direction:column}
+#shape-panel.open{width:130px}
+#shape-panel-inner{width:130px;padding:8px 6px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.shape-panel-title{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;padding:4px 2px}
+.shape-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.shape-thumb{width:100%;aspect-ratio:1;background:var(--btn);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:20px}
+.shape-thumb:hover{background:var(--btn-hover);border-color:var(--accent);transform:scale(1.05)}
+.shape-thumb.active{border-color:var(--accent);background:rgba(233,69,96,.15)}
+
+/* CONTEXT MENU */
+#ctx-menu{display:none;position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);z-index:9999;padding:4px 0;min-width:170px}
+#ctx-menu.open{display:block}
+.ctx-item{padding:7px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .1s}
+.ctx-item:hover{background:var(--btn-hover);color:var(--accent)}
+.ctx-sep{height:1px;background:var(--border);margin:3px 0}
+
+/* OBJECT HANDLES rendered on object-layer via SVG */
+.obj-container{position:absolute;pointer-events:auto;cursor:move}
+.obj-container.selected .obj-border{stroke:var(--accent);stroke-dasharray:5 3}
+.obj-container svg.obj-svg{overflow:visible}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;min-width:340px;box-shadow:var(--shadow)}
+.modal h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;color:var(--accent)}
+.modal label{font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px}
+.modal input[type=number],.modal select,.modal input[type=text]{width:100%;background:var(--btn);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:7px 10px;font-family:'DM Mono',monospace;font-size:13px;margin-bottom:12px}
+.modal-row{display:flex;gap:12px}
+.modal-row>*{flex:1}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btn{padding:8px 18px;border-radius:var(--radius);border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#f40909}
+.btn-primary:hover{background:#c73750}
+.btn-secondary{background:var(--btn);color:var(--text)}
+.btn-secondary:hover{background:var(--btn-hover)}
+
+/* OBJECT PROPERTIES PANEL (bottom of side) */
+#obj-props{display:none;position:absolute;right:12px;bottom:32px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;z-index:200;min-width:190px;box-shadow:var(--shadow);font-size:12px}
+#obj-props.open{display:block}
+#obj-props h4{font-family:'Syne',sans-serif;font-size:12px;color:var(--accent);margin-bottom:8px;font-weight:700}
+#obj-props label{color:var(--text-dim);font-size:11px;display:block;margin-bottom:2px}
+#obj-props input[type=range]{width:100%;accent-color:var(--accent);margin-bottom:8px}
+#obj-props input[type=number]{width:60px;background:var(--btn);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 6px;font-size:11px}
+.obj-props-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.obj-props-row label{margin:0;min-width:50px}
+#obj-props button{width:100%;padding:5px;border-radius:4px;border:1px solid var(--border);background:var(--btn);color:var(--text);cursor:pointer;font-size:11px;margin-top:4px}
+#obj-props button:hover{background:var(--btn-hover);color:var(--accent)}
+
+#text-input-overlay{display:none;position:absolute;border:2px dashed var(--accent);background:transparent;color:#000;font-size:20px;min-width:100px;min-height:30px;outline:none;z-index:50;padding:2px 4px;resize:both;overflow:hidden;cursor:text;font-family:'Syne',sans-serif}
+#zoom-display{cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s;min-width:48px;text-align:center}
+#zoom-display:hover{background:var(--btn-hover)}
+#canvas-area::-webkit-scrollbar{width:8px;height:8px}
+#canvas-area::-webkit-scrollbar-track{background:var(--bg)}
+#canvas-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- MENUBAR -->
+<div id="menubar">
+  <div class="app-logo">🏜 PixelForge<br>Shiv Computer</div>
+  <div class="menu-item">File
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="newCanvas()">New <span class="shortcut">Ctrl+N</span></div>
+      <div class="dropdown-item" onclick="openFile()">Open… <span class="shortcut">Ctrl+O</span></div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="saveAs('png')">Save as PNG <span class="shortcut">Ctrl+S</span></div>
+      <div class="dropdown-item" onclick="saveAs('jpeg')">Save as JPEG</div>
+      <div class="dropdown-item" onclick="saveAs('webp')">Save as WebP</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="flattenAll();printCanvas()">Print… <span class="shortcut">Ctrl+P</span></div>
+    </div>
+  </div>
+  <div class="menu-item">Edit
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="undoAction()">Undo <span class="shortcut">Ctrl+Z</span></div>
+      <div class="dropdown-item" onclick="redoAction()">Redo <span class="shortcut">Ctrl+Y</span></div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="selectAll()">Select All <span class="shortcut">Ctrl+A</span></div>
+      <div class="dropdown-item" onclick="clearSelection()">Deselect <span class="shortcut">Esc</span></div>
+      <div class="dropdown-item" onclick="deleteSelectedObjects()">Delete <span class="shortcut">Del</span></div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="duplicateSelected()">Duplicate <span class="shortcut">Ctrl+D</span></div>
+      <div class="dropdown-item" onclick="copyCanvas()">Copy Canvas <span class="shortcut">Ctrl+C</span></div>
+      <div class="dropdown-item" onclick="pasteFromClipboard()">Paste Image <span class="shortcut">Ctrl+V</span></div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="flattenAll()">Flatten All Objects</div>
+      <div class="dropdown-item" onclick="clearAll()">Clear Canvas</div>
+    </div>
+  </div>
+  <div class="menu-item">Image
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="openResizeModal()">Resize Canvas…</div>
+      <div class="dropdown-item" onclick="cropToSelection()">Crop to Selection</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="flipH()">Flip Horizontal</div>
+      <div class="dropdown-item" onclick="flipV()">Flip Vertical</div>
+      <div class="dropdown-item" onclick="rotate(90)">Rotate 90° CW</div>
+      <div class="dropdown-item" onclick="rotate(-90)">Rotate 90° CCW</div>
+      <div class="dropdown-item" onclick="rotate(180)">Rotate 180°</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="grayscale()">Grayscale</div>
+      <div class="dropdown-item" onclick="invertColors()">Invert Colors</div>
+      <div class="dropdown-item" onclick="adjustBrightness(20)">Brighten</div>
+      <div class="dropdown-item" onclick="adjustBrightness(-20)">Darken</div>
+    </div>
+  </div>
+  <div class="menu-item">Arrange
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="bringToFront()">Bring to Front</div>
+      <div class="dropdown-item" onclick="sendToBack()">Send to Back</div>
+      <div class="dropdown-item" onclick="bringForward()">Bring Forward</div>
+      <div class="dropdown-item" onclick="sendBackward()">Send Backward</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="alignObjects('left')">Align Left</div>
+      <div class="dropdown-item" onclick="alignObjects('center')">Align Center</div>
+      <div class="dropdown-item" onclick="alignObjects('right')">Align Right</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="groupSelected()">Group <span class="shortcut">Ctrl+G</span></div>
+      <div class="dropdown-item" onclick="ungroupSelected()">Ungroup <span class="shortcut">Ctrl+Shift+G</span></div>
+    </div>
+  </div>
+  <div class="menu-item">View
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="setZoom(zoomLevel*1.25)">Zoom In <span class="shortcut">Ctrl++</span></div>
+      <div class="dropdown-item" onclick="setZoom(zoomLevel*.8)">Zoom Out <span class="shortcut">Ctrl+-</span></div>
+      <div class="dropdown-item" onclick="setZoom(1)">100% <span class="shortcut">Ctrl+0</span></div>
+      <div class="dropdown-item" onclick="setZoom(2)">200%</div>
+      <div class="dropdown-item" onclick="setZoom(4)">400%</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item" onclick="toggleShapePanel()">Toggle Shape Panel</div>
+    </div>
+  </div>
+  <div class="menu-item">Help
+    <div class="dropdown">
+      <div class="dropdown-item" onclick="showShortcuts()">Keyboard Shortcuts</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <div class="tool-group">
+    <span class="tool-label">Size</span>
+    <div class="size-control">
+      <input type="range" id="brushSize" min="1" max="100" value="8" oninput="updateBrushSize(this.value)">
+      <div class="size-value" id="sizeVal">8</div>
+    </div>
+  </div>
+  <div class="tool-group">
+    <span class="tool-label">Opacity</span>
+    <div class="opacity-control">
+      <input type="range" id="opacitySlider" min="1" max="100" value="100" oninput="updateOpacity(this.value)">
+      <div class="size-value" id="opacityVal">100%</div>
+    </div>
+  </div>
+  <div class="tool-group">
+    <span class="tool-label">Colors</span>
+    <div class="color-wells">
+      <div class="color-well secondary" title="Secondary (right-click)">
+        <div class="color-swatch" id="secondarySwatch" style="background:#f5c3c3"></div>
+        <input type="color" id="secondaryColor" value="#ffffff" oninput="updateSecondaryColor(this.value)">
+      </div>
+      <div class="color-well primary" title="Primary color">
+        <div class="color-swatch" id="primarySwatch" style="background:#000000"></div>
+        <input type="color" id="primaryColor" value="#000000" oninput="updatePrimaryColor(this.value)">
+      </div>
+    </div>
+  </div>
+  <div class="tool-group">
+    <div class="palette" id="palette"></div>
+  </div>
+  <div class="tool-group">
+    <button class="tool-btn" title="Undo (Ctrl+Z)" onclick="undoAction()">↩</button>
+    <button class="tool-btn" title="Redo (Ctrl+Y)" onclick="redoAction()">↪</button>
+  </div>
+  <div class="tool-group">
+    <button class="tool-btn" title="Flatten Objects" onclick="flattenAll()">⬇</button>
+    <button class="tool-btn" title="Flip H" onclick="flipH()">↔</button>
+    <button class="tool-btn" title="Flip V" onclick="flipV()">↕</button>
+    <button class="tool-btn" title="Rotate 90°" onclick="rotate(90)">↻</button>
+  </div>
+  <div class="tool-group">
+    <button class="tool-btn" title="Zoom In" onclick="setZoom(zoomLevel*1.25)">🔍+</button>
+    <div id="zoom-display" class="size-value" onclick="setZoom(1)">100%</div>
+    <button class="tool-btn" title="Zoom Out" onclick="setZoom(zoomLevel*.8)">🔍-</button>
+  </div>
+  <div class="tool-group">
+    <span class="tool-label">Shape Fill</span>
+    <div style="display:flex;align-items:center;gap:4px">
+      <select id="shape-fill-mode" style="background:var(--btn);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:11px;cursor:pointer">
+        <option value="stroke">Outline</option>
+        <option value="fill">Filled</option>
+        <option value="both">Both</option>
+      </select>
+    </div>
+  </div>
+  <div class="tool-group">
+    <span class="tool-label">Corner</span>
+    <input type="number" id="cornerRadius" value="0" min="0" max="200" style="width:44px;background:var(--btn);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 5px;font-size:11px" title="Corner Radius (for rect)">
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- Side Tools -->
+  <div id="sidetool">
+    <button class="side-btn active" id="tool-select" title="Select / Move" onclick="setTool('select')">⬚</button>
+    <button class="side-btn" id="tool-lasso" title="Free Select" onclick="setTool('lasso')">🪢</button>
+    <div class="side-sep"></div>
+    <button class="side-btn" id="tool-pencil" title="Pencil (P)" onclick="setTool('pencil')">✏️</button>
+    <button class="side-btn" id="tool-brush" title="Brush (B)" onclick="setTool('brush')">🖌️</button>
+    <button class="side-btn" id="tool-airbrush" title="Airbrush" onclick="setTool('airbrush')">💨</button>
+    <button class="side-btn" id="tool-eraser" title="Eraser (E)" onclick="setTool('eraser')">🧹</button>
+    <div class="side-sep"></div>
+    <button class="side-btn" id="tool-fill" title="Fill (F)" onclick="setTool('fill')">🪣</button>
+    <button class="side-btn" id="tool-eyedropper" title="Eyedropper (I)" onclick="setTool('eyedropper')">💉</button>
+    <div class="side-sep"></div>
+    <button class="side-btn" id="tool-line" title="Line (L)" onclick="setTool('line')">╱</button>
+    <button class="side-btn" id="tool-rect" title="Rectangle (R)" onclick="setTool('rect')">▭</button>
+    <button class="side-btn" id="tool-ellipse" title="Ellipse (O)" onclick="setTool('ellipse')">◯</button>
+    <button class="side-btn" id="tool-triangle" title="Triangle" onclick="setTool('triangle')">△</button>
+    <button class="side-btn" id="tool-arrow" title="Arrow" onclick="setTool('arrow')">➡</button>
+    <button class="side-btn" id="tool-star" title="Star" onclick="setTool('star')">⭐</button>
+    <button class="side-btn" id="tool-polygon" title="Polygon" onclick="setTool('polygon')">⬡</button>
+    <button class="side-btn" id="tool-heart" title="Heart" onclick="setTool('heart')">♥</button>
+    <div class="side-sep"></div>
+    <button class="side-btn" id="tool-text" title="Text (T)" onclick="setTool('text')">T</button>
+    <button class="side-btn" id="tool-image" title="Insert Image" onclick="insertImageTool()">🖼️</button>
+    <div class="side-sep"></div>
+    <button class="side-btn" title="Shape Library" onclick="toggleShapePanel()" style="font-size:13px">📐</button>
+  </div>
+
+  <!-- Shape Panel -->
+  <div id="shape-panel">
+    <div id="shape-panel-inner">
+      <div class="shape-panel-title">Shapes</div>
+      <div class="shape-grid" id="shape-grid"></div>
+      <div class="shape-panel-title" style="margin-top:8px">Recently Used</div>
+      <div id="recent-shapes" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+    </div>
+  </div>
+
+  <!-- Canvas Area -->
+  <div id="canvas-area">
+    <div id="canvas-wrap">
+      <canvas id="main-canvas" width="900" height="600"></canvas>
+      <canvas id="overlay-canvas" width="900" height="600"></canvas>
+      <div id="object-layer"></div>
+      <div id="text-input-overlay" contenteditable="true"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div id="statusbar">
+  <div class="status-item">Tool: <span id="status-tool">Select</span></div>
+  <div class="status-item">Pos: <span id="status-pos">0, 0</span></div>
+  <div class="status-item">Canvas: <span id="status-size">900 × 600</span></div>
+  <div class="status-item">Zoom: <span id="status-zoom">100%</span></div>
+  <div class="status-item">Objects: <span id="status-objects">0</span></div>
+  <div class="status-item">Color: <span id="status-color">#000000</span></div>
+</div>
+
+<!-- OBJECT PROPERTIES PANEL -->
+<div id="obj-props">
+  <h4>⚙ Object</h4>
+  <div class="obj-props-row">
+    <label>X</label><input type="number" id="op-x" style="width:56px" oninput="applyObjProp()">
+    <label>Y</label><input type="number" id="op-y" style="width:56px" oninput="applyObjProp()">
+  </div>
+  <div class="obj-props-row">
+    <label>W</label><input type="number" id="op-w" style="width:56px" oninput="applyObjProp()">
+    <label>H</label><input type="number" id="op-h" style="width:56px" oninput="applyObjProp()">
+  </div>
+  <label>Rotation</label>
+  <input type="range" id="op-rot" min="0" max="360" value="0" oninput="applyObjRotation(this.value)">
+  <label>Opacity</label>
+  <input type="range" id="op-opacity" min="5" max="100" value="100" oninput="applyObjOpacity(this.value)">
+  <button onclick="flattenSelected()">Flatten to Canvas</button>
+  <button onclick="duplicateSelected()">Duplicate</button>
+  <button onclick="deleteSelectedObjects()" style="color:var(--accent)">Delete</button>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu">
+  <div class="ctx-item" onclick="ctxAction('duplicate')">⧉ Duplicate</div>
+  <div class="ctx-item" onclick="ctxAction('flatten')">⬇ Flatten to Canvas</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAction('front')">⬆ Bring to Front</div>
+  <div class="ctx-item" onclick="ctxAction('back')">⬇ Send to Back</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAction('fliph')">↔ Flip Horizontal</div>
+  <div class="ctx-item" onclick="ctxAction('flipv')">↕ Flip Vertical</div>
+  <div class="ctx-item" onclick="ctxAction('rot90')">↻ Rotate 90°</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAction('grayscale')">🌑 Grayscale</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAction('delete')" style="color:var(--accent)">🗑 Delete</div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="resize-modal">
+  <div class="modal">
+    <h2 id="resize-modal-title">Resize Canvas</h2>
+    <div class="modal-row">
+      <div><label>Width (px)</label><input type="number" id="resize-w" value="900" min="1" max="8000"></div>
+      <div><label>Height (px)</label><input type="number" id="resize-h" value="600" min="1" max="8000"></div>
+    </div>
+    <label>Background</label>
+    <select id="resize-bg">
+      <option value="white">White</option><option value="black">Black</option>
+      <option value="transparent">Transparent</option><option value="current">Keep Current</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('resize-modal')">Cancel</button>
+      <button class="btn btn-primary" id="resize-confirm-btn" onclick="confirmResize()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saveas-modal">
+  <div class="modal">
+    <h2>Save As</h2>
+    <label>File Name</label><input type="text" id="save-filename" value="my-drawing">
+    <label>Format</label>
+    <select id="save-format">
+      <option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option>
+    </select>
+    <label>Quality (JPEG/WebP)</label><input type="number" id="save-quality" value="92" min="10" max="100">
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('saveas-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSaveAs()">Download</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="shortcuts-modal">
+  <div class="modal" style="min-width:440px;max-height:82vh;overflow-y:auto">
+    <h2>⌨ Keyboard Shortcuts</h2>
+    <table style="width:100%;font-size:12px;border-collapse:collapse" id="shortcuts-table"></table>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="closeModal('shortcuts-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept="image/*" style="display:none" onchange="loadImage(event)">
+<input type="file" id="insert-img-input" accept="image/*" style="display:none" onchange="insertImageFromFile(event)">
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CANVAS SETUP
+// ═══════════════════════════════════════════════════════
+const canvas  = document.getElementById('main-canvas');
+const ctx     = canvas.getContext('2d');
+const overlay = document.getElementById('overlay-canvas');
+const octx    = overlay.getContext('2d');
+const objLayer= document.getElementById('object-layer');
+const canvasWrap = document.getElementById('canvas-wrap');
+const textOverlay= document.getElementById('text-input-overlay');
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let currentTool   = 'select';
+let primaryColor  = '#000000';
+let secondaryColor= '#ffffff';
+let brushSize     = 8;
+let opacity       = 1;
+let isDrawing     = false;
+let lastX=0,lastY=0,startX=0,startY=0;
+let zoomLevel     = 1;
+let shapeFillMode = 'stroke'; // stroke | fill | both
+let cornerRadius  = 0;
+
+// Object system
+let objects = [];          // [{id,type,x,y,w,h,rot,opacity,imgEl?,color?,strokeColor?,shapeType?,data?,flipped?,points?}]
+let selectedIds = new Set();
+let activeHandle = null;   // {objId, handle} where handle: 'move'|'tl'|'tr'|'bl'|'br'|'tm'|'bm'|'ml'|'mr'|'rot'
+let dragStart    = null;   // {mx,my, obj snapshots}
+
+// Raster selection (when no objects selected)
+let selectionRect = null;
+let selectionData = null;
+let lassoPoints   = [];
+
+// Undo
+const undoStack = [], redoStack = [];
+const MAX_HISTORY = 40;
+
+let pendingNew = false;
+let textPlaced = false;
+let shapePanelOpen = false;
+let selectedShapeType = 'rect';
+let recentShapes = [];
+
+// ═══════════════════════════════════════════════════════
+//  PREDEFINED SHAPES LIBRARY
+// ═══════════════════════════════════════════════════════
+const SHAPE_LIBRARY = [
+  {id:'rect',        label:'Rect',       emoji:'▭'},
+  {id:'roundrect',   label:'Round Rect', emoji:'▢'},
+  {id:'ellipse',     label:'Ellipse',    emoji:'◯'},
+  {id:'circle',      label:'Circle',     emoji:'⬤'},
+  {id:'triangle',    label:'Triangle',   emoji:'△'},
+  {id:'rtriangle',   label:'Right △',    emoji:'◺'},
+  {id:'diamond',     label:'Diamond',    emoji:'◇'},
+  {id:'pentagon',    label:'Pentagon',   emoji:'⬠'},
+  {id:'hexagon',     label:'Hexagon',    emoji:'⬡'},
+  {id:'octagon',     label:'Octagon',    emoji:'⯃'},
+  {id:'star5',       label:'Star 5',     emoji:'⭐'},
+  {id:'star6',       label:'Star 6',     emoji:'✶'},
+  {id:'star4',       label:'Star 4',     emoji:'✦'},
+  {id:'heart',       label:'Heart',      emoji:'♥'},
+  {id:'arrow_right', label:'Arrow →',    emoji:'➡'},
+  {id:'arrow_left',  label:'Arrow ←',   emoji:'⬅'},
+  {id:'arrow_up',    label:'Arrow ↑',    emoji:'⬆'},
+  {id:'arrow_double',label:'⟺ Arrow',    emoji:'↔'},
+  {id:'cross',       label:'Cross',      emoji:'✚'},
+  {id:'parallelogram',label:'Parallelogram',emoji:'▱'},
+  {id:'trapezoid',   label:'Trapezoid',  emoji:'⏢'},
+  {id:'arc',         label:'Arc',        emoji:'⌒'},
+  {id:'speech',      label:'Speech',     emoji:'💬'},
+  {id:'cylinder',    label:'Cylinder',   emoji:'🥫'},
+  {id:'cloud',       label:'Cloud',      emoji:'☁'},
+  {id:'lightning',   label:'Lightning',  emoji:'⚡'},
+  {id:'moon',        label:'Moon',       emoji:'🌙'},
+  {id:'banner',      label:'Banner',     emoji:'🏴'},
+];
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  saveHistory();
+  buildPalette();
+  buildShapePanel();
+  buildShortcutsTable();
+  updateStatusObjects();
+  setupDragDrop();
+}
+
+// ═══════════════════════════════════════════════════════
+//  PALETTE
+// ═══════════════════════════════════════════════════════
+const PALETTE_COLORS=['#000000','#7f7f7f','#880000','#ff0000','#ff7f00','#ffff00',
+  '#00ff00','#00ff7f','#00ffff','#007fff','#0000ff','#7f00ff','#ff00ff','#ff007f',
+  '#ffffff','#c3c3c3','#b97a57','#ffaec9','#ffc90e','#efe4b0','#b5e61d','#99d9ea',
+  '#7092be','#3f48cc','#1e1e1e','#404040','#804000','#804040','#ff8040','#c8ff00'];
+
+function buildPalette(){
+  const p=document.getElementById('palette');
+  PALETTE_COLORS.forEach(c=>{
+    const s=document.createElement('div');
+    s.className='swatch';s.style.background=c;s.title=c;
+    s.addEventListener('click',()=>{primaryColor=c;updatePrimaryColor(c)});
+    s.addEventListener('contextmenu',e=>{e.preventDefault();secondaryColor=c;updateSecondaryColor(c)});
+    p.appendChild(s);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHAPE PANEL
+// ═══════════════════════════════════════════════════════
+function buildShapePanel(){
+  const grid=document.getElementById('shape-grid');
+  SHAPE_LIBRARY.forEach(sh=>{
+    const el=document.createElement('div');
+    el.className='shape-thumb'+(sh.id===selectedShapeType?' active':'');
+    el.title=sh.label; el.textContent=sh.emoji; el.dataset.id=sh.id;
+    el.addEventListener('click',()=>{
+      selectedShapeType=sh.id;
+      document.querySelectorAll('.shape-thumb').forEach(e=>e.classList.remove('active'));
+      el.classList.add('active');
+      setTool('shape');
+      addRecentShape(sh);
+    });
+    grid.appendChild(el);
+  });
+}
+
+function addRecentShape(sh){
+  recentShapes=recentShapes.filter(r=>r.id!==sh.id);
+  recentShapes.unshift(sh);
+  recentShapes=recentShapes.slice(0,6);
+  const el=document.getElementById('recent-shapes');
+  el.innerHTML='';
+  recentShapes.forEach(r=>{
+    const b=document.createElement('div');
+    b.className='shape-thumb';b.textContent=r.emoji;b.title=r.label;
+    b.style.width='28px';b.style.height='28px';
+    b.addEventListener('click',()=>{selectedShapeType=r.id;setTool('shape')});
+    el.appendChild(b);
+  });
+}
+
+function toggleShapePanel(){
+  shapePanelOpen=!shapePanelOpen;
+  document.getElementById('shape-panel').classList.toggle('open',shapePanelOpen);
+}
+
+// ═══════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════
+function saveHistory(){
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const objs=JSON.parse(JSON.stringify(objects.map(o=>({...o,imgSrc:o.imgEl?o.imgEl.src:null,imgEl:null}))));
+  undoStack.push({data,objs});
+  if(undoStack.length>MAX_HISTORY)undoStack.shift();
+  redoStack.length=0;
+}
+
+function restoreState(state){
+  ctx.putImageData(state.data,0,0);
+  objects=state.objs.map(o=>{
+    if(o.imgSrc){const img=new Image();img.src=o.imgSrc;o.imgEl=img;}
+    return o;
+  });
+  renderObjectLayer();
+  updateStatusObjects();
+}
+
+function undoAction(){
+  if(undoStack.length<=1)return;
+  redoStack.push(undoStack.pop());
+  restoreState(undoStack[undoStack.length-1]);
+}
+function redoAction(){
+  if(!redoStack.length)return;
+  const st=redoStack.pop();
+  undoStack.push(st);
+  restoreState(st);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOOL MANAGEMENT
+// ═══════════════════════════════════════════════════════
+const TOOL_CURSORS={pencil:'crosshair',brush:'crosshair',airbrush:'crosshair',eraser:'cell',
+  fill:'crosshair',eyedropper:'crosshair',line:'crosshair',rect:'crosshair',ellipse:'crosshair',
+  triangle:'crosshair',arrow:'crosshair',star:'crosshair',polygon:'crosshair',heart:'crosshair',
+  shape:'crosshair',text:'text',select:'default',lasso:'crosshair',image:'crosshair'};
+
+function setTool(tool){
+  if(currentTool==='text')commitText();
+  currentTool=tool;
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('tool-'+tool);
+  if(btn)btn.classList.add('active');
+  canvas.style.cursor=TOOL_CURSORS[tool]||'crosshair';
+  document.getElementById('status-tool').textContent=tool.charAt(0).toUpperCase()+tool.slice(1);
+  if(tool!=='select')deselectAll();
+}
+
+// ═══════════════════════════════════════════════════════
+//  COLORS / SIZE
+// ═══════════════════════════════════════════════════════
+function updatePrimaryColor(v){primaryColor=v;document.getElementById('primaryColor').value=v;document.getElementById('primarySwatch').style.background=v;document.getElementById('status-color').textContent=v}
+function updateSecondaryColor(v){secondaryColor=v;document.getElementById('secondaryColor').value=v;document.getElementById('secondarySwatch').style.background=v}
+function updateBrushSize(v){brushSize=parseInt(v);document.getElementById('sizeVal').textContent=v}
+function updateOpacity(v){opacity=v/100;document.getElementById('opacityVal').textContent=v+'%'}
+
+// ═══════════════════════════════════════════════════════
+//  CANVAS COORDS
+// ═══════════════════════════════════════════════════════
+function getPos(e){
+  const rect=canvas.getBoundingClientRect();
+  let cx=e.clientX,cy=e.clientY;
+  if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY}
+  return{x:Math.round((cx-rect.left)/zoomLevel),y:Math.round((cy-rect.top)/zoomLevel)};
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRAW EVENTS (raster tools)
+// ═══════════════════════════════════════════════════════
+canvas.addEventListener('mousedown',onDown);
+canvas.addEventListener('mousemove',onMove);
+canvas.addEventListener('mouseup',onUp);
+canvas.addEventListener('mouseleave',onUp);
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('touchstart',e=>{e.preventDefault();onDown(e)},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();onMove(e)},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();onUp(e)},{passive:false});
+
+function onDown(e){
+  closeCtxMenu();
+  const {x,y}=getPos(e);
+  const right=e.button===2;
+  const color=right?secondaryColor:primaryColor;
+  if(currentTool==='text'&&textPlaced){commitText();return}
+  isDrawing=true;lastX=x;lastY=y;startX=x;startY=y;
+
+  switch(currentTool){
+    case 'pencil':case 'brush':case 'airbrush':
+      saveHistory();
+      setCtxStroke(color);
+      ctx.beginPath();ctx.arc(x,y,brushSize/2,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+      ctx.beginPath();ctx.moveTo(x,y);
+      break;
+    case 'eraser':
+      saveHistory();
+      ctx.globalAlpha=1;ctx.strokeStyle='#ffffff';ctx.lineWidth=brushSize;ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.beginPath();ctx.moveTo(x,y);
+      break;
+    case 'fill':
+      saveHistory();floodFill(x,y,color);isDrawing=false;break;
+    case 'eyedropper':{
+      const px=ctx.getImageData(x,y,1,1).data;
+      const hex='#'+[px[0],px[1],px[2]].map(n=>n.toString(16).padStart(2,'0')).join('');
+      if(right)updateSecondaryColor(hex);else updatePrimaryColor(hex);
+      isDrawing=false;break;}
+    case 'text':
+      placeTextInput(x,y,color);isDrawing=false;break;
+    case 'lasso':
+      lassoPoints=[{x,y}];saveHistory();break;
+    case 'select':
+      selectionRect=null;selectionData=null;break;
+  }
+}
+
+function onMove(e){
+  const {x,y}=getPos(e);
+  document.getElementById('status-pos').textContent=x+', '+y;
+  if(!isDrawing)return;
+  const color=(e.buttons&2)?secondaryColor:primaryColor;
+
+  switch(currentTool){
+    case 'pencil':
+      setCtxStroke(color);ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);break;
+    case 'brush':
+      setCtxStroke(color);ctx.lineWidth=brushSize*2.5;ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);break;
+    case 'airbrush':doAirbrush(x,y,color);break;
+    case 'eraser':
+      ctx.globalAlpha=1;ctx.strokeStyle='#ffffff';ctx.lineWidth=brushSize;
+      ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);break;
+    case 'line':case 'rect':case 'ellipse':case 'triangle':case 'arrow':
+    case 'star':case 'polygon':case 'heart':
+      drawShapePreview(x,y,color);break;
+    case 'select':
+      selectionRect={x:startX,y:startY,w:x-startX,h:y-startY};
+      drawSelectionOverlay();break;
+    case 'lasso':
+      lassoPoints.push({x,y});
+      clearOverlay();
+      octx.strokeStyle='#e94560';octx.lineWidth=1/zoomLevel;octx.setLineDash([4,4]);
+      octx.beginPath();lassoPoints.forEach((p,i)=>i?octx.lineTo(p.x,p.y):octx.moveTo(p.x,p.y));octx.stroke();octx.setLineDash([]);break;
+  }
+  lastX=x;lastY=y;
+}
+
+function onUp(e){
+  if(!isDrawing)return;
+  isDrawing=false;
+  const {x,y}=getPos(e);
+  const right=e.button===2;
+  const color=right?secondaryColor:primaryColor;
+
+  switch(currentTool){
+    case 'line':case 'rect':case 'ellipse':case 'triangle':case 'arrow':
+    case 'star':case 'polygon':case 'heart':
+      clearOverlay();saveHistory();drawShapeFinal(x,y,color);break;
+    case 'shape':
+      clearOverlay();
+      // Create object
+      const fw=Math.abs(x-startX)||80,fh=Math.abs(y-startY)||60;
+      const ox=Math.min(x,startX),oy=Math.min(y,startY);
+      createShapeObject(selectedShapeType,ox,oy,fw,fh);
+      break;
+    case 'pencil':case 'brush':case 'eraser':
+      ctx.globalAlpha=1;ctx.closePath();break;
+    case 'select':
+      if(selectionRect){
+        const sw=Math.abs(selectionRect.w),sh=Math.abs(selectionRect.h);
+        if(sw>2&&sh>2){
+          selectionData=ctx.getImageData(selectionRect.x+(selectionRect.w<0?selectionRect.w:0),
+            selectionRect.y+(selectionRect.h<0?selectionRect.h:0),sw,sh);
+        }
+        drawSelectionOverlay();
+      }
+      break;
+    case 'lasso':clearOverlay();break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CTX HELPERS
+// ═══════════════════════════════════════════════════════
+function setCtxStroke(color){
+  ctx.globalAlpha=opacity;ctx.strokeStyle=color;ctx.lineWidth=brushSize;ctx.lineCap='round';ctx.lineJoin='round';
+}
+function setCtxFill(color){ctx.globalAlpha=opacity;ctx.fillStyle=color}
+function resetAlpha(){ctx.globalAlpha=1}
+
+// ═══════════════════════════════════════════════════════
+//  RASTER SHAPES
+// ═══════════════════════════════════════════════════════
+function drawShapePreview(x,y,color){
+  clearOverlay();octx.globalAlpha=opacity;octx.strokeStyle=color;octx.fillStyle=color;octx.lineWidth=brushSize;octx.lineCap='round';
+  drawShapeTo(octx,x,y);
+}
+function drawShapeFinal(x,y,color){
+  setCtxStroke(color);setCtxFill(color);ctx.lineWidth=brushSize;drawShapeTo(ctx,x,y);resetAlpha();
+}
+function drawShapeTo(c,x,y){
+  const w=x-startX,h=y-startY;const mode=document.getElementById('shape-fill-mode').value;
+  c.beginPath();
+  switch(currentTool){
+    case 'line':c.moveTo(startX,startY);c.lineTo(x,y);c.stroke();return;
+    case 'rect':
+      const cr=parseInt(document.getElementById('cornerRadius').value)||0;
+      if(cr>0){roundRect(c,startX,startY,w,h,cr)}else{c.rect(startX,startY,w,h)}
+      break;
+    case 'ellipse':c.ellipse(startX+w/2,startY+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);break;
+    case 'triangle':c.moveTo(startX+w/2,startY);c.lineTo(x,y);c.lineTo(startX,y);c.closePath();break;
+    case 'arrow':drawArrowPath(c,startX,startY,x,y);return;
+    case 'star':drawStarPath(c,startX+w/2,startY+h/2,5,Math.abs(w/2),Math.abs(w/4));break;
+    case 'polygon':drawPolygonPath(c,startX+w/2,startY+h/2,6,Math.min(Math.abs(w),Math.abs(h))/2);break;
+    case 'heart':drawHeartPath(c,startX,startY,w,h);break;
+  }
+  if(mode==='fill')c.fill();
+  else if(mode==='stroke')c.stroke();
+  else{c.fill();c.stroke();}
+}
+
+function roundRect(c,x,y,w,h,r){
+  c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();
+}
+function drawArrowPath(c,fx,fy,tx,ty){
+  const hl=Math.max(brushSize*4,20);const angle=Math.atan2(ty-fy,tx-fx);
+  c.moveTo(fx,fy);c.lineTo(tx,ty);c.stroke();
+  c.beginPath();c.moveTo(tx,ty);
+  c.lineTo(tx-hl*Math.cos(angle-Math.PI/6),ty-hl*Math.sin(angle-Math.PI/6));
+  c.lineTo(tx-hl*Math.cos(angle+Math.PI/6),ty-hl*Math.sin(angle+Math.PI/6));
+  c.closePath();c.fill();
+}
+function drawStarPath(c,cx,cy,sp,or,ir){
+  let rot=(Math.PI/2)*3;const step=Math.PI/sp;
+  c.moveTo(cx,cy-or);
+  for(let i=0;i<sp;i++){
+    c.lineTo(cx+Math.cos(rot)*or,cy+Math.sin(rot)*or);rot+=step;
+    c.lineTo(cx+Math.cos(rot)*ir,cy+Math.sin(rot)*ir);rot+=step;
+  }c.lineTo(cx,cy-or);c.closePath();
+}
+function drawPolygonPath(c,cx,cy,sides,r){
+  for(let i=0;i<sides;i++){
+    const a=(i/sides)*Math.PI*2-Math.PI/2;
+    i?c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+  }c.closePath();
+}
+function drawHeartPath(c,x,y,w,h){
+  const cx=x+w/2,cy=y+h/2,r=Math.min(Math.abs(w),Math.abs(h))/4;
+  c.moveTo(cx,cy+h*0.35);
+  c.bezierCurveTo(cx-w*0.5,cy,cx-w*0.5,cy-h*0.4,cx,cy-h*0.1);
+  c.bezierCurveTo(cx+w*0.5,cy-h*0.4,cx+w*0.5,cy,cx,cy+h*0.35);
+  c.closePath();
+}
+
+// ═══════════════════════════════════════════════════════
+//  AIRBRUSH
+// ═══════════════════════════════════════════════════════
+function doAirbrush(x,y,color){
+  for(let i=0;i<30;i++){
+    const a=Math.random()*Math.PI*2,r=Math.random()*brushSize*2;
+    ctx.globalAlpha=Math.random()*0.3*opacity;ctx.fillStyle=color;
+    ctx.fillRect(x+Math.cos(a)*r,y+Math.sin(a)*r,1,1);
+  }ctx.globalAlpha=1;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FLOOD FILL
+// ═══════════════════════════════════════════════════════
+function floodFill(sx,sy,fillColor){
+  const id=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const data=id.data,w=canvas.width,h=canvas.height;
+  const idx=(sy*w+sx)*4;
+  const tr=data[idx],tg=data[idx+1],tb=data[idx+2];
+  const fill=hexToRgb(fillColor);
+  if(fill.r===tr&&fill.g===tg&&fill.b===tb)return;
+  const stack=[[sx,sy]];const visited=new Uint8Array(w*h);
+  while(stack.length){
+    const[cx,cy]=stack.pop();
+    if(cx<0||cy<0||cx>=w||cy>=h)continue;
+    const i=cy*w+cx;if(visited[i])continue;visited[i]=1;
+    const pi=i*4;
+    if(Math.abs(data[pi]-tr)>30||Math.abs(data[pi+1]-tg)>30||Math.abs(data[pi+2]-tb)>30)continue;
+    data[pi]=fill.r;data[pi+1]=fill.g;data[pi+2]=fill.b;data[pi+3]=255;
+    stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+  }ctx.putImageData(id,0,0);
+}
+function hexToRgb(hex){const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:{r:0,g:0,b:0}}
+
+// ═══════════════════════════════════════════════════════
+//  OVERLAY / SELECTION
+// ═══════════════════════════════════════════════════════
+function clearOverlay(){octx.clearRect(0,0,overlay.width,overlay.height)}
+function drawSelectionOverlay(){
+  clearOverlay();if(!selectionRect)return;
+  const{x,y,w,h}=selectionRect;
+  octx.strokeStyle='#e94560';octx.lineWidth=1/zoomLevel;octx.setLineDash([5,5]);
+  octx.strokeRect(x,y,w,h);octx.setLineDash([]);
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h],[x+w/2,y],[x,y+h/2],[x+w,y+h/2],[x+w/2,y+h]].forEach(([hx,hy])=>{
+    octx.fillStyle='#fff';octx.strokeStyle='#e94560';
+    octx.beginPath();octx.rect(hx-4/zoomLevel,hy-4/zoomLevel,8/zoomLevel,8/zoomLevel);
+    octx.fill();octx.stroke();
+  });
+}
+function clearSelection(){selectionRect=null;selectionData=null;clearOverlay()}
+function deleteSelection(){
+  if(!selectionRect)return;saveHistory();
+  const{x,y,w,h}=selectionRect;
+  ctx.fillStyle='#ffffff';ctx.fillRect(x+(w<0?w:0),y+(h<0?h:0),Math.abs(w),Math.abs(h));
+  clearSelection();
+}
+function selectAll(){
+  selectionRect={x:0,y:0,w:canvas.width,h:canvas.height};
+  selectionData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  drawSelectionOverlay();setTool('select');
+}
+function cropToSelection(){
+  if(!selectionRect)return alert('Make a selection first.');
+  saveHistory();
+  const{x,y,w,h}=selectionRect;
+  const ax=x+(w<0?w:0),ay=y+(h<0?h:0),aw=Math.abs(w),ah=Math.abs(h);
+  const id=ctx.getImageData(ax,ay,aw,ah);
+  canvas.width=aw;canvas.height=ah;overlay.width=aw;overlay.height=ah;
+  ctx.putImageData(id,0,0);clearSelection();updateStatusSize();saveHistory();
+}
+
+// ═══════════════════════════════════════════════════════
+//  OBJECT SYSTEM
+// ═══════════════════════════════════════════════════════
+let _oid=0;
+function newObjId(){return 'obj_'+(++_oid)}
+
+function createShapeObject(shapeType,x,y,w,h){
+  const mode=document.getElementById('shape-fill-mode').value;
+  const obj={
+    id:newObjId(),type:'shape',shapeType,
+    x,y,w:w||120,h:h||80,rot:0,opacity:1,
+    fillMode:mode,color:primaryColor,strokeColor:secondaryColor,
+    strokeWidth:brushSize,cornerRadius:parseInt(document.getElementById('cornerRadius').value)||0,
+    flippedH:false,flippedV:false
+  };
+  objects.push(obj);
+  saveHistory();
+  selectObject(obj.id);
+  renderObjectLayer();
+  updateStatusObjects();
+}
+
+function createImageObject(imgEl,x,y,w,h){
+  const obj={id:newObjId(),type:'image',imgEl,x:x||50,y:y||50,w:w||imgEl.naturalWidth||200,h:h||imgEl.naturalHeight||150,rot:0,opacity:1,flippedH:false,flippedV:false};
+  objects.push(obj);
+  saveHistory();
+  selectObject(obj.id);
+  renderObjectLayer();
+  updateStatusObjects();
+}
+
+// ── RENDER OBJECT LAYER ──
+function renderObjectLayer(){
+  // Size object layer to match canvas display
+  objLayer.style.width =(canvas.width *zoomLevel)+'px';
+  objLayer.style.height=(canvas.height*zoomLevel)+'px';
+  objLayer.innerHTML='';
+
+  objects.forEach(obj=>{
+    const el=document.createElement('div');
+    el.className='obj-container'+(selectedIds.has(obj.id)?' selected':'');
+    el.dataset.id=obj.id;
+    el.style.cssText=`
+      position:absolute;
+      left:${obj.x*zoomLevel}px;top:${obj.y*zoomLevel}px;
+      width:${obj.w*zoomLevel}px;height:${obj.h*zoomLevel}px;
+      transform:rotate(${obj.rot||0}deg);
+      opacity:${obj.opacity||1};
+      transform-origin:center center;
+      cursor:move;
+      pointer-events:auto;
+    `;
+
+    // SVG drawing of shape or image
+    const svgNS='http://www.w3.org/2000/svg';
+    const svg=document.createElementNS(svgNS,'svg');
+    svg.setAttribute('width','100%');svg.setAttribute('height','100%');
+    svg.setAttribute('viewBox',`0 0 ${obj.w} ${obj.h}`);
+    svg.style.overflow='visible';
+    svg.style.display='block';
+
+    if(obj.type==='image'&&obj.imgEl){
+      const img=document.createElementNS(svgNS,'image');
+      img.setAttribute('href',obj.imgEl.src);
+      img.setAttribute('x','0');img.setAttribute('y','0');
+      img.setAttribute('width',obj.w);img.setAttribute('height',obj.h);
+      img.setAttribute('preserveAspectRatio','none');
+      if(obj.flippedH||obj.flippedV){
+        const sx=obj.flippedH?-1:1,sy=obj.flippedV?-1:1;
+        const tx=obj.flippedH?obj.w:0,ty=obj.flippedV?obj.h:0;
+        img.setAttribute('transform',`translate(${tx},${ty}) scale(${sx},${sy})`);
+      }
+      svg.appendChild(img);
+    } else if(obj.type==='shape'){
+      drawSVGShape(svgNS,svg,obj);
+    }
+
+    el.appendChild(svg);
+
+    // Selection handles
+    if(selectedIds.has(obj.id)){
+      drawHandles(svgNS,svg,obj);
+    }
+
+    // Events
+    el.addEventListener('mousedown',e=>objMouseDown(e,obj.id));
+    el.addEventListener('contextmenu',e=>{e.preventDefault();showCtxMenu(e,obj.id)});
+    objLayer.appendChild(el);
+  });
+}
+
+// ── SVG SHAPE DRAWING ──
+function drawSVGShape(ns,svg,obj){
+  const{w,h,color,strokeColor,strokeWidth,fillMode,cornerRadius,shapeType,flippedH,flippedV}=obj;
+  const fill=fillMode==='stroke'?'none':color;
+  const stroke=fillMode==='fill'?'none':strokeColor;
+  const sw=strokeWidth||2;
+  const g=document.createElementNS(ns,'g');
+  if(flippedH||flippedV){
+    const sx=flippedH?-1:1,sy=flippedV?-1:1;
+    const tx=flippedH?w:0,ty=flippedV?h:0;
+    g.setAttribute('transform',`translate(${tx},${ty}) scale(${sx},${sy})`);
+  }
+
+  let el;
+  const cx=w/2,cy=h/2,rx=Math.max(w/2-sw/2,1),ry=Math.max(h/2-sw/2,1);
+
+  switch(shapeType){
+    case 'rect':
+      el=document.createElementNS(ns,'rect');
+      el.setAttribute('x',sw/2);el.setAttribute('y',sw/2);
+      el.setAttribute('width',w-sw);el.setAttribute('height',h-sw);
+      break;
+    case 'roundrect':
+      el=document.createElementNS(ns,'rect');
+      el.setAttribute('x',sw/2);el.setAttribute('y',sw/2);
+      el.setAttribute('width',w-sw);el.setAttribute('height',h-sw);
+      el.setAttribute('rx',cornerRadius||Math.min(w,h)*0.15);
+      el.setAttribute('ry',cornerRadius||Math.min(w,h)*0.15);
+      break;
+    case 'ellipse':case 'circle':
+      el=document.createElementNS(ns,'ellipse');
+      el.setAttribute('cx',cx);el.setAttribute('cy',cy);
+      el.setAttribute('rx',rx);el.setAttribute('ry',ry);
+      break;
+    case 'triangle':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',`${cx},${sw} ${w-sw},${h-sw} ${sw},${h-sw}`);
+      break;
+    case 'rtriangle':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',`${sw},${sw} ${w-sw},${h-sw} ${sw},${h-sw}`);
+      break;
+    case 'diamond':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',`${cx},${sw} ${w-sw},${cy} ${cx},${h-sw} ${sw},${cy}`);
+      break;
+    case 'pentagon':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',nGonPoints(5,cx,cy,Math.min(rx,ry),-Math.PI/2));
+      break;
+    case 'hexagon':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',nGonPoints(6,cx,cy,Math.min(rx,ry),0));
+      break;
+    case 'octagon':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',nGonPoints(8,cx,cy,Math.min(rx,ry),-Math.PI/8));
+      break;
+    case 'star5':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',starPoints(5,cx,cy,Math.min(rx,ry),Math.min(rx,ry)*0.4));
+      break;
+    case 'star6':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',starPoints(6,cx,cy,Math.min(rx,ry),Math.min(rx,ry)*0.5));
+      break;
+    case 'star4':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',starPoints(4,cx,cy,Math.min(rx,ry),Math.min(rx,ry)*0.35));
+      break;
+    case 'heart':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',heartSVGPath(w,h));
+      break;
+    case 'arrow_right':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',arrowRightPath(w,h));
+      break;
+    case 'arrow_left':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',arrowLeftPath(w,h));
+      break;
+    case 'arrow_up':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',arrowUpPath(w,h));
+      break;
+    case 'arrow_double':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',arrowDoublePath(w,h));
+      break;
+    case 'cross':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',crossPath(w,h));
+      break;
+    case 'parallelogram':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',`${w*0.2},${sw} ${w-sw},${sw} ${w*0.8},${h-sw} ${sw},${h-sw}`);
+      break;
+    case 'trapezoid':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',`${w*0.2},${sw} ${w*0.8},${sw} ${w-sw},${h-sw} ${sw},${h-sw}`);
+      break;
+    case 'arc':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',`M ${sw},${h*0.8} Q ${cx},${sw} ${w-sw},${h*0.8}`);
+      break;
+    case 'speech':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',speechPath(w,h));
+      break;
+    case 'cylinder':
+      el=document.createElementNS(ns,'g');
+      const body=document.createElementNS(ns,'rect');
+      body.setAttribute('x',sw/2);body.setAttribute('y',h*0.15);
+      body.setAttribute('width',w-sw);body.setAttribute('height',h*0.75);
+      body.setAttribute('fill',fill);body.setAttribute('stroke',stroke);body.setAttribute('stroke-width',sw);
+      const top=document.createElementNS(ns,'ellipse');
+      top.setAttribute('cx',cx);top.setAttribute('cy',h*0.15);
+      top.setAttribute('rx',rx);top.setAttribute('ry',h*0.12);
+      top.setAttribute('fill',fill);top.setAttribute('stroke',stroke);top.setAttribute('stroke-width',sw);
+      const bot=document.createElementNS(ns,'ellipse');
+      bot.setAttribute('cx',cx);bot.setAttribute('cy',h*0.9);
+      bot.setAttribute('rx',rx);bot.setAttribute('ry',h*0.12);
+      bot.setAttribute('fill',fill);bot.setAttribute('stroke',stroke);bot.setAttribute('stroke-width',sw);
+      el.appendChild(body);el.appendChild(top);el.appendChild(bot);
+      g.appendChild(el);svg.appendChild(g);return;
+    case 'cloud':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',cloudPath(w,h));
+      break;
+    case 'lightning':
+      el=document.createElementNS(ns,'polygon');
+      el.setAttribute('points',lightningPoints(w,h));
+      break;
+    case 'moon':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',moonPath(w,h));
+      break;
+    case 'banner':
+      el=document.createElementNS(ns,'path');
+      el.setAttribute('d',bannerPath(w,h));
+      break;
+    default:
+      el=document.createElementNS(ns,'rect');
+      el.setAttribute('x',sw/2);el.setAttribute('y',sw/2);
+      el.setAttribute('width',w-sw);el.setAttribute('height',h-sw);
+  }
+  if(el&&el.tagName!=='g'){
+    el.setAttribute('fill',fill);
+    el.setAttribute('stroke',stroke);
+    el.setAttribute('stroke-width',sw);
+  }
+  g.appendChild(el);svg.appendChild(g);
+}
+
+// Shape path helpers
+function nGonPoints(n,cx,cy,r,startAngle){
+  let pts=[];
+  for(let i=0;i<n;i++){const a=startAngle+i*(2*Math.PI/n);pts.push(`${cx+Math.cos(a)*r},${cy+Math.sin(a)*r}`);}
+  return pts.join(' ');
+}
+function starPoints(n,cx,cy,or,ir){
+  let pts=[];const step=Math.PI/n;
+  for(let i=0;i<2*n;i++){const r=i%2===0?or:ir;const a=i*step-Math.PI/2;pts.push(`${cx+Math.cos(a)*r},${cy+Math.sin(a)*r}`);}
+  return pts.join(' ');
+}
+function heartSVGPath(w,h){
+  const cx=w/2;
+  return `M ${cx} ${h*0.85} C ${w*0.05} ${h*0.6} ${w*0.05} ${h*0.25} ${cx} ${h*0.35} C ${w*0.95} ${h*0.25} ${w*0.95} ${h*0.6} ${cx} ${h*0.85} Z`;
+}
+function arrowRightPath(w,h){
+  const bh=h*0.4,bw=w*0.6,cy=h/2;
+  return `M 0,${cy-bh/2} L ${bw},${cy-bh/2} L ${bw},${cy-h*0.4} L ${w},${cy} L ${bw},${cy+h*0.4} L ${bw},${cy+bh/2} L 0,${cy+bh/2} Z`;
+}
+function arrowLeftPath(w,h){
+  const bh=h*0.4,bw=w*0.4,cy=h/2;
+  return `M ${w},${cy-bh/2} L ${bw},${cy-bh/2} L ${bw},${cy-h*0.4} L 0,${cy} L ${bw},${cy+h*0.4} L ${bw},${cy+bh/2} L ${w},${cy+bh/2} Z`;
+}
+function arrowUpPath(w,h){
+  const bw=w*0.4,bh=h*0.6,cx=w/2;
+  return `M ${cx-bw/2},${h} L ${cx-bw/2},${bh} L ${cx-w*0.4},${bh} L ${cx},0 L ${cx+w*0.4},${bh} L ${cx+bw/2},${bh} L ${cx+bw/2},${h} Z`;
+}
+function arrowDoublePath(w,h){
+  const bh=h*0.4,hw=w*0.25,cy=h/2;
+  return `M 0,${cy} L ${hw},${cy-h*0.4} L ${hw},${cy-bh/2} L ${w-hw},${cy-bh/2} L ${w-hw},${cy-h*0.4} L ${w},${cy} L ${w-hw},${cy+h*0.4} L ${w-hw},${cy+bh/2} L ${hw},${cy+bh/2} L ${hw},${cy+h*0.4} Z`;
+}
+function crossPath(w,h){
+  const t=w/3,s=h/3;
+  return `M ${t},0 L ${t*2},0 L ${t*2},${s} L ${w},${s} L ${w},${s*2} L ${t*2},${s*2} L ${t*2},${h} L ${t},${h} L ${t},${s*2} L 0,${s*2} L 0,${s} L ${t},${s} Z`;
+}
+function speechPath(w,h){
+  const r=Math.min(w,h)*0.1;
+  return `M ${r},0 L ${w-r},0 Q ${w},0 ${w},${r} L ${w},${h*0.65} Q ${w},${h*0.75} ${w-r},${h*0.75} L ${w*0.45},${h*0.75} L ${w*0.25},${h} L ${w*0.3},${h*0.75} L ${r},${h*0.75} Q 0,${h*0.75} 0,${h*0.65} L 0,${r} Q 0,0 ${r},0 Z`;
+}
+function cloudPath(w,h){
+  return `M ${w*0.35},${h*0.7} Q ${w*0.05},${h*0.7} ${w*0.1},${h*0.4} Q ${w*0.1},${h*0.15} ${w*0.3},${h*0.2} Q ${w*0.35},${h*0.05} ${w*0.55},${h*0.1} Q ${w*0.7},${h*0.05} ${w*0.75},${h*0.25} Q ${w*0.95},${h*0.2} ${w*0.95},${h*0.45} Q ${w*1.0},${h*0.7} ${w*0.7},${h*0.7} Z`;
+}
+function lightningPoints(w,h){
+  return `${w*0.55},0 ${w*0.2},${h*0.5} ${w*0.5},${h*0.45} ${w*0.45},${h} ${w*0.8},${h*0.5} ${w*0.5},${h*0.55}`;
+}
+function moonPath(w,h){
+  const cx=w*0.5,cy=h*0.5,r=Math.min(w,h)*0.45;
+  return `M ${cx+r*0.1},${cy-r} A ${r} ${r} 0 1 0 ${cx+r*0.1},${cy+r} A ${r*0.7} ${r*0.7} 0 1 1 ${cx+r*0.1},${cy-r} Z`;
+}
+function bannerPath(w,h){
+  return `M 0,0 L ${w},0 L ${w},${h*0.75} L ${w*0.5},${h} L 0,${h*0.75} Z`;
+}
+
+// ── HANDLES ──
+const HANDLES=['tl','tm','tr','ml','mr','bl','bm','br','rot'];
+const HANDLE_CURSORS={tl:'nw-resize',tm:'n-resize',tr:'ne-resize',ml:'w-resize',mr:'e-resize',bl:'sw-resize',bm:'s-resize',br:'se-resize',rot:'grab'};
+
+function drawHandles(ns,svg,obj){
+  const{w,h}=obj;
+  const positions={
+    tl:[0,0],tm:[w/2,0],tr:[w,0],ml:[0,h/2],mr:[w,h/2],
+    bl:[0,h],bm:[w/2,h],br:[w,h],rot:[w/2,-20]
+  };
+  // Rotation line
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',w/2);line.setAttribute('y1',0);
+  line.setAttribute('x2',w/2);line.setAttribute('y2',-20);
+  line.setAttribute('stroke','#e94560');line.setAttribute('stroke-width','1');
+  svg.appendChild(line);
+
+  HANDLES.forEach(h=>{
+    const[hx,hy]=positions[h];
+    const g=document.createElementNS(ns,'g');
+    g.dataset.handle=h;g.style.cursor=HANDLE_CURSORS[h];
+
+    if(h==='rot'){
+      const circ=document.createElementNS(ns,'circle');
+      circ.setAttribute('cx',hx);circ.setAttribute('cy',hy);circ.setAttribute('r','6');
+      circ.setAttribute('fill','#e94560');circ.setAttribute('stroke','#fff');circ.setAttribute('stroke-width','2');
+      g.appendChild(circ);
+    }else{
+      const sq=document.createElementNS(ns,'rect');
+      sq.setAttribute('x',hx-5);sq.setAttribute('y',hy-5);sq.setAttribute('width','10');sq.setAttribute('height','10');
+      sq.setAttribute('rx','2');
+      sq.setAttribute('fill','#fff');sq.setAttribute('stroke','#e94560');sq.setAttribute('stroke-width','2');
+      g.appendChild(sq);
+    }
+    g.addEventListener('mousedown',e=>{e.stopPropagation();handleMouseDown(e,obj.id,h)});
+    svg.appendChild(g);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  OBJECT INTERACTION
+// ═══════════════════════════════════════════════════════
+function objMouseDown(e,id){
+  if(e.button===2)return;
+  e.preventDefault();e.stopPropagation();
+  if(!selectedIds.has(id)){
+    if(!e.shiftKey)deselectAll();
+    selectedIds.add(id);
+    renderObjectLayer();
+  }
+  startDrag(e,'move',id);
+}
+
+function handleMouseDown(e,id,handle){
+  e.preventDefault();e.stopPropagation();
+  if(!selectedIds.has(id)){deselectAll();selectedIds.add(id);renderObjectLayer();}
+  startDrag(e,handle,id);
+}
+
+function getCanvasPos(e){
+  const rect=objLayer.getBoundingClientRect();
+  return {
+    x:(e.clientX-rect.left)/zoomLevel,
+    y:(e.clientY-rect.top)/zoomLevel
+  };
+}
+
+function startDrag(e,handle,id){
+  const obj=objects.find(o=>o.id===id);
+  if(!obj)return;
+  const pos=getCanvasPos(e);
+  dragStart={
+    mx:pos.x,my:pos.y,
+    handle,id,
+    ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,orot:obj.rot||0,
+    cx:obj.x+obj.w/2,cy:obj.y+obj.h/2
+  };
+  window.addEventListener('mousemove',dragMove);
+  window.addEventListener('mouseup',dragEnd);
+}
+
+function dragMove(e){
+  if(!dragStart)return;
+  const pos=getCanvasPos(e);
+  const mx=pos.x,my=pos.y;
+  const dx=mx-dragStart.mx,dy=my-dragStart.my;
+  const obj=objects.find(o=>o.id===dragStart.id);
+  if(!obj)return;
+
+  if(dragStart.handle==='move'){
+    obj.x=dragStart.ox+dx;obj.y=dragStart.oy+dy;
+    // Update only CSS position — don't rebuild DOM, prevents image flicker
+    const el=objLayer.querySelector('[data-id="'+obj.id+'"]');
+    if(el){el.style.left=(obj.x*zoomLevel)+'px';el.style.top=(obj.y*zoomLevel)+'px';updateObjProps();return;}
+  } else if(dragStart.handle==='rot'){
+    const cx=dragStart.ox+dragStart.ow/2;
+    const cy=dragStart.oy+dragStart.oh/2;
+    const angle=Math.atan2(my-cy,mx-cx)*180/Math.PI+90;
+    obj.rot=Math.round(angle);
+    // Update only CSS rotation — don't rebuild DOM
+    const el=objLayer.querySelector('[data-id="'+obj.id+'"]');
+    if(el){el.style.transform='rotate('+obj.rot+'deg)';updateObjProps();return;}
+  } else {
+    // Resize — needs full re-render to update handles and SVG viewBox
+    let{ox,oy,ow,oh}=dragStart;
+    const h=dragStart.handle;
+    if(h.includes('r')){obj.w=Math.max(10,ow+dx);}
+    if(h.includes('l')){obj.x=ox+dx;obj.w=Math.max(10,ow-dx);}
+    if(h.includes('b')){obj.h=Math.max(10,oh+dy);}
+    if(h.includes('t')){obj.y=oy+dy;obj.h=Math.max(10,oh-dy);}
+    if(h==='tm'||h==='bm'){obj.x=ox;}
+    if(h==='ml'||h==='mr'){obj.y=oy;}
+  }
+  renderObjectLayer();
+  updateObjProps();
+}
+
+function dragEnd(){
+  if(dragStart){saveHistory();}
+  dragStart=null;
+  window.removeEventListener('mousemove',dragMove);
+  window.removeEventListener('mouseup',dragEnd);
+}
+
+function selectObject(id){
+  deselectAll();selectedIds.add(id);renderObjectLayer();updateObjProps();
+}
+function deselectAll(){selectedIds.clear();renderObjectLayer();hideObjProps()}
+
+function updateObjProps(){
+  if(selectedIds.size!==1){hideObjProps();return;}
+  const id=[...selectedIds][0];
+  const obj=objects.find(o=>o.id===id);
+  if(!obj){hideObjProps();return;}
+  document.getElementById('obj-props').classList.add('open');
+  document.getElementById('op-x').value=Math.round(obj.x);
+  document.getElementById('op-y').value=Math.round(obj.y);
+  document.getElementById('op-w').value=Math.round(obj.w);
+  document.getElementById('op-h').value=Math.round(obj.h);
+  document.getElementById('op-rot').value=obj.rot||0;
+  document.getElementById('op-opacity').value=Math.round((obj.opacity||1)*100);
+}
+function hideObjProps(){document.getElementById('obj-props').classList.remove('open')}
+
+function applyObjProp(){
+  if(selectedIds.size!==1)return;
+  const obj=objects.find(o=>o.id===[...selectedIds][0]);if(!obj)return;
+  obj.x=parseFloat(document.getElementById('op-x').value)||obj.x;
+  obj.y=parseFloat(document.getElementById('op-y').value)||obj.y;
+  obj.w=Math.max(1,parseFloat(document.getElementById('op-w').value)||obj.w);
+  obj.h=Math.max(1,parseFloat(document.getElementById('op-h').value)||obj.h);
+  renderObjectLayer();
+}
+function applyObjRotation(v){
+  if(selectedIds.size!==1)return;
+  const obj=objects.find(o=>o.id===[...selectedIds][0]);if(!obj)return;
+  obj.rot=parseInt(v);renderObjectLayer();
+}
+function applyObjOpacity(v){
+  if(selectedIds.size!==1)return;
+  const obj=objects.find(o=>o.id===[...selectedIds][0]);if(!obj)return;
+  obj.opacity=parseInt(v)/100;renderObjectLayer();
+}
+
+// ═══════════════════════════════════════════════════════
+//  OBJECT OPERATIONS
+// ═══════════════════════════════════════════════════════
+function deleteSelectedObjects(){
+  if(selectedIds.size===0){deleteSelection();return;}
+  saveHistory();
+  objects=objects.filter(o=>!selectedIds.has(o.id));
+  deselectAll();renderObjectLayer();updateStatusObjects();
+}
+
+function duplicateSelected(){
+  if(selectedIds.size===0)return;
+  saveHistory();
+  const newIds=[];
+  [...selectedIds].forEach(id=>{
+    const obj=objects.find(o=>o.id===id);
+    if(!obj)return;
+    const copy={...obj,id:newObjId(),x:obj.x+20,y:obj.y+20};
+    if(obj.imgEl){const img=new Image();img.src=obj.imgEl.src;copy.imgEl=img;}
+    objects.push(copy);newIds.push(copy.id);
+  });
+  selectedIds.clear();newIds.forEach(id=>selectedIds.add(id));
+  renderObjectLayer();updateStatusObjects();
+}
+
+function flattenSelected(){
+  if(selectedIds.size===0)return;
+  saveHistory();
+  [...selectedIds].forEach(id=>{
+    const obj=objects.find(o=>o.id===id);if(!obj)return;
+    flattenObjectToCanvas(obj);
+    objects=objects.filter(o=>o.id!==id);
+  });
+  deselectAll();renderObjectLayer();updateStatusObjects();
+}
+
+function flattenAll(){
+  saveHistory();
+  objects.forEach(obj=>flattenObjectToCanvas(obj));
+  objects=[];deselectAll();renderObjectLayer();updateStatusObjects();
+}
+
+function flattenObjectToCanvas(obj){
+  ctx.save();
+  const cx=(obj.x+obj.w/2),cy=(obj.y+obj.h/2);
+  ctx.globalAlpha=obj.opacity||1;
+  ctx.translate(cx,cy);
+  ctx.rotate((obj.rot||0)*Math.PI/180);
+  ctx.translate(-obj.w/2,-obj.h/2);
+  if(obj.type==='image'&&obj.imgEl){
+    const sx=obj.flippedH?-1:1,sy=obj.flippedV?-1:1;
+    if(obj.flippedH||obj.flippedV){ctx.translate(obj.flippedH?obj.w:0,obj.flippedV?obj.h:0);ctx.scale(sx,sy);}
+    ctx.drawImage(obj.imgEl,0,0,obj.w,obj.h);
+  }else if(obj.type==='shape'){
+    flattenShapeToCanvas(obj);
+  }
+  ctx.restore();
+}
+
+function flattenShapeToCanvas(obj){
+  const{w,h,fillMode,color,strokeColor,strokeWidth,shapeType,cornerRadius,flippedH,flippedV}=obj;
+  const fill=fillMode==='stroke'?null:color;
+  const stroke=fillMode==='fill'?null:strokeColor;
+  const sw=strokeWidth||2;
+
+  ctx.save();
+  if(flippedH||obj.flippedV){
+    const sx=flippedH?-1:1,sy=flippedV?-1:1;
+    ctx.translate(flippedH?w:0,flippedV?h:0);ctx.scale(sx,sy);
+  }
+
+  ctx.lineWidth=sw;ctx.lineCap='round';ctx.lineJoin='round';
+  if(fill)ctx.fillStyle=fill;
+  if(stroke)ctx.strokeStyle=stroke;
+
+  const cx=w/2,cy=h/2,rx=Math.max(w/2-sw/2,1),ry=Math.max(h/2-sw/2,1);
+
+  ctx.beginPath();
+  switch(shapeType){
+    case 'rect':ctx.rect(sw/2,sw/2,w-sw,h-sw);break;
+    case 'roundrect':roundRect(ctx,sw/2,sw/2,w-sw,h-sw,cornerRadius||Math.min(w,h)*0.15);break;
+    case 'ellipse':case 'circle':ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);break;
+    case 'triangle':ctx.moveTo(cx,sw);ctx.lineTo(w-sw,h-sw);ctx.lineTo(sw,h-sw);ctx.closePath();break;
+    case 'rtriangle':ctx.moveTo(sw,sw);ctx.lineTo(w-sw,h-sw);ctx.lineTo(sw,h-sw);ctx.closePath();break;
+    case 'diamond':ctx.moveTo(cx,sw);ctx.lineTo(w-sw,cy);ctx.moveTo(cx,sw);ctx.lineTo(sw,cy);ctx.lineTo(cx,h-sw);ctx.lineTo(w-sw,cy);ctx.closePath();break;
+    case 'pentagon':drawPolygonPath(ctx,cx,cy,5,Math.min(rx,ry));break;
+    case 'hexagon':drawPolygonPath(ctx,cx,cy,6,Math.min(rx,ry));break;
+    case 'octagon':drawPolygonPath(ctx,cx,cy,8,Math.min(rx,ry));break;
+    case 'star5':drawStarPath(ctx,cx,cy,5,Math.min(rx,ry),Math.min(rx,ry)*0.4);break;
+    case 'star6':drawStarPath(ctx,cx,cy,6,Math.min(rx,ry),Math.min(rx,ry)*0.5);break;
+    case 'star4':drawStarPath(ctx,cx,cy,4,Math.min(rx,ry),Math.min(rx,ry)*0.35);break;
+    case 'heart':drawHeartPath(ctx,0,0,w,h);break;
+    case 'arrow_right':ctx.rect(sw,cy-h*0.2,w*0.6,h*0.4);break;// simplified
+    case 'cross':
+      ctx.rect(w/3,sw,w/3,h-sw);ctx.rect(sw,h/3,w-sw,h/3);break;
+    default:ctx.rect(sw/2,sw/2,w-sw,h-sw);
+  }
+  if(fill)ctx.fill();
+  if(stroke)ctx.stroke();
+  ctx.restore();
+}
+
+// ── ARRANGE ──
+function bringToFront(){
+  [...selectedIds].forEach(id=>{
+    const i=objects.findIndex(o=>o.id===id);
+    if(i>=0){objects.push(objects.splice(i,1)[0]);}
+  });
+  saveHistory();renderObjectLayer();
+}
+function sendToBack(){
+  [...selectedIds].forEach(id=>{
+    const i=objects.findIndex(o=>o.id===id);
+    if(i>=0){objects.unshift(objects.splice(i,1)[0]);}
+  });
+  saveHistory();renderObjectLayer();
+}
+function bringForward(){
+  [...selectedIds].forEach(id=>{
+    const i=objects.findIndex(o=>o.id===id);
+    if(i>=0&&i<objects.length-1){const t=objects[i];objects[i]=objects[i+1];objects[i+1]=t;}
+  });
+  saveHistory();renderObjectLayer();
+}
+function sendBackward(){
+  [...selectedIds].forEach(id=>{
+    const i=objects.findIndex(o=>o.id===id);
+    if(i>0){const t=objects[i];objects[i]=objects[i-1];objects[i-1]=t;}
+  });
+  saveHistory();renderObjectLayer();
+}
+function alignObjects(dir){
+  if(selectedIds.size<2)return;
+  const sel=objects.filter(o=>selectedIds.has(o.id));
+  const minX=Math.min(...sel.map(o=>o.x));
+  const maxR=Math.max(...sel.map(o=>o.x+o.w));
+  const cx=(minX+maxR)/2;
+  sel.forEach(o=>{
+    if(dir==='left')o.x=minX;
+    else if(dir==='right')o.x=maxR-o.w;
+    else if(dir==='center')o.x=cx-o.w/2;
+  });
+  saveHistory();renderObjectLayer();
+}
+function groupSelected(){/* simplified: just select together */}
+function ungroupSelected(){deselectAll();}
+
+// ── OBJ FLIP / ROTATE for context menu ──
+function objFlipH(id){const o=objects.find(x=>x.id===id);if(o)o.flippedH=!o.flippedH;saveHistory();renderObjectLayer();}
+function objFlipV(id){const o=objects.find(x=>x.id===id);if(o)o.flippedV=!o.flippedV;saveHistory();renderObjectLayer();}
+function objRot90(id){const o=objects.find(x=>x.id===id);if(o)o.rot=(o.rot||0)+90;saveHistory();renderObjectLayer();}
+function objGrayscale(id){
+  const obj=objects.find(o=>o.id===id);if(!obj||obj.type!=='image')return;
+  const tmp=document.createElement('canvas');tmp.width=obj.w;tmp.height=obj.h;
+  const tc=tmp.getContext('2d');tc.drawImage(obj.imgEl,0,0,obj.w,obj.h);
+  const id2=tc.getImageData(0,0,obj.w,obj.h);
+  for(let i=0;i<id2.data.length;i+=4){const g=0.299*id2.data[i]+0.587*id2.data[i+1]+0.114*id2.data[i+2];id2.data[i]=id2.data[i+1]=id2.data[i+2]=g;}
+  tc.putImageData(id2,0,0);
+  const img=new Image();img.src=tmp.toDataURL();obj.imgEl=img;
+  saveHistory();renderObjectLayer();
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONTEXT MENU
+// ═══════════════════════════════════════════════════════
+let ctxTargetId=null;
+function showCtxMenu(e,id){
+  ctxTargetId=id;
+  const menu=document.getElementById('ctx-menu');
+  menu.classList.add('open');
+  menu.style.left=e.clientX+'px';menu.style.top=e.clientY+'px';
+}
+function closeCtxMenu(){document.getElementById('ctx-menu').classList.remove('open');ctxTargetId=null;}
+function ctxAction(action){
+  if(!ctxTargetId){closeCtxMenu();return;}
+  const id=ctxTargetId;closeCtxMenu();
+  switch(action){
+    case 'duplicate':selectedIds.clear();selectedIds.add(id);duplicateSelected();break;
+    case 'flatten':selectedIds.clear();selectedIds.add(id);flattenSelected();break;
+    case 'front':selectedIds.clear();selectedIds.add(id);bringToFront();break;
+    case 'back':selectedIds.clear();selectedIds.add(id);sendToBack();break;
+    case 'fliph':objFlipH(id);break;
+    case 'flipv':objFlipV(id);break;
+    case 'rot90':objRot90(id);break;
+    case 'grayscale':objGrayscale(id);break;
+    case 'delete':selectedIds.clear();selectedIds.add(id);deleteSelectedObjects();break;
+  }
+}
+document.addEventListener('click',e=>{if(!document.getElementById('ctx-menu').contains(e.target))closeCtxMenu()});
+
+// ═══════════════════════════════════════════════════════
+//  INSERT IMAGE
+// ═══════════════════════════════════════════════════════
+function insertImageTool(){document.getElementById('insert-img-input').click()}
+function insertImageFromFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    const maxW=Math.min(img.naturalWidth,canvas.width*0.7);
+    const scale=maxW/img.naturalWidth;
+    createImageObject(img,30,30,maxW,img.naturalHeight*scale);
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;e.target.value='';
+}
+
+// ── DRAG & DROP images onto canvas ──
+function setupDragDrop(){
+  const area=document.getElementById('canvas-area');
+  area.addEventListener('dragover',e=>{e.preventDefault();area.classList.add('drag-over')});
+  area.addEventListener('dragleave',()=>area.classList.remove('drag-over'));
+  area.addEventListener('drop',e=>{
+    e.preventDefault();area.classList.remove('drag-over');
+    const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+    files.forEach((file,fi)=>{
+      const url=URL.createObjectURL(file);
+      const img=new Image();
+      img.onload=()=>{
+        const rect=canvas.getBoundingClientRect();
+        const dropX=Math.round((e.clientX-rect.left)/zoomLevel);
+        const dropY=Math.round((e.clientY-rect.top)/zoomLevel);
+        const maxW=Math.min(img.naturalWidth,300);
+        const scale=maxW/img.naturalWidth;
+        createImageObject(img,dropX+fi*20,dropY+fi*20,maxW,img.naturalHeight*scale);
+        URL.revokeObjectURL(url);
+      };img.src=url;
+    });
+    // Also handle dataTransfer URLs (drag from browser)
+    const html=e.dataTransfer.getData('text/html');
+    if(html&&!files.length){
+      const match=html.match(/src="([^"]+)"/);
+      if(match){const img=new Image();img.crossOrigin='anonymous';
+        img.onload=()=>createImageObject(img,50,50);img.src=match[1];}
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  ZOOM
+// ═══════════════════════════════════════════════════════
+function setZoom(z){
+  zoomLevel=Math.max(0.1,Math.min(16,z));
+  const pct=Math.round(zoomLevel*100)+'%';
+  canvas.style.width=(canvas.width*zoomLevel)+'px';
+  canvas.style.height=(canvas.height*zoomLevel)+'px';
+  overlay.style.width=canvas.style.width;overlay.style.height=canvas.style.height;
+  document.getElementById('zoom-display').textContent=pct;
+  document.getElementById('status-zoom').textContent=pct;
+  renderObjectLayer();
+}
+
+// ═══════════════════════════════════════════════════════
+//  CANVAS IMAGE OPERATIONS
+// ═══════════════════════════════════════════════════════
+function flipH(){saveHistory();const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;const tc=tmp.getContext('2d');tc.translate(canvas.width,0);tc.scale(-1,1);tc.drawImage(canvas,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(tmp,0,0)}
+function flipV(){saveHistory();const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;const tc=tmp.getContext('2d');tc.translate(0,canvas.height);tc.scale(1,-1);tc.drawImage(canvas,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(tmp,0,0)}
+function rotate(deg){
+  saveHistory();const rad=deg*Math.PI/180;const tmp=document.createElement('canvas');
+  const absD=Math.abs(deg);
+  if(absD===90||absD===270){tmp.width=canvas.height;tmp.height=canvas.width}else{tmp.width=canvas.width;tmp.height=canvas.height}
+  const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rad);tc.drawImage(canvas,-canvas.width/2,-canvas.height/2);
+  canvas.width=tmp.width;canvas.height=tmp.height;overlay.width=tmp.width;overlay.height=tmp.height;
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(tmp,0,0);
+  setZoom(zoomLevel);updateStatusSize();saveHistory();
+}
+function grayscale(){saveHistory();const id=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<id.data.length;i+=4){const g=0.299*id.data[i]+0.587*id.data[i+1]+0.114*id.data[i+2];id.data[i]=id.data[i+1]=id.data[i+2]=g}ctx.putImageData(id,0,0)}
+function invertColors(){saveHistory();const id=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<id.data.length;i+=4){id.data[i]=255-id.data[i];id.data[i+1]=255-id.data[i+1];id.data[i+2]=255-id.data[i+2]}ctx.putImageData(id,0,0)}
+function adjustBrightness(a){saveHistory();const id=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<id.data.length;i+=4){id.data[i]=Math.min(255,Math.max(0,id.data[i]+a));id.data[i+1]=Math.min(255,Math.max(0,id.data[i+1]+a));id.data[i+2]=Math.min(255,Math.max(0,id.data[i+2]+a))}ctx.putImageData(id,0,0)}
+function fillCanvas(){saveHistory();ctx.fillStyle=primaryColor;ctx.fillRect(0,0,canvas.width,canvas.height)}
+function clearAll(){saveHistory();objects=[];renderObjectLayer();ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);updateStatusObjects()}
+
+// ═══════════════════════════════════════════════════════
+//  TEXT
+// ═══════════════════════════════════════════════════════
+function placeTextInput(x,y,color){
+  textOverlay.style.display='block';
+  textOverlay.style.left=(x*zoomLevel)+'px';textOverlay.style.top=(y*zoomLevel)+'px';
+  textOverlay.style.color=color;textOverlay.style.fontSize=Math.max(12,brushSize*2)+'px';
+  textOverlay.textContent='';textOverlay.focus();textPlaced=true;
+}
+function commitText(){
+  if(!textPlaced)return;
+  const text=textOverlay.textContent.trim();
+  if(text){
+    saveHistory();
+    const x=parseInt(textOverlay.style.left)/zoomLevel;
+    const y=parseInt(textOverlay.style.top)/zoomLevel;
+    const fs=parseInt(textOverlay.style.fontSize);
+    ctx.globalAlpha=opacity;ctx.fillStyle=textOverlay.style.color;
+    ctx.font=`${fs}px Syne, sans-serif`;ctx.textBaseline='top';
+    text.split('\n').forEach((ln,i)=>ctx.fillText(ln,x,y+i*(fs+4)));
+    resetAlpha();
+  }
+  textOverlay.style.display='none';textOverlay.textContent='';textPlaced=false;
+}
+textOverlay.addEventListener('keydown',e=>{if(e.key==='Escape'){textOverlay.style.display='none';textPlaced=false}e.stopPropagation()});
+
+// ═══════════════════════════════════════════════════════
+//  FILE OPERATIONS
+// ═══════════════════════════════════════════════════════
+function newCanvas(){document.getElementById('resize-modal-title').textContent='New Canvas';document.getElementById('resize-confirm-btn').textContent='Create';document.getElementById('resize-bg').value='white';document.getElementById('resize-w').value=900;document.getElementById('resize-h').value=600;pendingNew=true;openModal('resize-modal')}
+function openResizeModal(){document.getElementById('resize-modal-title').textContent='Resize Canvas';document.getElementById('resize-confirm-btn').textContent='Apply';document.getElementById('resize-w').value=canvas.width;document.getElementById('resize-h').value=canvas.height;pendingNew=false;openModal('resize-modal')}
+function confirmResize(){
+  const w=parseInt(document.getElementById('resize-w').value),h=parseInt(document.getElementById('resize-h').value);
+  if(!w||!h)return;const bg=document.getElementById('resize-bg').value;
+  if(!pendingNew)saveHistory();
+  const tmp=ctx.getImageData(0,0,canvas.width,canvas.height);
+  canvas.width=w;canvas.height=h;overlay.width=w;overlay.height=h;
+  if(bg==='white'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)}
+  else if(bg==='black'){ctx.fillStyle='#000';ctx.fillRect(0,0,w,h)}
+  else if(bg==='current'){ctx.putImageData(tmp,0,0)}
+  setZoom(zoomLevel);updateStatusSize();undoStack.length=0;redoStack.length=0;saveHistory();closeModal('resize-modal');
+}
+function openFile(){document.getElementById('file-input').click()}
+function loadImage(e){
+  const file=e.target.files[0];if(!file)return;
+  const url=URL.createObjectURL(file);const img=new Image();
+  img.onload=()=>{
+    canvas.width=img.width;canvas.height=img.height;overlay.width=img.width;overlay.height=img.height;
+    ctx.drawImage(img,0,0);setZoom(1);updateStatusSize();undoStack.length=0;redoStack.length=0;saveHistory();URL.revokeObjectURL(url);
+  };img.src=url;e.target.value='';
+}
+function saveAs(fmt){document.getElementById('save-format').value=fmt;openModal('saveas-modal')}
+function confirmSaveAs(){
+  // Flatten to temp canvas for save
+  const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
+  const tc=tmp.getContext('2d');tc.drawImage(canvas,0,0);
+  objects.forEach(obj=>{
+    const savedCtx=ctx;
+    const g=tc;
+    g.save();
+    const cx2=(obj.x+obj.w/2),cy2=(obj.y+obj.h/2);
+    g.globalAlpha=obj.opacity||1;g.translate(cx2,cy2);g.rotate((obj.rot||0)*Math.PI/180);g.translate(-obj.w/2,-obj.h/2);
+    if(obj.type==='image'&&obj.imgEl)g.drawImage(obj.imgEl,0,0,obj.w,obj.h);
+    g.restore();
+  });
+  const name=document.getElementById('save-filename').value||'my-drawing';
+  const fmt=document.getElementById('save-format').value;
+  const q=parseInt(document.getElementById('save-quality').value)/100;
+  const mime=fmt==='jpeg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
+  const a=document.createElement('a');a.href=tmp.toDataURL(mime,q);a.download=name+'.'+fmt;a.click();
+  closeModal('saveas-modal');
+}
+function printCanvas(){const d=canvas.toDataURL();const w=window.open('');w.document.write(`<img src="${d}" style="max-width:100%">`);w.print()}
+function copyCanvas(){canvas.toBlob(blob=>{navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).catch(()=>{})})}
+function pasteFromClipboard(){
+  navigator.clipboard.read().then(items=>{
+    for(const item of items){
+      if(item.types.includes('image/png')){
+        item.getType('image/png').then(blob=>{
+          const url=URL.createObjectURL(blob);const img=new Image();
+          img.onload=()=>{createImageObject(img,40,40,Math.min(img.naturalWidth,400),Math.min(img.naturalHeight,300));URL.revokeObjectURL(url)};
+          img.src=url;
+        });
+      }
+    }
+  }).catch(()=>{});
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATUS
+// ═══════════════════════════════════════════════════════
+function updateStatusSize(){document.getElementById('status-size').textContent=canvas.width+' × '+canvas.height}
+function updateStatusObjects(){document.getElementById('status-objects').textContent=objects.length}
+
+// ═══════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showShortcuts(){openModal('shortcuts-modal')}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+function buildShortcutsTable(){
+  const rows=[
+    ['New Canvas','Ctrl+N'],['Open File','Ctrl+O'],['Save PNG','Ctrl+S'],['Undo','Ctrl+Z'],['Redo','Ctrl+Y'],
+    ['Select All','Ctrl+A'],['Copy','Ctrl+C'],['Paste Image','Ctrl+V'],['Duplicate Object','Ctrl+D'],
+    ['Zoom In','Ctrl++'],['Zoom Out','Ctrl+-'],['Reset Zoom','Ctrl+0'],
+    ['Pencil','P'],['Brush','B'],['Eraser','E'],['Fill','F'],['Eyedropper','I'],
+    ['Text','T'],['Line','L'],['Rectangle','R'],['Ellipse','O'],['Select/Move','S'],
+    ['Delete','Del'],['Deselect / Cancel','Esc'],['Flatten All','Shift+F'],
+    ['Shape Panel','Shift+S'],['Bring to Front','Shift+]'],['Send to Back','Shift+['],
+  ];
+  document.getElementById('shortcuts-table').innerHTML=
+    '<tr style="color:var(--text-dim)"><th style="text-align:left;padding:4px 8px">Action</th><th style="text-align:right">Key</th></tr>'+
+    rows.map(([a,k])=>`<tr><td style="padding:5px 8px;border-top:1px solid var(--border)">${a}</td><td style="text-align:right;padding:5px 8px;border-top:1px solid var(--border);color:var(--accent2)">${k}</td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(document.activeElement===textOverlay||document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT')return;
+  const ctrl=e.ctrlKey||e.metaKey;
+  if(ctrl){
+    switch(e.key.toLowerCase()){
+      case 'z':e.preventDefault();undoAction();break;
+      case 'y':e.preventDefault();redoAction();break;
+      case 's':e.preventDefault();saveAs('png');break;
+      case 'n':e.preventDefault();newCanvas();break;
+      case 'o':e.preventDefault();openFile();break;
+      case 'a':e.preventDefault();selectAll();break;
+      case 'c':e.preventDefault();copyCanvas();break;
+      case 'v':e.preventDefault();pasteFromClipboard();break;
+      case 'd':e.preventDefault();duplicateSelected();break;
+      case 'g':e.preventDefault();if(e.shiftKey)ungroupSelected();else groupSelected();break;
+      case '=':case '+':e.preventDefault();setZoom(zoomLevel*1.25);break;
+      case '-':e.preventDefault();setZoom(zoomLevel*.8);break;
+      case '0':e.preventDefault();setZoom(1);break;
+      case ']':e.preventDefault();bringToFront();break;
+      case '[':e.preventDefault();sendToBack();break;
+    }return;
+  }
+  if(e.shiftKey){
+    switch(e.key.toLowerCase()){
+      case 'f':flattenAll();break;
+      case 's':toggleShapePanel();break;
+    }return;
+  }
+  switch(e.key.toLowerCase()){
+    case 'p':setTool('pencil');break;case 'b':setTool('brush');break;
+    case 'e':setTool('eraser');break;case 'f':setTool('fill');break;
+    case 'i':setTool('eyedropper');break;case 't':setTool('text');break;
+    case 'l':setTool('line');break;case 'r':setTool('rect');break;
+    case 'o':setTool('ellipse');break;case 's':setTool('select');break;
+    case 'delete':deleteSelectedObjects();break;
+    case 'escape':
+      deselectAll();clearSelection();
+      if(textPlaced){textOverlay.style.display='none';textPlaced=false}
+      break;
+  }
+  // Arrow nudge
+  if(selectedIds.size>0){
+    const d=e.shiftKey?10:1;
+    if(e.key==='ArrowLeft')  [...selectedIds].forEach(id=>{const o=objects.find(x=>x.id===id);if(o)o.x-=d});
+    if(e.key==='ArrowRight') [...selectedIds].forEach(id=>{const o=objects.find(x=>x.id===id);if(o)o.x+=d});
+    if(e.key==='ArrowUp')    [...selectedIds].forEach(id=>{const o=objects.find(x=>x.id===id);if(o)o.y-=d});
+    if(e.key==='ArrowDown')  [...selectedIds].forEach(id=>{const o=objects.find(x=>x.id===id);if(o)o.y+=d});
+    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();renderObjectLayer();updateObjProps();}
+  }
+});
+
+document.getElementById('canvas-area').addEventListener('wheel',e=>{
+  if(e.ctrlKey){e.preventDefault();setZoom(e.deltaY<0?zoomLevel*1.1:zoomLevel/1.1);}
+},{passive:false});
+
+// Click on canvas-area background deselects objects
+document.getElementById('canvas-area').addEventListener('mousedown',e=>{
+  if(e.target===document.getElementById('canvas-area')||e.target===document.getElementById('canvas-wrap')){
+    deselectAll();
+  }
+});
+
+// Shape fill mode sync
+document.getElementById('shape-fill-mode').addEventListener('change',e=>{
+  shapeFillMode=e.target.value;
+});
+
+init();
+</script>
+</body>
+</html>
