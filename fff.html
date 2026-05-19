@@ -96,9 +96,9 @@ body {
 
 /* ---- CANVAS BACKGROUND ---- */
 #bgCanvas {
-  position:fixed; inset:0; z-index:0;
+  position:fixed; inset:0; z-index:1;
   pointer-events:none;
-  opacity:0.9;
+  opacity:80.9;
 }
 
 /* ---- THEME SWITCHER ---- */
@@ -109,9 +109,9 @@ body {
   margin-top:8px;
 }
 .theme-btn {
-  padding:7px 18px;
+  padding:5px 15px;
   border-radius:30px;
-  border:2px solid transparent;
+  border:3px solid transparent;
   font-family:'Fredoka One',cursive;
   font-size:0.88em;
   cursor:pointer;
@@ -123,21 +123,21 @@ body {
 }
 .theme-btn.active, .theme-btn:hover {
   background: var(--accent1);
-  color:#000;
+  color:#000000c3;
   border-color:transparent;
   transform:scale(1.08);
-  box-shadow: 0 4px 18px var(--glow-color);
+  box-shadow: 0 8px 5px var(--glow-color);
 }
 
 /* ---- MAIN CONTAINER ---- */
 .game-container {
   position:relative; z-index:5;
   background: var(--card-bg);
-  border:1px solid var(--card-border);
+  border:2px solid var(--card-border);
   border-radius:28px;
   padding:22px 18px 24px;
   max-width:96vw; width:600px;
-  backdrop-filter:blur(28px) saturate(1.6);
+  backdrop-filter:blur(0px) saturate(0.6);
   box-shadow:
     0 0 80px var(--glow-color),
     0 30px 80px rgba(0,0,0,0.55),
@@ -266,7 +266,7 @@ body {
   border-radius:16px;
   cursor:pointer;
   display:flex; align-items:center; justify-content:center;
-  font-size:1.75em;
+  font-size:2.75em;
   position:relative; overflow:hidden;
   user-select:none;
   background:
@@ -763,12 +763,6 @@ input[type=color]{ height:42px; padding:4px !important; cursor:pointer; }
     </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill" style="width:0%"></div>
-    </div>
-    <div class="super-legend">
-      <span class="legend-item">3⭐=Normal</span>
-      <span class="legend-item">4⭐=🔥Fire+2x</span>
-      <span class="legend-item">5⭐=⚡Thunder+5x</span>
-      <span class="legend-item">6+⭐=🌀Vortex+10x</span>
     </div>
   </div>
 
