@@ -127,6 +127,9 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);heig
 #obj-props button:hover{background:var(--btn-hover);color:var(--accent)}
 
 #text-input-overlay{display:none;position:absolute;border:2px dashed var(--accent);background:transparent;color:#000;font-size:20px;min-width:100px;min-height:30px;outline:none;z-index:50;padding:2px 4px;resize:both;overflow:hidden;cursor:text;font-family:'Syne',sans-serif}
+.size-preset-btn{padding:4px 9px;font-size:11px;font-family:'DM Mono',monospace;border-radius:4px;border:1px solid var(--border);background:var(--btn);color:var(--text);cursor:pointer;transition:all .15s;white-space:nowrap}
+.size-preset-btn:hover{background:var(--btn-hover);border-color:var(--accent);color:var(--accent)}
+.size-preset-btn.active{background:rgba(233,69,96,.2);border-color:var(--accent);color:var(--accent)}
 #zoom-display{cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s;min-width:48px;text-align:center}
 #zoom-display:hover{background:var(--btn-hover)}
 #canvas-area::-webkit-scrollbar{width:8px;height:8px}
@@ -400,17 +403,55 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);heig
 </div>
 
 <div class="modal-overlay" id="saveas-modal">
-  <div class="modal">
-    <h2>Save As</h2>
+  <div class="modal" style="min-width:400px">
+    <h2>💾 Save As</h2>
     <label>File Name</label><input type="text" id="save-filename" value="my-drawing">
     <label>Format</label>
     <select id="save-format">
       <option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option>
     </select>
     <label>Quality (JPEG/WebP)</label><input type="number" id="save-quality" value="92" min="10" max="100">
+
+    <!-- SIZE SECTION -->
+    <div style="margin-top:4px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:10px">
+      <label style="color:var(--accent2);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px">📐 Export Size</label>
+
+      <!-- Predefined sizes -->
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin:8px 0">
+        <button class="size-preset-btn" onclick="applyPreset('current')" title="Canvas ki current size">Original</button>
+        <button class="size-preset-btn" onclick="applyPreset('1:1')" title="1080×1080 — Instagram Square">1:1</button>
+        <button class="size-preset-btn" onclick="applyPreset('4:3')" title="1024×768">4:3</button>
+        <button class="size-preset-btn" onclick="applyPreset('16:9')" title="1920×1080 — HD">16:9</button>
+        <button class="size-preset-btn" onclick="applyPreset('yt-banner')" title="2560×1440 — YouTube Channel Art">YT Banner</button>
+        <button class="size-preset-btn" onclick="applyPreset('yt-thumb')" title="1280×720 — YouTube Thumbnail">YT Thumb</button>
+        <button class="size-preset-btn" onclick="applyPreset('fb-cover')" title="820×312 — Facebook Cover">FB Cover</button>
+        <button class="size-preset-btn" onclick="applyPreset('1600x400')" title="1600×400 — Wide Banner">1600×400</button>
+        <button class="size-preset-btn" onclick="applyPreset('a4')" title="2480×3508 — A4 at 300dpi">A4</button>
+        <button class="size-preset-btn" onclick="applyPreset('twitter')" title="1500×500 — Twitter Header">Twitter</button>
+      </div>
+
+      <!-- Custom W x H -->
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <div style="flex:1">
+          <label>Width (px)</label>
+          <input type="number" id="save-w" min="1" max="8000" style="width:100%" oninput="savePreviewUpdate()">
+        </div>
+        <div style="color:var(--text-dim);font-size:18px;padding-top:14px">×</div>
+        <div style="flex:1">
+          <label>Height (px)</label>
+          <input type="number" id="save-h" min="1" max="8000" style="width:100%" oninput="savePreviewUpdate()">
+        </div>
+        <div style="padding-top:14px">
+          <button onclick="toggleSaveAspect()" id="save-aspect-btn" title="Aspect ratio lock" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);background:var(--btn);color:var(--text);cursor:pointer;font-size:15px">🔓</button>
+        </div>
+      </div>
+
+      <div id="save-size-info" style="font-size:11px;color:var(--text-dim);margin-top:6px;text-align:right"></div>
+    </div>
+
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeModal('saveas-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmSaveAs()">Download</button>
+      <button class="btn btn-primary" onclick="confirmSaveAs()">⬇ Download</button>
     </div>
   </div>
 </div>
@@ -521,6 +562,7 @@ function init() {
   buildShortcutsTable();
   updateStatusObjects();
   setupDragDrop();
+  initSaveListeners();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1702,20 +1744,96 @@ function loadImage(e){
     ctx.drawImage(img,0,0);setZoom(1);updateStatusSize();undoStack.length=0;redoStack.length=0;saveHistory();URL.revokeObjectURL(url);
   };img.src=url;e.target.value='';
 }
-function saveAs(fmt){document.getElementById('save-format').value=fmt;openModal('saveas-modal')}
+// ═══════════════════════════════════════════════════════
+//  SAVE AS — with custom/preset size
+// ═══════════════════════════════════════════════════════
+let saveAspectLocked = false;
+let saveAspectRatio  = 1;
+
+const SAVE_PRESETS = {
+  'current':   () => ({w: canvas.width, h: canvas.height}),
+  '1:1':       () => ({w:1080,  h:1080}),
+  '4:3':       () => ({w:1024,  h:768}),
+  '16:9':      () => ({w:1920,  h:1080}),
+  'yt-banner': () => ({w:2560,  h:1440}),
+  'yt-thumb':  () => ({w:1280,  h:720}),
+  'fb-cover':  () => ({w:820,   h:312}),
+  '1600x400':  () => ({w:1600,  h:400}),
+  'a4':        () => ({w:2480,  h:3508}),
+  'twitter':   () => ({w:1500,  h:500}),
+};
+
+function saveAs(fmt){
+  document.getElementById('save-format').value=fmt;
+  // init size fields to canvas size
+  document.getElementById('save-w').value=canvas.width;
+  document.getElementById('save-h').value=canvas.height;
+  saveAspectLocked=false;saveAspectRatio=canvas.width/canvas.height;
+  document.getElementById('save-aspect-btn').textContent='🔓';
+  document.querySelectorAll('.size-preset-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.size-preset-btn[onclick*="current"]').classList.add('active');
+  savePreviewUpdate();
+  openModal('saveas-modal');
+}
+
+function applyPreset(key){
+  const p=SAVE_PRESETS[key]?.();if(!p)return;
+  document.getElementById('save-w').value=p.w;
+  document.getElementById('save-h').value=p.h;
+  saveAspectRatio=p.w/p.h;
+  document.querySelectorAll('.size-preset-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  savePreviewUpdate();
+}
+
+function toggleSaveAspect(){
+  saveAspectLocked=!saveAspectLocked;
+  const w=parseInt(document.getElementById('save-w').value)||canvas.width;
+  const h=parseInt(document.getElementById('save-h').value)||canvas.height;
+  saveAspectRatio=w/h;
+  document.getElementById('save-aspect-btn').textContent=saveAspectLocked?'🔒':'🔓';
+}
+
+function savePreviewUpdate(){
+  const w=parseInt(document.getElementById('save-w').value)||canvas.width;
+  const h=parseInt(document.getElementById('save-h').value)||canvas.height;
+  const kb=Math.round(w*h*4/1024);
+  document.getElementById('save-size-info').textContent=`${w} × ${h} px  •  ~${kb > 1024 ? (kb/1024).toFixed(1)+' MB' : kb+' KB'} (uncompressed)`;
+}
+
+// Aspect-locked listeners — attached after DOM ready via init()
+function initSaveListeners(){
+  document.getElementById('save-w').addEventListener('input',function(){
+    if(saveAspectLocked)document.getElementById('save-h').value=Math.round(parseInt(this.value||1)/saveAspectRatio);
+    savePreviewUpdate();
+  });
+  document.getElementById('save-h').addEventListener('input',function(){
+    if(saveAspectLocked)document.getElementById('save-w').value=Math.round(parseInt(this.value||1)*saveAspectRatio);
+    savePreviewUpdate();
+  });
+}
+
 function confirmSaveAs(){
-  // Flatten to temp canvas for save
-  const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
-  const tc=tmp.getContext('2d');tc.drawImage(canvas,0,0);
+  const exportW=parseInt(document.getElementById('save-w').value)||canvas.width;
+  const exportH=parseInt(document.getElementById('save-h').value)||canvas.height;
+
+  // Build source canvas (canvas + objects)
+  const src=document.createElement('canvas');src.width=canvas.width;src.height=canvas.height;
+  const sc=src.getContext('2d');sc.drawImage(canvas,0,0);
   objects.forEach(obj=>{
-    const savedCtx=ctx;
-    const g=tc;
-    g.save();
+    const g=sc;g.save();
     const cx2=(obj.x+obj.w/2),cy2=(obj.y+obj.h/2);
     g.globalAlpha=obj.opacity||1;g.translate(cx2,cy2);g.rotate((obj.rot||0)*Math.PI/180);g.translate(-obj.w/2,-obj.h/2);
     if(obj.type==='image'&&obj.imgEl)g.drawImage(obj.imgEl,0,0,obj.w,obj.h);
     g.restore();
   });
+
+  // If size differs, scale to output canvas
+  const tmp=document.createElement('canvas');tmp.width=exportW;tmp.height=exportH;
+  const tc=tmp.getContext('2d');
+  tc.imageSmoothingEnabled=true;tc.imageSmoothingQuality='high';
+  tc.drawImage(src,0,0,exportW,exportH);
+
   const name=document.getElementById('save-filename').value||'my-drawing';
   const fmt=document.getElementById('save-format').value;
   const q=parseInt(document.getElementById('save-quality').value)/100;
