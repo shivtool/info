@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PixelForge — Drawing Studio</title>
-<link rel="icon" type="image/png" href="SHIV.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -1571,15 +1570,17 @@ document.addEventListener('click',e=>{if(!document.getElementById('ctx-menu').co
 function insertImageTool(){document.getElementById('insert-img-input').click()}
 function insertImageFromFile(e){
   const file=e.target.files[0];if(!file)return;
-  const url=URL.createObjectURL(file);
-  const img=new Image();
-  img.onload=()=>{
-    const maxW=Math.min(img.naturalWidth,canvas.width*0.7);
-    const scale=maxW/img.naturalWidth;
-    createImageObject(img,30,30,maxW,img.naturalHeight*scale);
-    URL.revokeObjectURL(url);
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=Math.min(img.naturalWidth,canvas.width*0.7);
+      const scale=maxW/img.naturalWidth;
+      createImageObject(img,30,30,maxW,img.naturalHeight*scale);
+    };
+    img.src=ev.target.result;
   };
-  img.src=url;e.target.value='';
+  reader.readAsDataURL(file);e.target.value='';
 }
 
 // ── DRAG & DROP images onto canvas ──
@@ -1591,17 +1592,20 @@ function setupDragDrop(){
     e.preventDefault();area.classList.remove('drag-over');
     const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
     files.forEach((file,fi)=>{
-      const url=URL.createObjectURL(file);
-      const img=new Image();
-      img.onload=()=>{
-        const rect=canvas.getBoundingClientRect();
-        const dropX=Math.round((e.clientX-rect.left)/zoomLevel);
-        const dropY=Math.round((e.clientY-rect.top)/zoomLevel);
-        const maxW=Math.min(img.naturalWidth,300);
-        const scale=maxW/img.naturalWidth;
-        createImageObject(img,dropX+fi*20,dropY+fi*20,maxW,img.naturalHeight*scale);
-        URL.revokeObjectURL(url);
-      };img.src=url;
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        const img=new Image();
+        img.onload=()=>{
+          const rect=canvas.getBoundingClientRect();
+          const dropX=Math.round((e.clientX-rect.left)/zoomLevel);
+          const dropY=Math.round((e.clientY-rect.top)/zoomLevel);
+          const maxW=Math.min(img.naturalWidth,300);
+          const scale=maxW/img.naturalWidth;
+          createImageObject(img,dropX+fi*20,dropY+fi*20,maxW,img.naturalHeight*scale);
+        };
+        img.src=ev.target.result;
+      };
+      reader.readAsDataURL(file);
     });
     // Also handle dataTransfer URLs (drag from browser)
     const html=e.dataTransfer.getData('text/html');
@@ -1726,9 +1730,13 @@ function pasteFromClipboard(){
     for(const item of items){
       if(item.types.includes('image/png')){
         item.getType('image/png').then(blob=>{
-          const url=URL.createObjectURL(blob);const img=new Image();
-          img.onload=()=>{createImageObject(img,40,40,Math.min(img.naturalWidth,400),Math.min(img.naturalHeight,300));URL.revokeObjectURL(url)};
-          img.src=url;
+          const reader=new FileReader();
+          reader.onload=ev=>{
+            const img=new Image();
+            img.onload=()=>{createImageObject(img,40,40,Math.min(img.naturalWidth,400),Math.min(img.naturalHeight,300))};
+            img.src=ev.target.result;
+          };
+          reader.readAsDataURL(blob);
         });
       }
     }
