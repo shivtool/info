@@ -20,10 +20,11 @@
     /* Page sizes in px at 96dpi */
     --page-w: 794px;  /* A4 default */
     --page-h: 1123px;
-    --margin-top: 75px;
+    /* 1 inch = 96px at 96dpi */
+    --margin-top: 96px;
     --margin-left: 110px;
     --margin-right: 70px;
-    --margin-bottom: 70px;
+    --margin-bottom: 96px;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -161,28 +162,45 @@
   /* ── THE PAGE ── */
   #page {
     position:relative; z-index:2;
-    background:rgba(255,255,255,0.88);
+    background:rgba(255,255,255,0.92);
     backdrop-filter:blur(2px);
     border:1px solid rgba(200,210,240,0.6);
     border-radius:2px;
     box-shadow:0 8px 32px rgba(100,120,200,0.18), inset 0 0 0 1px rgba(255,255,255,0.9);
     width:var(--page-w);
-    min-height:var(--page-h);
+    /* FIXED height — page always shows full A4, never shrinks */
+    height: var(--page-h);
+    min-height: var(--page-h);
     padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
-    overflow:hidden;
+    /* overflow visible so extra text can expand page */
+    overflow: visible;
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='rotate(-45 16 16)'%3E%3Crect x='14' y='2' width='4' height='20' rx='2' fill='%232a1a5e' opacity='.9'/%3E%3Cellipse cx='16' cy='24' rx='3' ry='4' fill='%234a3a8e' opacity='.8'/%3E%3Cpolygon points='14,22 18,22 16,27' fill='%231a0a4e'/%3E%3Crect x='13' y='1' width='6' height='4' rx='2' fill='%23e8c840'/%3E%3C/g%3E%3C/svg%3E") 2 28, text;
   }
 
-  /* Horizontal ruled lines */
+  /* Horizontal ruled lines — cover full page, positioned from top of page */
   #page::before {
-    content:''; position:absolute; inset:0;
+    content:''; position:absolute;
+    /* Lines start at top margin, end at bottom margin */
+    top: var(--margin-top);
+    left: 0; right: 0;
+    /* Height = full writable area — no lines in blank margin zones */
+    bottom: var(--margin-bottom);
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0px, transparent 31px,
       var(--page-lines) 31px, var(--page-lines) 32px
     );
-    background-position:0 var(--margin-top);
+    background-position: 0 0;
     pointer-events:none; z-index:0;
+  }
+
+  /* BOTTOM blank zone — pure white, no lines */
+  #page::after {
+    content:''; position:absolute;
+    left:0; right:0; bottom:0;
+    height: var(--margin-bottom);
+    background: rgba(255,255,255,0.92);
+    pointer-events:none; z-index:1;
   }
 
   /* Left vertical red margin */
@@ -190,28 +208,41 @@
     position:absolute; top:0; bottom:0;
     left: calc(var(--margin-left) - 18px);
     width:1.5px; background:var(--page-margin-l);
-    pointer-events:none; z-index:1;
+    pointer-events:none; z-index:2;
   }
 
-  /* Top horizontal red margin */
+  /* Top horizontal red margin — sits at bottom edge of 1-inch top blank */
   #margin-top-line {
     position:absolute; left:0; right:0;
-    top: calc(var(--margin-top) - 10px);
+    top: calc(var(--margin-top) - 2px);
     height:1.5px; background:var(--page-margin-t);
-    pointer-events:none; z-index:1;
+    pointer-events:none; z-index:2;
   }
 
   /* ── EDITOR ── */
   #editor {
     position:relative; z-index:2;
-    min-height:calc(var(--page-h) - var(--margin-top) - var(--margin-bottom) - 20px);
+    min-height: calc(var(--page-h) - var(--margin-top) - var(--margin-bottom));
+    height: calc(var(--page-h) - var(--margin-top) - var(--margin-bottom));
     outline:none;
     font-family:'Caveat',cursive;
-    font-size:1.35rem;
-    line-height:var(--line-h);
+    font-size:1.2rem;
+    /* line-height MUST exactly match the 32px ruled line spacing */
+    line-height: 32px;
+    /* NO padding-top — lines start at y=0 of editor, which is margin-top of page */
+    padding-top: 0;
     color:var(--ink);
     word-break:break-word;
     caret-color:#3a2a8e;
+    overflow: visible;
+    /* Ensure block elements inside also use 32px line-height */
+    vertical-align: baseline;
+  }
+  /* Every paragraph/div inside editor must also snap to 32px grid */
+  #editor p, #editor div, #editor br {
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
   }
   #editor:empty::before {
     content:attr(data-placeholder);
@@ -300,11 +331,20 @@
 
   /* ── PRINT STYLES ── */
   @media print {
-    @page { margin: 0; }
+    /*
+      Strategy: Use @page margin = 0, let #page handle all spacing.
+      This avoids the double-margin problem where @page + padding both offset content.
+      1 inch top/bottom = 96px. Left margin line at ~92px from left.
+    */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
 
     html, body {
       margin: 0 !important; padding: 0 !important;
       background: white !important;
+      width: 100% !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -328,49 +368,75 @@
     #page {
       display: block !important;
       width: 100% !important;
+      height: auto !important;
       min-height: 100vh !important;
       margin: 0 !important;
-      padding: 75px 70px 70px 110px !important;
+      /* Full margin control — same as screen: top 96px, left 110px, right 70px, bottom 96px */
+      padding: 96px 70px 96px 110px !important;
       border: none !important;
       border-radius: 0 !important;
       box-shadow: none !important;
       background: white !important;
       overflow: visible !important;
+      position: relative !important;
     }
 
-    /* Ruled lines — must be solid for print */
+    /* Bottom white overlay — hides lines in bottom margin */
+    #page::after {
+      display: block !important;
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important; right: 0 !important; bottom: 0 !important;
+      height: 96px !important;
+      background: white !important;
+    }
+
+    /* Ruled lines — same as screen, covering writable zone only */
     #page::before {
+      position: absolute !important;
+      top: 96px !important;
+      left: 0 !important; right: 0 !important;
+      bottom: 96px !important;
       background-image: repeating-linear-gradient(
         to bottom,
         transparent 0px, transparent 31px,
-        rgba(74, 55, 248, 0.742) 31px, rgba(107, 48, 244, 0.882) 32px
+        rgba(74, 55, 248, 0.8) 31px, rgba(107, 48, 244, 0.9) 32px
       ) !important;
-      background-position: 0 75px !important;
+      background-position: 0 0 !important;
     }
 
-    /* Left margin line */
+    /* Left margin red line — same position as screen */
     #margin-left-line {
       display: block !important;
       position: absolute !important;
       top: 0 !important; bottom: 0 !important;
-      left: 92px !important;
+      left: calc(110px - 18px) !important;
       width: 1.5px !important;
-      background: rgba(242, 41, 41, 0.948) !important;
+      background: rgba(242, 41, 41, 0.95) !important;
     }
 
-    /* Top margin line */
+    /* Top red line */
     #margin-top-line {
       display: block !important;
       position: absolute !important;
       left: 0 !important; right: 0 !important;
-      top: 65px !important;
+      top: calc(96px - 2px) !important;
       height: 1.5px !important;
-      background: rgba(243, 58, 58, 0.876) !important;
+      background: rgba(243, 58, 58, 0.9) !important;
     }
 
     #editor {
       min-height: unset !important;
+      height: auto !important;
       color: #1a1a2e !important;
+      padding-top: 0 !important;
+      line-height: 32px !important;
+      font-size: 1.2rem !important;
+    }
+    #editor p, #editor div {
+      line-height: 32px !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     .editor-img-wrap { border-color: transparent !important; box-shadow: none !important; }
@@ -539,14 +605,22 @@ function changePageSize(key) {
   const root = document.documentElement;
   root.style.setProperty('--page-w', sz.w+'px');
   root.style.setProperty('--page-h', sz.h+'px');
+  const page = document.getElementById('page');
+  const editor = document.getElementById('editor');
   document.getElementById('page-wrapper').style.width = sz.w+'px';
-  document.getElementById('page').style.width = sz.w+'px';
-  document.getElementById('page').style.minHeight = sz.h+'px';
+  page.style.width = sz.w+'px';
+  page.style.height = sz.h+'px';
+  page.style.minHeight = sz.h+'px';
+  // Editor fills writable area (page height minus top and bottom margins = 96px each)
+  const writableH = sz.h - 96 - 96;
+  editor.style.minHeight = writableH+'px';
+  editor.style.height = writableH+'px';
   document.getElementById('pageSizeLabel').textContent = '📐 '+sz.label;
-  // Update print @page rule
+  const sizeMap = { a4:'A4', a5:'A5', letter:'letter', legal:'legal', a3:'A3' };
+  const printSz = sizeMap[key] || 'A4';
   let pStyle = document.getElementById('print-page-style');
   if(!pStyle){ pStyle=document.createElement('style'); pStyle.id='print-page-style'; document.head.appendChild(pStyle); }
-  pStyle.textContent = sz.css;
+  pStyle.textContent = `@media print { @page { size: ${printSz} portrait; margin: 0; } }`;
   localStorage.setItem('acrylic_pageSize', key);
 }
 
@@ -716,6 +790,7 @@ function printDoc() {
   if (!pStyle) { pStyle = document.createElement('style'); pStyle.id='print-page-style'; document.head.appendChild(pStyle); }
   const sizeMap = { a4:'A4', a5:'A5', letter:'letter', legal:'legal', a3:'A3' };
   const sz = sizeMap[currentPageSize] || 'A4';
+  // margin:0 — spacing handled entirely by #page padding in @media print CSS
   pStyle.textContent = `@media print { @page { size: ${sz} portrait; margin: 0; } }`;
   if (selectedImg) { selectedImg.classList.remove('selected'); selectedImg = null; }
   setTimeout(() => window.print(), 80);
