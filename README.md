@@ -28,14 +28,14 @@ Our mission is to empower students with real-world IT skills.
 
 | Course Name                  | Duration     | Fees (INR) |
 |-------------------------------|--------------|------------|
-| Basic Computer Course (BCC)   | 3 Months     | 2,500/-    |
-| Diploma in Computer Application (DCA) | 6 Months     | 5,000/-    |
-| Advanced Diploma in Computer Application (ADCA) | 12 Months    | 9,500/-    |
-| Tally with GST                | 3 Months     | 3,000/-    |
-| Web Designing (HTML, CSS, JS) | 4 Months     | 4,500/-    |
-| Programming in C / C++ / Java | 3–6 Months   | 4,000/- – 6,000/- |
-| Python with AI Basics         | 6 Months     | 7,500/-    |
-| MS Office & Typing            | 2 Months     | 1,500/-    |
+| Basic Computer Course (BCC)   | 3 Months     | Comming soon..    |
+| Diploma in Computer Application (DCA) | 6 Months     | Comming soon..    |
+| Advanced Diploma in Computer Application (ADCA) | 12 Months    | Comming soon..    |
+| Tally with GST                | 3 Months     | Comming soon..    |
+| Web Designing (HTML, CSS, JS) | 4 Months     | Comming soon..    |
+| Programming in C / C++ / Java | 3–6 Months   | Comming soon.. |
+| Python with AI Basics         | 6 Months     | Comming soon..   |
+| MS Office & Typing            | 2 Months     | Comming soon..  |
 
 👉 *Fees and duration may vary. Please contact us for the latest details.*
 
