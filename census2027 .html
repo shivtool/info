@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>जनगणना 2027 - मकानसूचीकरण एवं मकानों की गणना</title>
+<link rel="icon" type="image/png" href="SHIV.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  :root {
+    --saffron: #FF6B00;
+    --saffron-light: #FF8C38;
+    --saffron-pale: #FFF3E8;
+    --navy: #1A237E;
+    --navy-mid: #283593;
+    --navy-light: #E8EAF6;
+    --green: #1B5E20;
+    --green-mid: #2E7D32;
+    --green-light: #E8F5E9;
+    --gold: #F9A825;
+    --white: #FFFFFF;
+    --gray-50: #FAFAFA;
+    --gray-100: #F5F5F5;
+    --gray-200: #EEEEEE;
+    --gray-300: #E0E0E0;
+    --gray-400: #BDBDBD;
+    --gray-600: #757575;
+    --gray-800: #424242;
+    --gray-900: #212121;
+    --shadow: 0 2px 8px rgba(26,35,126,0.12);
+    --shadow-lg: 0 4px 20px rgba(26,35,126,0.18);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    background: linear-gradient(135deg, #0D1B6E 0%, #1A237E 40%, #0A3D62 100%);
+    min-height: 100vh;
+    color: var(--gray-900);
+  }
+
+  /* ─── HEADER ─── */
+  .app-header {
+    background: linear-gradient(90deg, #FF6B00, #FF8C38, #F9A825);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .emblem { width: 52px; height: 52px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex-shrink: 0; }
+  .header-text h1 { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .header-text p { font-size: 0.72rem; color: rgba(255,255,255,0.9); }
+  .header-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    padding: 7px 14px; border: none; border-radius: var(--radius-sm);
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-white { background: white; color: var(--navy); }
+  .btn-white:hover { background: var(--navy-light); }
+  .btn-navy { background: var(--navy); color: white; }
+  .btn-navy:hover { background: var(--navy-mid); }
+  .btn-green { background: var(--green-mid); color: white; }
+  .btn-green:hover { background: var(--green); }
+  .btn-red { background: #c62828; color: white; }
+  .btn-red:hover { background: #b71c1c; }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: #f57f17; }
+  .btn-lg { padding: 10px 22px; font-size: 0.9rem; }
+
+  /* ─── MAIN CONTAINER ─── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* ─── TABS ─── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: rgba(255,255,255,0.08); border-radius: var(--radius); padding: 4px; }
+  .tab {
+    flex: 1; padding: 10px 8px; border: none; border-radius: var(--radius-sm);
+    font-family: 'Noto Sans Devanagari', sans-serif; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7);
+    background: transparent;
+  }
+  .tab.active { background: white; color: var(--navy); box-shadow: var(--shadow); }
+  .tab:hover:not(.active) { background: rgba(255,255,255,0.15); color: white; }
+
+  /* ─── PANEL ─── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ─── FORM CARD ─── */
+  .form-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .form-card-header {
+    background: linear-gradient(90deg, var(--navy), var(--navy-mid));
+    padding: 14px 20px; color: white;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .form-card-header h2 { font-size: 1rem; font-weight: 600; }
+  .form-card-body { padding: 20px; }
+
+  /* ─── META ROW ─── */
+  .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+  .meta-field label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-field input, .meta-field select {
+    width: 100%; padding: 8px 10px; border: 2px solid var(--gray-300);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem;
+    transition: border-color 0.2s;
+  }
+  .meta-field input:focus, .meta-field select:focus { outline: none; border-color: var(--saffron); }
+  .meta-field input[readonly] { background: var(--gray-100); color: var(--navy); font-weight: 700; }
+
+  /* ─── SECTION DIVIDER ─── */
+  .section-divider {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0 12px;
+  }
+  .section-divider span {
+    background: linear-gradient(90deg, var(--saffron), var(--gold));
+    color: white; font-size: 0.7rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .section-divider hr { flex: 1; border: none; border-top: 2px solid var(--gray-200); }
+
+  /* ─── QUESTIONS GRID ─── */
+  .questions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width: 680px) { .questions-grid { grid-template-columns: 1fr; } .meta-grid { grid-template-columns: 1fr 1fr; } }
+
+  .q-item {
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+    padding: 10px 12px; background: var(--gray-50);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .q-item:hover { border-color: var(--saffron); box-shadow: 0 2px 8px rgba(255,107,0,0.1); }
+  .q-number {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; background: var(--saffron); color: white;
+    border-radius: 50%; font-size: 0.7rem; font-weight: 700; margin-bottom: 5px; flex-shrink: 0;
+  }
+  .q-label { font-size: 0.82rem; font-weight: 600; color: var(--navy); margin-bottom: 6px; line-height: 1.3; }
+  .q-item select, .q-item input[type=text], .q-item input[type=number], .q-item input[type=tel] {
+    width: 100%; padding: 6px 8px; border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 0.82rem;
+    background: white; transition: border-color 0.2s;
+  }
+  .q-item select:focus, .q-item input:focus { outline: none; border-color: var(--saffron); }
+
+  /* ─── FORM ACTIONS ─── */
+  .form-actions {
+    display: flex; gap: 10px; padding: 16px 20px;
+    background: var(--navy-light); border-top: 2px solid var(--gray-200);
+    flex-wrap: wrap;
+  }
+
+  /* ─── LIST PANEL ─── */
+  .list-toolbar {
+    background: white; border-radius: var(--radius); padding: 14px 16px;
+    box-shadow: var(--shadow); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .list-toolbar input {
+    flex: 1; min-width: 200px; padding: 8px 12px;
+    border: 2px solid var(--gray-300); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 0.85rem;
+  }
+  .list-toolbar input:focus { outline: none; border-color: var(--saffron); }
+
+  .stats-row {
+    display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1; min-width: 120px; background: white; border-radius: var(--radius-sm);
+    padding: 12px 16px; box-shadow: var(--shadow); text-align: center;
+    border-top: 3px solid var(--saffron);
+  }
+  .stat-card .val { font-size: 1.6rem; font-weight: 700; color: var(--navy); font-family: 'Rajdhani', sans-serif; }
+  .stat-card .lbl { font-size: 0.72rem; color: var(--gray-600); }
+
+  .data-table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .data-table th {
+    background: var(--navy); color: white; padding: 10px 8px;
+    text-align: left; font-weight: 600; font-size: 0.75rem; white-space: nowrap;
+  }
+  .data-table td { padding: 9px 8px; border-bottom: 1px solid var(--gray-200); vertical-align: middle; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--saffron-pale); }
+  .data-table tr:nth-child(even) td { background: var(--gray-50); }
+  .data-table tr:nth-child(even):hover td { background: var(--saffron-pale); }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-blue { background: var(--navy-light); color: var(--navy); }
+
+  .action-btns { display: flex; gap: 5px; }
+  .btn-icon { padding: 5px 8px; font-size: 0.75rem; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--gray-400); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 200;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: var(--radius); width: 100%;
+    max-width: 520px; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden; max-height: 90vh; display: flex; flex-direction: column;
+  }
+  .modal-header {
+    background: linear-gradient(90deg, var(--navy), var(--navy-mid));
+    color: white; padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h3 { font-size: 0.95rem; }
+  .modal-close { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
+  .modal-body { padding: 18px; overflow-y: auto; flex: 1; }
+  .modal-footer { padding: 12px 18px; background: var(--gray-100); display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ─── PRINT MODAL OPTIONS ─── */
+  .print-option {
+    border: 2px solid var(--gray-300); border-radius: var(--radius);
+    padding: 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .print-option:hover { border-color: var(--saffron); background: var(--saffron-pale); }
+  .print-option .icon { font-size: 1.8rem; }
+  .print-option h4 { font-size: 0.9rem; color: var(--navy); }
+  .print-option p { font-size: 0.75rem; color: var(--gray-600); margin-top: 2px; }
+
+  .select-wrap { margin-top: 10px; }
+  .select-wrap select {
+    width: 100%; padding: 8px 10px; border: 2px solid var(--gray-300);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem;
+  }
+  .select-wrap select:focus { outline: none; border-color: var(--saffron); }
+
+  /* ─── BACKUP PANEL ─── */
+  .backup-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 22px; margin-bottom: 14px; border-left: 4px solid var(--saffron);
+  }
+  .backup-card h3 { font-size: 0.95rem; color: var(--navy); margin-bottom: 6px; }
+  .backup-card p { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 12px; }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--green-mid); color: white;
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 0.85rem; font-weight: 600;
+    box-shadow: var(--shadow-lg); z-index: 999;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.error { background: #c62828; }
+
+  /* ─── PRINT STYLES ─── */
+  @media print {
+    @page { size: A4; margin: 12mm 10mm; }
+    body { background: white !important; }
+    .app-header, .tabs, .no-print, .form-actions,
+    .container, #toast, .modal-overlay { display: none !important; }
+    #print-area { display: block !important; }
+
+    /* Print Area full page */
+    #print-area { display: block !important; position: static; width: 100%; }
+    /* Print List */
+    .print-list-page { display: block !important; }
+    .print-list-table { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Noto Sans Devanagari', sans-serif; }
+    .print-list-table th { background: #1A237E !important; color: white !important; padding: 5px 4px; text-align: left; font-size: 7.5pt; border: 0.5px solid #ccc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .print-list-table td { padding: 4px; border: 0.5px solid #ccc; vertical-align: top; font-size: 7.5pt; }
+    .print-list-table tr:nth-child(even) td { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* Print Detail */
+    .print-detail-page { display: block !important; page-break-after: always; }
+    .print-detail-page:last-child { page-break-after: avoid; }
+  }
+
+  .print-list-page, .print-detail-page { display: none; }
+
+  /* Detail print layout */
+  .print-detail-header { text-align: center; margin-bottom: 8mm; }
+  .print-detail-header h2 { font-size: 13pt; color: #1A237E; font-weight: 700; }
+  .print-detail-header p { font-size: 9pt; color: #555; }
+  .print-meta-table { width: 100%; border-collapse: collapse; margin-bottom: 5mm; }
+  .print-meta-table td { border: 1px solid #999; padding: 4px 6px; font-size: 8.5pt; }
+  .print-meta-table td:nth-child(odd) { background: #E8EAF6; font-weight: 600; width: 28%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; }
+  .print-q-item { border: 1px solid #bbb; padding: 3px 5px; font-size: 7.5pt; }
+  .print-q-item .q-num { font-weight: 700; color: #FF6B00; }
+  .print-q-item .q-val { color: #1A237E; font-weight: 600; }
+
+  .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 12px; }
+  .alert-info { background: var(--navy-light); color: var(--navy); border-left: 3px solid var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="emblem">🏛️</div>
+  <div class="header-text">
+    <h1>जनगणना 2027: मकानसूचीकरण एवं मकानों की गणना</h1>
+    <p>डेटा संग्रह प्रपत्र</p>
+  </div>
+  <div class="header-actions no-print">
+    <button class="btn btn-white" onclick="openPrintModal()">🖨️ प्रिंट</button>
+    <button class="btn btn-gold" onclick="switchTab('backup')">💾 बैकअप/रिस्टोर</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="container">
+  <div class="tabs no-print">
+    <button class="tab active" onclick="switchTab('form')" id="tab-form">📋 नया प्रविष्टि</button>
+    <button class="tab" onclick="switchTab('list')" id="tab-list">📊 डेटा सूची</button>
+    <button class="tab" onclick="switchTab('backup')" id="tab-backup">💾 बैकअप/रिस्टोर</button>
+  </div>
+
+  <!-- ══════════ FORM PANEL ══════════ -->
+  <div class="panel active" id="panel-form">
+    <div class="form-card">
+      <div class="form-card-header">
+        <span style="font-size:1.3rem">🏠</span>
+        <h2 id="form-title">नई प्रविष्टि जोड़ें</h2>
+        <span id="edit-badge" style="display:none;background:#FF6B00;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;">संपादन मोड</span>
+      </div>
+      <div class="form-card-body">
+
+        <!-- META FIELDS -->
+        <div class="meta-grid">
+          <div class="meta-field">
+            <label>वार्ड/ग्राम का नाम</label>
+            <input type="text" id="m-ward" placeholder="वार्ड/ग्राम दर्ज करें">
+          </div>
+          <div class="meta-field">
+            <label>ब्लॉक क्रमांक (HLB)</label>
+            <input type="text" id="m-block" placeholder="HLB क्रमांक">
+          </div>
+          <div class="meta-field">
+            <label>प्रगणक का नाम</label>
+            <input type="text" id="m-enumerator" placeholder="प्रगणक नाम">
+          </div>
+          <div class="meta-field">
+            <label>भवन क्रमांक (स्वतः)</label>
+            <input type="text" id="m-bhavan" readonly placeholder="CN-XX">
+          </div>
+          <div class="meta-field">
+            <label>जनगणना मकान संख्या (स्वतः)</label>
+            <input type="text" id="m-makaan" readonly placeholder="0001">
+          </div>
+          <div class="meta-field">
+            <label>दिनांक</label>
+            <input type="text" id="m-date" readonly>
+          </div>
+        </div>
+
+        <!-- SECTION 1 -->
+        <div class="section-divider"><span>🏗️ मकान संरचना (प्रश्न 4–8)</span><hr></div>
+        <div class="questions-grid">
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">4</span><div class="q-label">फर्श की प्रमुख सामग्री</div></div>
+            <select id="q4">
+              <option value="">-- चुनें --</option>
+              <option value="1-मिट्टी">1 - मिट्टी</option>
+              <option value="2-लकड़ी">2 - लकड़ी</option>
+              <option value="3-ईंट">3 - पक्की ईंट</option>
+              <option value="4-पत्थर">4 - पत्थर</option>
+              <option value="5-सीमेंट">5 - सीमेंट</option>
+              <option value="6-मोजेक/टाइल">6 - मोजेक/टाइल</option>
+              <option value="7-अन्य">7 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">5</span><div class="q-label">दीवार की प्रमुख सामग्री</div></div>
+            <select id="q5">
+              <option value="">-- चुनें --</option>
+              <option value="1-घास/फूस">1 - घास/फूस</option>
+              <option value="2-पॉलिथीन">2 - पॉलिथीन</option>
+              <option value="3-कच्ची ईंट">3 - कच्ची ईंट</option>
+              <option value="4-लकड़ी">4 - लकड़ी</option>
+              <option value="5-पत्थर(बिना गारे)">5 - पत्थर (बिना गारे)</option>
+              <option value="6-पत्थर(गारे सहित)">6 - पत्थर (गारे सहित)</option>
+              <option value="7-धातु की चादर">7 - धातु की चादर</option>
+              <option value="8-पक्की ईंट">8 - पक्की ईंट</option>
+              <option value="9-कंक्रीट">9 - कंक्रीट</option>
+              <option value="0-अन्य">0 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">6</span><div class="q-label">छत की मुख्य सामग्री</div></div>
+            <select id="q6">
+              <option value="">-- चुनें --</option>
+              <option value="1-घास/फूस">1 - घास/फूस</option>
+              <option value="2-पॉलिथीन">2 - पॉलिथीन</option>
+              <option value="3-देसी टाइल">3 - देसी टाइल</option>
+              <option value="4-मशीन टाइल">4 - मशीन टाइल</option>
+              <option value="5-पक्की ईंट">5 - पक्की ईंट</option>
+              <option value="6-पत्थर/स्लेट">6 - पत्थर/स्लेट</option>
+              <option value="7-धातु की चादर">7 - धातु की चादर</option>
+              <option value="8-कंक्रीट">8 - कंक्रीट</option>
+              <option value="9-अन्य">9 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">7</span><div class="q-label">मकान का उपयोग</div></div>
+            <select id="q7">
+              <option value="">-- चुनें --</option>
+              <option value="1-आवास">1 - आवास</option>
+              <option value="2-आवास+अन्य">2 - आवास + अन्य</option>
+              <option value="3-दुकान/ऑफिस">3 - दुकान/ऑफिस</option>
+              <option value="4-स्कूल">4 - स्कूल</option>
+              <option value="5-होटल">5 - होटल</option>
+              <option value="6-अस्पताल">6 - अस्पताल</option>
+              <option value="7-फैक्ट्री">7 - फैक्ट्री</option>
+              <option value="8-पूजा स्थल">8 - पूजा स्थल</option>
+              <option value="9-अन्य">9 - अन्य</option>
+              <option value="0-खाली">0 - खाली</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">8</span><div class="q-label">मकान की स्थिति</div></div>
+            <select id="q8">
+              <option value="">-- चुनें --</option>
+              <option value="1-अच्छी">1 - अच्छी</option>
+              <option value="2-रहने योग्य">2 - रहने योग्य</option>
+              <option value="3-जीर्ण-शीर्ण">3 - जीर्ण-शीर्ण</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">10</span><div class="q-label">परिवार में कुल सदस्यों की संख्या</div></div>
+            <input type="number" id="q10" min="1" max="50" placeholder="सदस्य संख्या">
+          </div>
+
+        </div>
+
+        <!-- SECTION 2 -->
+        <div class="section-divider"><span>👤 परिवार प्रमुख (प्रश्न 11–16)</span><hr></div>
+        <div class="questions-grid">
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">11</span><div class="q-label">परिवार के मुखिया का नाम</div></div>
+            <input type="text" id="q11" placeholder="मुखिया का पूरा नाम">
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">12</span><div class="q-label">मुखिया का लिंग</div></div>
+            <select id="q12">
+              <option value="">-- चुनें --</option>
+              <option value="1-पुरुष">1 - पुरुष</option>
+              <option value="2-महिला">2 - महिला</option>
+              <option value="3-ट्रांसजेंडर">3 - ट्रांसजेंडर</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">13</span><div class="q-label">मुखिया की श्रेणी</div></div>
+            <select id="q13">
+              <option value="">-- चुनें --</option>
+              <option value="1-SC">1 - SC</option>
+              <option value="2-ST">2 - ST</option>
+              <option value="3-Gen">3 - Genral</option>
+              <option value="4-अन्य">4 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">14</span><div class="q-label">मकान का स्वामित्व</div></div>
+            <select id="q14">
+              <option value="">-- चुनें --</option>
+              <option value="1-अपना">1 - अपना</option>
+              <option value="2-किराए का(अन्यत्र अपना)">2 - किराए का (अन्यत्र अपना)</option>
+              <option value="3-किराए का(अपना नहीं)">3 - किराए का (अपना नहीं)</option>
+              <option value="4-अन्य">4 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">15</span><div class="q-label">उपलब्ध कमरों की संख्या</div></div>
+            <input type="number" id="q15" min="0" max="50" placeholder="कमरों की संख्या">
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">16</span><div class="q-label">विवाहित जोड़ों की संख्या</div></div>
+            <input type="number" id="q16" min="0" max="30" placeholder="जोड़ों की संख्या">
+          </div>
+
+        </div>
+
+        <!-- SECTION 3 -->
+        <div class="section-divider"><span>💧 मूलभूत सुविधाएं (प्रश्न 17–25)</span><hr></div>
+        <div class="questions-grid">
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">17</span><div class="q-label">पेयजल का मुख्य स्रोत</div></div>
+            <select id="q17">
+              <option value="">-- चुनें --</option>
+              <option value="1-उपचारित नल">1 - उपचारित नल</option>
+              <option value="2-अनुपचारित नल">2 - अनुपचारित नल</option>
+              <option value="3-कुआं">3 - कुआं</option>
+              <option value="4-हैंडपंप">4 - हैंडपंप</option>
+              <option value="5-ट्यूबवेल">5 - ट्यूबवेल / सम्बर्सेबल</option>
+              <option value="6-झरना">6 - झरना</option>
+              <option value="7-नदी">7 - नदी</option>
+              <option value="8-तालाब">8 - तालाब</option>
+              <option value="9-बोतलबंद">9 - बोतलबंद</option>
+              <option value="0-अन्य">0 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">18</span><div class="q-label">स्रोत की दूरी</div></div>
+            <select id="q18">
+              <option value="">-- चुनें --</option>
+              <option value="1-परिसर में">1 - परिसर में</option>
+              <option value="2-निकट">2 - निकट</option>
+              <option value="3-दूर">3 - दूर</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">19</span><div class="q-label">प्रकाश का मुख्य साधन</div></div>
+            <select id="q19">
+              <option value="">-- चुनें --</option>
+              <option value="1-बिजली">1 - बिजली</option>
+              <option value="2-केरोसिन">2 - केरोसिन</option>
+              <option value="3-सौर">3 - सौर</option>
+              <option value="4-अन्य तेल">4 - अन्य तेल</option>
+              <option value="5-अन्य">5 - अन्य</option>
+              <option value="6-नहीं">6 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">20</span><div class="q-label">शौचालय की उपलब्धता</div></div>
+            <select id="q20">
+              <option value="">-- चुनें --</option>
+              <option value="1-निजी">1 - निजी</option>
+              <option value="2-साझा">2 - साझा</option>
+              <option value="3-सार्वजनिक">3 - सार्वजनिक</option>
+              <option value="4-खुले में">4 - खुले में</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">21</span><div class="q-label">शौचालय का प्रकार</div></div>
+            <select id="q21">
+              <option value="">-- चुनें --</option>
+              <option value="1-वाटर सीवर">1 - वाटर सीवर</option>
+              <option value="2-सेप्टिक">2 - सेप्टिक</option>
+              <option value="3-अन्य-3">3 - अन्य</option>
+              <option value="4-उठान गड्ढा">4 - उठान गड्ढा</option>
+              <option value="5-खुला गड्ढा">5 - खुला गड्ढा</option>
+              <option value="8/9-सर्विस">8/9 - सर्विस</option>
+              <option value="0-नाली">0 - नाली</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">22</span><div class="q-label">अपशिष्ट जल निकासी</div></div>
+            <select id="q22">
+              <option value="">-- चुनें --</option>
+              <option value="1-ढकी नाली">1 - ढकी नाली</option>
+              <option value="2-खुली नाली">2 - खुली नाली</option>
+              <option value="3-नहीं">3 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">23</span><div class="q-label">स्नान की सुविधा</div></div>
+            <select id="q23">
+              <option value="">-- चुनें --</option>
+              <option value="1-स्नानगृह">1 - स्नानगृह</option>
+              <option value="2-बिना छत">2 - बिना छत</option>
+              <option value="3-नहीं">3 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">24</span><div class="q-label">रसोई व एलपीजी/पीएनजी कनेक्शन</div></div>
+            <select id="q24">
+              <option value="">-- चुनें --</option>
+              <option value="1-अंदर+गैस">1 - अंदर + गैस</option>
+              <option value="2-पाइपलाइन">2 - पाइपलाइन </option>
+              <option value="2-अंदर+बिना गैस">3 - अंदर + बिना गैस</option>
+              <option value="3-अंदर बिना रसोई+गैस">4 - अंदर बिना रसोई + गैस</option>
+              <option value="4-अंदर बिना रसोई+बिना गैस">5 - अंदर बिना रसोई + बिना गैस</option>
+              <option value="5-बाहर+गैस">6 - बाहर + गैस</option>
+              <option value="6-बाहर+बिना गैस">7 - बाहर + बिना गैस</option>
+              <option value="7-नहीं पकाते">8 - नहीं पकाते</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">25</span><div class="q-label">खाना पकाने का मुख्य ईंधन</div></div>
+            <select id="q25">
+              <option value="">-- चुनें --</option>
+              <option value="1-लकड़ी">1 - लकड़ी</option>
+              <option value="2-अवशेष">2 - अवशेष</option>
+              <option value="3-उपला">3 - उपला</option>
+              <option value="4-कोयला">4 - कोयला</option>
+              <option value="5-केरोसिन">5 - केरोसिन</option>
+              <option value="6-गैस">6 - गैस</option>
+              <option value="7-बिजली">7 - बिजली</option>
+              <option value="8-बायोगैस">8 - बायोगैस</option>
+              <option value="9-सौर">9 - सौर</option>
+              <option value="0-अन्य">0 - अन्य</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- SECTION 4 -->
+        <div class="section-divider"><span>📱 संपत्ति एवं संपर्क (प्रश्न 26–34)</span><hr></div>
+        <div class="questions-grid">
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">26</span><div class="q-label">रेडियो/ट्रांजिस्टर</div></div>
+            <select id="q26">
+              <option value="">-- चुनें --</option>
+              <option value="1-परंपरागत">1 - परंपरागत</option>
+              <option value="2-मोबाइल पर">2 - मोबाइल पर</option>
+              <option value="3-अन्य उपकरण">3 - अन्य उपकरण</option>
+              <option value="4-नहीं">4 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">27</span><div class="q-label">टेलीविजन</div></div>
+            <select id="q27">
+              <option value="">-- चुनें --</option>
+              <option value="1-फ्री डिश">1 - फ्री डिश</option>
+              <option value="2-अन्य डिश">2 - अन्य डिश</option>
+              <option value="3-केबल">3 - केबल</option>
+              <option value="4-अन्य">4 - अन्य</option>
+              <option value="5-नहीं">5 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">28</span><div class="q-label">इंटरनेट सुविधा</div></div>
+            <select id="q28">
+              <option value="">-- चुनें --</option>
+              <option value="1-लैपटॉप में">1 - लैपटॉप में</option>
+              <option value="2-मोबाइल में">2 - मोबाइल में</option>
+              <option value="3-अन्य उपकरण">3 - अन्य उपकरण</option>
+              <option value="4-नहीं">4 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">29</span><div class="q-label">लैपटॉप/कंप्यूटर</div></div>
+            <select id="q29">
+              <option value="">-- चुनें --</option>
+              <option value="1-हाँ">1 - हाँ</option>
+              <option value="2-नहीं">2 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">30</span><div class="q-label">टेलीफोन/मोबाइल फोन</div></div>
+            <select id="q30">
+              <option value="">-- चुनें --</option>
+              <option value="1-लैंडलाइन">1 - लैंडलाइन</option>
+              <option value="2-स्मार्टफोन">2 - स्मार्टफोन</option>
+              <option value="3-साधारण">3 - साधारण</option>
+              <option value="4-दोनों">4 - दोनों</option>
+              <option value="5-नहीं">5 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">31</span><div class="q-label">साइकिल/स्कूटर/मोटरसाइकिल</div></div>
+            <select id="q31">
+              <option value="">-- चुनें --</option>
+              <option value="1-साइकिल">1 - साइकिल</option>
+              <option value="2-मोटरयुक्त">2 - मोटरयुक्त</option>
+              <option value="3-दोनों">3 - दोनों</option>
+              <option value="4-नहीं">4 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">32</span><div class="q-label">कार/जीप/वैन</div></div>
+            <select id="q32">
+              <option value="">-- चुनें --</option>
+              <option value="1-हाँ">1 - हाँ</option>
+              <option value="2-नहीं">2 - नहीं</option>
+            </select>
+          </div>
+
+          <div class="q-item">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">33</span><div class="q-label">मुख्य उपभोग अनाज</div></div>
+            <select id="q33">
+              <option value="">-- चुनें --</option>
+              <option value="1-चावल">1 - चावल</option>
+              <option value="2-गेहूं">2 - गेहूं</option>
+              <option value="3-ज्वार">3 - ज्वार</option>
+              <option value="4-बाजरा">4 - बाजरा</option>
+              <option value="5-मक्का">5 - मक्का</option>
+              <option value="6-अन्य">6 - अन्य</option>
+            </select>
+          </div>
+
+          <div class="q-item" style="grid-column:span 2">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="q-number">34</span><div class="q-label">संपर्क हेतु मोबाइल नंबर (10 अंक)</div></div>
+            <input type="tel" id="q34" maxlength="10" placeholder="10 अंकों का मोबाइल नंबर" style="max-width:240px">
+          </div>
+
+        </div>
+
+      </div><!-- end form-card-body -->
+
+      <div class="form-actions no-print">
+        <button class="btn btn-green btn-lg" onclick="saveRecord()">💾 सहेजें</button>
+        <button class="btn btn-navy btn-lg" onclick="clearForm()">🔄 रीसेट</button>
+        <button class="btn btn-white btn-lg" id="cancel-edit-btn" style="display:none" onclick="cancelEdit()">❌ रद्द करें</button>
+      </div>
+
+    </div><!-- end form-card -->
+  </div>
+
+  <!-- ══════════ LIST PANEL ══════════ -->
+  <div class="panel" id="panel-list">
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="list-toolbar">
+      <input type="text" id="search-input" placeholder="🔍 नाम, भवन क्रमांक, मोबाइल से खोजें..." oninput="renderList()">
+      <button class="btn btn-green" onclick="switchTab('form')">+ नई प्रविष्टि</button>
+      <button class="btn btn-navy" onclick="openPrintModal()">🖨️ प्रिंट</button>
+    </div>
+
+    <div class="data-table-wrap">
+      <div id="list-container"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ BACKUP PANEL ══════════ -->
+  <div class="panel" id="panel-backup">
+
+    <div class="alert alert-info">
+      ℹ️ बैकअप फ़ाइल को सुरक्षित स्थान पर रखें। रिस्टोर करने पर मौजूदा डेटा बदल जाएगा।
+    </div>
+
+    <div class="backup-card">
+      <h3>📥 डेटा बैकअप (Export)</h3>
+      <p>सभी डेटा को JSON फ़ाइल के रूप में डाउनलोड करें।</p>
+      <button class="btn btn-green btn-lg" onclick="exportBackup()">⬇️ बैकअप डाउनलोड करें</button>
+    </div>
+
+    <div class="backup-card" style="border-color:var(--navy)">
+      <h3>📤 डेटा रिस्टोर (Import)</h3>
+      <p>पहले से सहेजी गई JSON बैकअप फ़ाइल से डेटा वापस लाएं।</p>
+      <input type="file" id="restore-file" accept=".json" style="display:none" onchange="importBackup(event)">
+      <button class="btn btn-navy btn-lg" onclick="document.getElementById('restore-file').click()">⬆️ बैकअप रिस्टोर करें</button>
+    </div>
+
+    <div class="backup-card" style="border-color:#c62828">
+      <h3>🗑️ सभी डेटा हटाएं</h3>
+      <p>सावधान! यह क्रिया अपूरणीय है। पहले बैकअप लें।</p>
+      <button class="btn btn-red btn-lg" onclick="clearAllData()">🗑️ सभी डेटा हटाएं</button>
+    </div>
+
+  </div>
+
+</div><!-- end container -->
+
+<!-- ══════════ PRINT MODAL ══════════ -->
+<div class="modal-overlay" id="print-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🖨️ प्रिंट विकल्प चुनें</h3>
+      <button class="modal-close" onclick="closePrintModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="print-option" onclick="printList()">
+        <div class="icon">📋</div>
+        <div>
+          <h4>सूची प्रिंट करें</h4>
+          <p>सभी प्रविष्टियों की संक्षिप्त सूची A4 पर प्रिंट करें</p>
+        </div>
+      </div>
+      <div class="print-option" id="print-detail-option">
+        <div class="icon">🏠</div>
+        <div>
+          <h4>मकान विवरण प्रिंट करें</h4>
+          <p>किसी एक या सभी मकानों का पूरा विवरण A4 पर प्रिंट करें</p>
+          <div class="select-wrap" onclick="event.stopPropagation()">
+            <select id="print-select" style="margin-top:8px">
+              <option value="all">-- सभी मकान --</option>
+            </select>
+            <button class="btn btn-navy" style="margin-top:8px;width:100%" onclick="printDetail()">🖨️ विवरण प्रिंट करें</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-white" onclick="closePrintModal()">बंद करें</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CONFIRM MODAL ══════════ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header" style="background:linear-gradient(90deg,#c62828,#b71c1c)">
+      <h3>⚠️ पुष्टि करें</h3>
+      <button class="modal-close" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="font-size:0.9rem;line-height:1.5"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-white" onclick="closeConfirm()">रद्द करें</button>
+      <button class="btn btn-red" id="confirm-ok-btn">हाँ, आगे बढ़ें</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- PRINT CONTAINER (hidden, shown only at print time) -->
+<div id="print-area" style="display:none"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════
+const STORAGE_KEY = 'census2027_data';
+const META_KEY = 'census2027_meta';
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveData(arr) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+function getMeta() {
+  try { return JSON.parse(localStorage.getItem(META_KEY)) || { bhavanCounter: 0, makaanCounter: 0 }; }
+  catch { return { bhavanCounter: 0, makaanCounter: 0 }; }
+}
+
+function saveMeta(m) {
+  localStorage.setItem(META_KEY, JSON.stringify(m));
+}
+
+// ── AUTO ID GENERATION ──
+function nextBhavanId() {
+  const m = getMeta();
+  m.bhavanCounter = (m.bhavanCounter || 0) + 1;
+  saveMeta(m);
+  return 'CN-' + String(m.bhavanCounter).padStart(2, '0');
+}
+
+function nextMakaanId() {
+  const m = getMeta();
+  m.makaanCounter = (m.makaanCounter || 0) + 1;
+  saveMeta(m);
+  return String(m.makaanCounter).padStart(4, '0');
+}
+
+// ═══════════════════════════════════════
+// UI STATE
+// ═══════════════════════════════════════
+let editId = null;
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'list') { renderList(); renderStats(); }
+}
+
+// ═══════════════════════════════════════
+// FORM HELPERS
+// ═══════════════════════════════════════
+function setAutoIds() {
+  if (!editId) {
+    // Preview of next auto-generated ID (actual ID assigned on save)
+    const m = getMeta();
+    const nextBhavan = 'CN-' + String((m.bhavanCounter || 0) + 1).padStart(2, '0');
+    const nextMakaan = String((m.makaanCounter || 0) + 1).padStart(4, '0');
+    document.getElementById('m-bhavan').value = nextBhavan;
+    document.getElementById('m-makaan').value = nextMakaan;
+  }
+  const now = new Date();
+  document.getElementById('m-date').value =
+    String(now.getDate()).padStart(2,'0') + '/' +
+    String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+}
+
+function clearForm() {
+  editId = null;
+  document.getElementById('form-title').textContent = 'नई प्रविष्टि जोड़ें';
+  document.getElementById('edit-badge').style.display = 'none';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+
+  ['m-ward','m-block','m-enumerator'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-bhavan').value = '';
+  document.getElementById('m-makaan').value = '';
+
+  const qIds = ['q4','q5','q6','q7','q8','q10','q11','q12','q13','q14','q15','q16',
+    'q17','q18','q19','q20','q21','q22','q23','q24','q25',
+    'q26','q27','q28','q29','q30','q31','q32','q33','q34'];
+  qIds.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  setAutoIds();
+}
+
+function cancelEdit() { clearForm(); }
+
+function loadSettings() {
+  // Persist ward/block/enumerator in session for convenience
+  const saved = sessionStorage.getItem('census_session');
+  if (saved) {
+    const s = JSON.parse(saved);
+    if(s.ward) document.getElementById('m-ward').value = s.ward;
+    if(s.block) document.getElementById('m-block').value = s.block;
+    if(s.enumerator) document.getElementById('m-enumerator').value = s.enumerator;
+  }
+}
+
+function saveSession() {
+  sessionStorage.setItem('census_session', JSON.stringify({
+    ward: document.getElementById('m-ward').value,
+    block: document.getElementById('m-block').value,
+    enumerator: document.getElementById('m-enumerator').value
+  }));
+}
+
+// ═══════════════════════════════════════
+// SAVE RECORD
+// ═══════════════════════════════════════
+function saveRecord() {
+  const ward = document.getElementById('m-ward').value.trim();
+  const block = document.getElementById('m-block').value.trim();
+  const enumerator = document.getElementById('m-enumerator').value.trim();
+  const q11 = document.getElementById('q11').value.trim();
+
+  if (!ward) { toast('❌ वार्ड/ग्राम का नाम आवश्यक है', true); return; }
+  if (!q11) { toast('❌ मुखिया का नाम आवश्यक है', true); return; }
+
+  saveSession();
+  const data = getData();
+
+  if (editId) {
+    const idx = data.findIndex(r => r.id === editId);
+    if (idx !== -1) {
+      data[idx] = { ...data[idx], ...collectFormValues(), ward, block, enumerator, q11 };
+      saveData(data);
+      toast('✅ रिकॉर्ड अपडेट हो गया');
+      clearForm();
+    }
+    return;
+  }
+
+  const bhavanId = nextBhavanId();
+  const makaanId = nextMakaanId();
+
+  const record = {
+    id: Date.now() + Math.random(),
+    bhavan: bhavanId,
+    makaan: makaanId,
+    ward, block, enumerator,
+    date: document.getElementById('m-date').value,
+    ...collectFormValues(),
+    q11
+  };
+
+  data.push(record);
+  saveData(data);
+  toast('✅ प्रविष्टि सहेजी गई — भवन: ' + bhavanId);
+
+  // Keep meta for next entry, clear questions
+  const w = document.getElementById('m-ward').value;
+  const b = document.getElementById('m-block').value;
+  const e = document.getElementById('m-enumerator').value;
+  clearForm();
+  document.getElementById('m-ward').value = w;
+  document.getElementById('m-block').value = b;
+  document.getElementById('m-enumerator').value = e;
+}
+
+function collectFormValues() {
+  const qIds = ['q4','q5','q6','q7','q8','q10','q11','q12','q13','q14','q15','q16',
+    'q17','q18','q19','q20','q21','q22','q23','q24','q25',
+    'q26','q27','q28','q29','q30','q31','q32','q33','q34'];
+  const obj = {};
+  qIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) obj[id] = el.value;
+  });
+  return obj;
+}
+
+// ═══════════════════════════════════════
+// EDIT / DELETE
+// ═══════════════════════════════════════
+function editRecord(id) {
+  const data = getData();
+  const rec = data.find(r => r.id === id);
+  if (!rec) return;
+
+  editId = id;
+  switchTab('form');
+  document.getElementById('form-title').textContent = 'प्रविष्टि संपादित करें';
+  document.getElementById('edit-badge').style.display = 'inline';
+  document.getElementById('cancel-edit-btn').style.display = '';
+
+  document.getElementById('m-ward').value = rec.ward || '';
+  document.getElementById('m-block').value = rec.block || '';
+  document.getElementById('m-enumerator').value = rec.enumerator || '';
+  document.getElementById('m-bhavan').value = rec.bhavan || '';
+  document.getElementById('m-makaan').value = rec.makaan || '';
+  document.getElementById('m-date').value = rec.date || '';
+
+  const qIds = ['q4','q5','q6','q7','q8','q10','q11','q12','q13','q14','q15','q16',
+    'q17','q18','q19','q20','q21','q22','q23','q24','q25',
+    'q26','q27','q28','q29','q30','q31','q32','q33','q34'];
+  qIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && rec[id] !== undefined) el.value = rec[id];
+  });
+}
+
+function deleteRecord(id) {
+  showConfirm('क्या आप इस प्रविष्टि को स्थायी रूप से हटाना चाहते हैं?', () => {
+    const data = getData().filter(r => r.id !== id);
+    saveData(data);
+    renderList(); renderStats();
+    toast('🗑️ प्रविष्टि हटाई गई');
+  });
+}
+
+// ═══════════════════════════════════════
+// LIST RENDERING
+// ═══════════════════════════════════════
+function renderStats() {
+  const data = getData();
+  const row = document.getElementById('stats-row');
+  const total = data.length;
+  const avaasBhavan = data.filter(r => r.q7 && r.q7.startsWith('1-')).length;
+  const withShauchalay = data.filter(r => r.q20 && r.q20.startsWith('1-')).length;
+  row.innerHTML = `
+    <div class="stat-card"><div class="val">${total}</div><div class="lbl">कुल प्रविष्टियाँ</div></div>
+    <div class="stat-card" style="border-color:var(--green)"><div class="val">${avaasBhavan}</div><div class="lbl">आवासीय मकान</div></div>
+    <div class="stat-card" style="border-color:var(--navy)"><div class="val">${withShauchalay}</div><div class="lbl">निजी शौचालय</div></div>
+    <div class="stat-card" style="border-color:var(--gold)"><div class="val">${data.filter(r=>r.q19&&r.q19.startsWith('1-')).length}</div><div class="lbl">विद्युत कनेक्शन</div></div>
+  `;
+}
+
+function renderList() {
+  const data = getData();
+  const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+  const filtered = q ? data.filter(r =>
+    (r.q11||'').toLowerCase().includes(q) ||
+    (r.bhavan||'').toLowerCase().includes(q) ||
+    (r.makaan||'').includes(q) ||
+    (r.q34||'').includes(q) ||
+    (r.ward||'').toLowerCase().includes(q)
+  ) : data;
+
+  const cont = document.getElementById('list-container');
+  if (!filtered.length) {
+    cont.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>${q ? 'कोई परिणाम नहीं मिला' : 'अभी कोई डेटा नहीं है। नई प्रविष्टि जोड़ें।'}</p></div>`;
+    return;
+  }
+
+  let html = `<div style="overflow-x:auto"><table class="data-table">
+    <thead><tr>
+      <th>#</th><th>भवन क्र.</th><th>मकान संख्या</th><th>मुखिया का नाम</th>
+      <th>वार्ड/ग्राम</th><th>सदस्य</th><th>मकान उपयोग</th><th>शौचालय</th>
+      <th>मोबाइल</th><th>दिनांक</th><th>क्रिया</th>
+    </tr></thead><tbody>`;
+  filtered.forEach((r, i) => {
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><span class="badge badge-blue">${r.bhavan||'-'}</span></td>
+      <td><b>${r.makaan||'-'}</b></td>
+      <td><b>${r.q11||'-'}</b></td>
+      <td>${r.ward||'-'}</td>
+      <td>${r.q10||'-'}</td>
+      <td style="font-size:0.75rem">${(r.q7||'-').replace(/^\d+-/,'')}</td>
+      <td><span class="badge ${(r.q20||'').startsWith('1-')?'badge-green':'badge-blue'}">${(r.q20||'-').replace(/^\d+-/,'')}</span></td>
+      <td>${r.q34||'-'}</td>
+      <td>${r.date||'-'}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-navy btn-icon" onclick="editRecord(${JSON.stringify(r.id)})">✏️</button>
+        <button class="btn btn-red btn-icon" onclick="deleteRecord(${JSON.stringify(r.id)})">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  cont.innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+// PRINT
+// ═══════════════════════════════════════
+function openPrintModal() {
+  // Populate select
+  const data = getData();
+  const sel = document.getElementById('print-select');
+  sel.innerHTML = '<option value="all">-- सभी मकान --</option>';
+  data.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = `${r.bhavan} | ${r.makaan} | ${r.q11||'अज्ञात'}`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('print-modal').classList.add('open');
+}
+
+function closePrintModal() {
+  document.getElementById('print-modal').classList.remove('open');
+}
+
+function printList() {
+  closePrintModal();
+  const data = getData();
+  if (!data.length) { toast('❌ कोई डेटा नहीं है', true); return; }
+
+  let rows = data.map((r, i) => `<tr>
+    <td>${i+1}</td>
+    <td>${r.bhavan||'-'}</td>
+    <td>${r.makaan||'-'}</td>
+    <td>${r.q11||'-'}</td>
+    <td>${r.ward||'-'}</td>
+    <td>${r.block||'-'}</td>
+    <td>${r.q10||'-'}</td>
+    <td>${(r.q7||'-').replace(/^\d+-/,'')}</td>
+    <td>${(r.q8||'-').replace(/^\d+-/,'')}</td>
+    <td>${(r.q20||'-').replace(/^\d+-/,'')}</td>
+    <td>${(r.q19||'-').replace(/^\d+-/,'')}</td>
+    <td>${r.q34||'-'}</td>
+    <td>${r.date||'-'}</td>
+  </tr>`).join('');
+
+  const html = `
+    <div class="print-list-page" style="display:block">
+      <div style="text-align:center;margin-bottom:8mm;border-bottom:3px solid #1A237E;padding-bottom:4mm">
+        <h2 style="font-size:13pt;color:#1A237E;font-family:'Noto Sans Devanagari',sans-serif">जनगणना 2027 — मकान सूची</h2>
+        <p style="font-size:8pt;color:#555">मकानसूचीकरण एवं मकानों की गणना | कुल प्रविष्टियाँ: ${data.length} | मुद्रण: ${new Date().toLocaleDateString('hi-IN')}</p>
+      </div>
+      <table class="print-list-table">
+        <thead><tr>
+          <th>#</th><th>भवन क्र.</th><th>मकान संख्या</th><th>मुखिया नाम</th>
+          <th>वार्ड/ग्राम</th><th>HLB</th><th>सदस्य</th><th>उपयोग</th>
+          <th>स्थिति</th><th>शौचालय</th><th>प्रकाश</th><th>मोबाइल</th><th>दिनांक</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  doPrint(html);
+}
+
+function printDetail() {
+  closePrintModal();
+  const sel = document.getElementById('print-select').value;
+  let records = getData();
+  if (sel !== 'all') {
+    const id = parseFloat(sel) || sel;
+    records = records.filter(r => String(r.id) === String(sel));
+  }
+  if (!records.length) { toast('❌ कोई डेटा नहीं', true); return; }
+
+  const qLabels = {
+    q4:'फर्श सामग्री', q5:'दीवार सामग्री', q6:'छत सामग्री',
+    q7:'मकान उपयोग', q8:'मकान स्थिति', q10:'कुल सदस्य',
+    q11:'मुखिया नाम', q12:'मुखिया लिंग', q13:'मुखिया श्रेणी',
+    q14:'मकान स्वामित्व', q15:'कमरे', q16:'विवाहित जोड़े',
+    q17:'पेयजल स्रोत', q18:'स्रोत दूरी', q19:'प्रकाश साधन',
+    q20:'शौचालय उपलब्धता', q21:'शौचालय प्रकार', q22:'अपशिष्ट निकासी',
+    q23:'स्नान सुविधा', q24:'रसोई/गैस', q25:'ईंधन',
+    q26:'रेडियो', q27:'टीवी', q28:'इंटरनेट',
+    q29:'लैपटॉप/कंप्यूटर', q30:'फोन', q31:'साइकिल/स्कूटर',
+    q32:'कार/जीप', q33:'मुख्य अनाज', q34:'मोबाइल नंबर'
+  };
+
+  const pages = records.map(r => {
+    const qs = Object.entries(qLabels).map(([k, label]) => `
+      <div class="print-q-item">
+        <span class="q-num">${k.replace('q','')}. ${label}: </span>
+        <span class="q-val">${(r[k]||'-').replace(/^\d+-/,'').replace(/^\d+\/\d+-/,'')}</span>
+      </div>`).join('');
+
+    return `<div class="print-detail-page" style="display:block">
+      <div class="print-detail-header">
+        <h2>जनगणना 2027 — मकान विवरण</h2>
+        <p>मकानसूचीकरण एवं मकानों की गणना</p>
+      </div>
+      <table class="print-meta-table">
+        <tr><td>भवन क्रमांक</td><td>${r.bhavan||'-'}</td><td>मकान संख्या</td><td>${r.makaan||'-'}</td></tr>
+        <tr><td>वार्ड/ग्राम</td><td>${r.ward||'-'}</td><td>HLB</td><td>${r.block||'-'}</td></tr>
+        <tr><td>प्रगणक</td><td>${r.enumerator||'-'}</td><td>दिनांक</td><td>${r.date||'-'}</td></tr>
+      </table>
+      <div class="print-q-grid">${qs}</div>
+    </div>`;
+  }).join('');
+
+  doPrint(pages);
+}
+
+function doPrint(html) {
+  const area = document.getElementById('print-area');
+  area.innerHTML = html;
+  area.style.display = 'block';
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { area.style.display = 'none'; area.innerHTML = ''; }, 500);
+  }, 200);
+}
+
+// ═══════════════════════════════════════
+// BACKUP / RESTORE
+// ═══════════════════════════════════════
+function exportBackup() {
+  const data = getData();
+  const meta = getMeta();
+  const payload = JSON.stringify({ data, meta, exportedAt: new Date().toISOString(), version: 1 }, null, 2);
+  const blob = new Blob([payload], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'census2027_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ बैकअप डाउनलोड हो गया');
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const payload = JSON.parse(e.target.result);
+      if (!payload.data || !Array.isArray(payload.data)) throw new Error('Invalid');
+      showConfirm(`इस बैकअप में ${payload.data.length} प्रविष्टियाँ हैं। मौजूदा डेटा बदल जाएगा। क्या जारी रखें?`, () => {
+        saveData(payload.data);
+        if (payload.meta) saveMeta(payload.meta);
+        toast('✅ ' + payload.data.length + ' प्रविष्टियाँ रिस्टोर हुईं');
+      });
+    } catch { toast('❌ अमान्य बैकअप फ़ाइल', true); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  showConfirm('⚠️ सभी ' + getData().length + ' प्रविष्टियाँ स्थायी रूप से हटाई जाएंगी। पहले बैकअप लें। क्या आप सुनिश्चित हैं?', () => {
+    saveData([]);
+    saveMeta({ bhavanCounter: 0, makaanCounter: 0 });
+    toast('🗑️ सभी डेटा हटाया गया');
+    renderList(); renderStats();
+  });
+}
+
+// ═══════════════════════════════════════
+// TOAST & CONFIRM
+// ═══════════════════════════════════════
+let toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+let confirmCb;
+function showConfirm(msg, cb) {
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCb = cb;
+  document.getElementById('confirm-ok-btn').onclick = () => { closeConfirm(); cb(); };
+  document.getElementById('confirm-modal').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  setAutoIds();
+  loadSettings();
+  renderStats();
+});
+
+// Close modals on overlay click
+document.getElementById('print-modal').addEventListener('click', function(e) {
+  if(e.target === this) closePrintModal();
+});
+document.getElementById('confirm-modal').addEventListener('click', function(e) {
+  if(e.target === this) closeConfirm();
+});
+</script>
+</body>
+</html>
