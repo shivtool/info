@@ -12,9 +12,9 @@
     --saffron: #FF6B00;
     --saffron-light: #FF8C38;
     --saffron-pale: #FFF3E8;
-    --navy: #1A237E;
+    --navy: #570ff2;
     --navy-mid: #283593;
-    --navy-light: #E8EAF6;
+    --navy-light: #b6c0f9;
     --green: #1B5E20;
     --green-mid: #2E7D32;
     --green-light: #E8F5E9;
@@ -28,8 +28,8 @@
     --gray-600: #757575;
     --gray-800: #424242;
     --gray-900: #212121;
-    --shadow: 0 2px 8px rgba(26,35,126,0.12);
-    --shadow-lg: 0 4px 20px rgba(26,35,126,0.18);
+    --shadow: 0 2px 8px rgba(26, 34, 126, 0.768);
+    --shadow-lg: 0 4px 20px rgba(231, 54, 240, 0.18);
     --radius: 10px;
     --radius-sm: 6px;
   }
@@ -38,14 +38,14 @@
 
   body {
     font-family: 'Noto Sans Devanagari', sans-serif;
-    background: linear-gradient(135deg, #0D1B6E 0%, #1A237E 40%, #0A3D62 100%);
+    background: linear-gradient(135deg, #11ca24 0%, #e72da6 40%, #dd3716 100%);
     min-height: 100vh;
     color: var(--gray-900);
   }
 
   /* ─── HEADER ─── */
   .app-header {
-    background: linear-gradient(90deg, #FF6B00, #FF8C38, #F9A825);
+    background: linear-gradient(90deg, #ff7b00, #FF8C38, #efaf48);
     padding: 10px 20px;
     display: flex;
     align-items: center;
@@ -53,9 +53,9 @@
     box-shadow: 0 3px 12px rgba(0,0,0,0.3);
     position: sticky; top: 0; z-index: 100;
   }
-  .emblem { width: 52px; height: 52px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex-shrink: 0; }
-  .header-text h1 { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  .header-text p { font-size: 0.72rem; color: rgba(255,255,255,0.9); }
+  .emblem { width: 52px; height: 52px; border-radius: 50%; background: rgb(250, 147, 21); display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.694); flex-shrink: 0; }
+  .header-text h1 { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: rgb(248, 247, 247); text-shadow: 0 1px 5px rgba(0, 0, 0, 0.89); }
+  .header-text p { font-size: 0.72rem; color: rgba(255,255,255,0.9); text-shadow: 0 1px 5px rgba(0, 0, 0, 0.89);}
   .header-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 
   .btn {
@@ -63,10 +63,11 @@
     font-family: 'Noto Sans Devanagari', sans-serif;
     font-size: 0.78rem; font-weight: 600; cursor: pointer;
     transition: all 0.2s; white-space: nowrap;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
   }
   .btn-white { background: white; color: var(--navy); }
   .btn-white:hover { background: var(--navy-light); }
-  .btn-navy { background: var(--navy); color: white; }
+  .btn-navy { background: var(--navy); color: rgb(248, 211, 211); }
   .btn-navy:hover { background: var(--navy-mid); }
   .btn-green { background: var(--green-mid); color: white; }
   .btn-green:hover { background: var(--green); }
@@ -87,8 +88,8 @@
     cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7);
     background: transparent;
   }
-  .tab.active { background: white; color: var(--navy); box-shadow: var(--shadow); }
-  .tab:hover:not(.active) { background: rgba(255,255,255,0.15); color: white; }
+  .tab.active { background: rgba(107, 218, 3, 0.778); color: var(--navy); box-shadow: var(--shadow); }
+  .tab:hover:not(.active) { background: rgba(244, 12, 12, 0); color: rgb(106, 2, 2); }
 
   /* ─── PANEL ─── */
   .panel { display: none; }
@@ -337,7 +338,7 @@
   <div class="panel active" id="panel-form">
     <div class="form-card">
       <div class="form-card-header">
-        <span style="font-size:1.3rem">🏠</span>
+        <span style="font-size:1.3rem">➕</span>
         <h2 id="form-title">नई प्रविष्टि जोड़ें</h2>
         <span id="edit-badge" style="display:none;background:#FF6B00;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;">संपादन मोड</span>
       </div>
