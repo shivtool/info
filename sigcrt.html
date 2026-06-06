@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signature Creator — Shiv Computer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pinyon+Script&family=Tangerine:wght@400;700&family=Alex+Brush&family=Allura&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --ink2: #16213e;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --cream: #faf8f3;
+    --cream2: #f0ece0;
+    --border: rgba(201,168,76,0.25);
+    --glass: rgba(255,255,255,0.06);
+    --radius: 14px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    min-height: 100vh;
+    color: var(--cream);
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 20%, rgba(201,168,76,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(201,168,76,0.04) 39px, rgba(201,168,76,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(201,168,76,0.03) 39px, rgba(201,168,76,0.03) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .brand-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--border);
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.1;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold2);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: rgba(250,248,243,0.45);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Mode Toggle */
+  .mode-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+    gap: 4px;
+    width: fit-content;
+    margin: 0 auto 2rem;
+  }
+
+  .mode-btn {
+    background: none;
+    border: none;
+    color: rgba(250,248,243,0.5);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 24px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 15px; height: 15px; }
+
+  .mode-btn.active {
+    background: var(--gold);
+    color: var(--ink);
+  }
+
+  .mode-btn:not(.active):hover {
+    color: var(--cream);
+    background: rgba(255,255,255,0.07);
+  }
+
+  /* Panel card */
+  .panel {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* ── CANVAS SECTION ── */
+  .canvas-wrap {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    border: 2px dashed rgba(201,168,76,0.3);
+    transition: border-color 0.2s;
+  }
+
+  .canvas-wrap:hover { border-color: rgba(201,168,76,0.6); }
+
+  #signCanvas {
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+    width: 100%;
+    height: 260px;
+  }
+
+  .canvas-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    gap: 8px;
+    opacity: 1;
+    transition: opacity 0.2s;
+  }
+
+  .canvas-hint.hidden { opacity: 0; }
+
+  .canvas-hint svg { opacity: 0.15; }
+
+  .canvas-hint span {
+    font-size: 12px;
+    color: rgba(0,0,0,0.25);
+    letter-spacing: 0.05em;
+  }
+
+  /* Draw Controls */
+  .draw-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-label {
+    font-size: 12px;
+    color: rgba(250,248,243,0.5);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .color-swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  .color-swatch.selected { border-color: var(--gold); transform: scale(1.2); }
+  .color-swatch:hover:not(.selected) { border-color: rgba(255,255,255,0.4); }
+
+  #colorPicker {
+    width: 28px; height: 28px;
+    border: none; outline: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    overflow: hidden;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.15);
+    outline: none;
+    width: 90px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--ink);
+  }
+
+  .size-display {
+    font-size: 12px;
+    color: var(--gold2);
+    min-width: 22px;
+    text-align: center;
+  }
+
+  /* ── TYPE SECTION ── */
+  #typeSection { display: none; }
+
+  .type-input-wrap {
+    position: relative;
+  }
+
+  #typeInput {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    height: 68px;
+  }
+
+  #typeInput::placeholder { color: rgba(250,248,243,0.3); }
+  #typeInput:focus { border-color: rgba(201,168,76,0.55); }
+
+  /* Font chooser */
+  .font-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin: 1rem 0;
+  }
+
+  .font-opt {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .font-opt:hover { background: rgba(255,255,255,0.08); border-color: rgba(201,168,76,0.4); }
+
+  .font-opt.selected {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold);
+  }
+
+  .font-preview {
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--ink);
+    background: #fff;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-bottom: 6px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .font-name {
+    font-size: 11px;
+    color: rgba(250,248,243,0.4);
+    letter-spacing: 0.05em;
+  }
+
+  /* Type preview canvas */
+  #previewWrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    border: 2px dashed rgba(201,168,76,0.3);
+    margin-top: 1rem;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #typeCanvas {
+    display: block;
+    width: 100%;
+    height: 160px;
+  }
+
+  /* Type color row */
+  .type-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  /* ── ACTION BUTTONS ── */
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+  }
+
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    color: rgba(250,248,243,0.7);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+  .btn-gold:hover { background: var(--gold2); }
+
+  .btn-danger {
+    background: rgba(220,60,50,0.12);
+    color: #f08080;
+    border-color: rgba(220,60,50,0.25);
+  }
+  .btn-danger:hover { background: rgba(220,60,50,0.2); }
+
+  /* ── SAVE OPTIONS PANEL ── */
+  .save-options {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.2rem;
+    display: none;
+  }
+
+  .save-options.visible { display: block; }
+
+  .save-title {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .save-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .save-card {
+    flex: 1 1 160px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--cream);
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .save-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(201,168,76,0.4); }
+
+  .save-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .save-icon.png { background: rgba(201,168,76,0.15); }
+  .save-icon.png svg { color: var(--gold); }
+  .save-icon.jpeg { background: rgba(59,130,246,0.15); }
+  .save-icon.jpeg svg { color: #7ab8f5; }
+
+  .save-info strong { display: block; font-size: 13px; font-weight: 500; }
+  .save-info span { font-size: 11px; color: rgba(250,248,243,0.4); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* Status toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 100px;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none;
+    z-index: 999;
+    letter-spacing: 0.03em;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .font-grid { grid-template-columns: repeat(2, 1fr); }
+    .draw-controls { gap: 8px; }
+    .actions { gap: 8px; }
+    .save-row { flex-direction: column; }
+    .page { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <div class="brand-tag">✦ Shiv Computer</div>
+    <h1>Signature <em>Creator</em></h1>
+    <p class="subtitle">Draw freely or type your name in elegant script</p>
+  </header>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btnDraw" onclick="setMode('draw')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 17L9 11L13 15L21 6M21 6H16M21 6V11"/>
+      </svg>
+      Draw
+    </button>
+    <button class="mode-btn" id="btnType" onclick="setMode('type')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
+      </svg>
+      Type
+    </button>
+  </div>
+
+  <!-- ── DRAW MODE ── -->
+  <div id="drawSection" class="panel">
+
+    <div class="canvas-wrap">
+      <canvas id="signCanvas"></canvas>
+      <div class="canvas-hint" id="canvasHint">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5">
+          <path d="M3 17L9 11L13 15L21 6"/>
+        </svg>
+        <span>SIGN HERE</span>
+      </div>
+    </div>
+
+    <div class="draw-controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Color</span>
+        <div class="color-swatch selected" style="background:#1a1a2e" onclick="setColor('#1a1a2e', this)" title="Dark"></div>
+        <div class="color-swatch" style="background:#1a237e" onclick="setColor('#1a237e', this)" title="Navy"></div>
+        <div class="color-swatch" style="background:#880000" onclick="setColor('#880000', this)" title="Dark Red"></div>
+        <div class="color-swatch" style="background:#c9a84c" onclick="setColor('#c9a84c', this)" title="Gold"></div>
+        <div class="color-swatch" style="background:#2d5016" onclick="setColor('#2d5016', this)" title="Dark Green"></div>
+        <input type="color" id="colorPicker" value="#1a1a2e" title="Custom color" onchange="setColorFromPicker(this.value)">
+      </div>
+
+      <div class="ctrl-group" style="margin-left:auto">
+        <span class="ctrl-label">Pen</span>
+        <input type="range" id="penSize" min="1" max="12" value="2.5" step="0.5" oninput="updateSize(this.value)">
+        <span class="size-display" id="sizeVal">2.5</span>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">Style</span>
+        <select id="penStyle" onchange="updateStyle()" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--cream);padding:5px 10px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer;">
+          <option value="source-over">Ink</option>
+          <option value="multiply">Pressure</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TYPE MODE ── -->
+  <div id="typeSection" class="panel">
+
+    <div class="type-input-wrap">
+      <textarea id="typeInput" placeholder="Type your name or initials…" oninput="renderTypeSignature()"></textarea>
+    </div>
+
+    <div class="font-grid" id="fontGrid"></div>
+
+    <div id="previewWrap">
+      <canvas id="typeCanvas"></canvas>
+    </div>
+
+    <div class="type-controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Color</span>
+        <div class="color-swatch selected" style="background:#1a1a2e" onclick="setTypeColor('#1a1a2e', this)"></div>
+        <div class="color-swatch" style="background:#1a237e" onclick="setTypeColor('#1a237e', this)"></div>
+        <div class="color-swatch" style="background:#880000" onclick="setTypeColor('#880000', this)"></div>
+        <div class="color-swatch" style="background:#c9a84c" onclick="setTypeColor('#c9a84c', this)"></div>
+        <div class="color-swatch" style="background:#2d5016" onclick="setTypeColor('#2d5016', this)"></div>
+        <input type="color" id="typeColorPicker" value="#1a1a2e" title="Custom" onchange="setTypeColor(this.value, null)">
+      </div>
+      <div class="ctrl-group" style="margin-left:auto">
+        <span class="ctrl-label">Size</span>
+        <input type="range" id="typeSize" min="28" max="90" value="56" step="2" oninput="renderTypeSignature()">
+        <span class="size-display" id="typeSizeVal">56</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-gold" onclick="showSaveOptions()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M8 11l4 4 4-4M20 17v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3"/></svg>
+      Save Signature
+    </button>
+    <button class="btn btn-ghost" onclick="clearAll()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      Clear
+    </button>
+    <button class="btn btn-ghost" onclick="undoLastStroke()" id="undoBtn" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 010 10h-1"/></svg>
+      Undo
+    </button>
+  </div>
+
+  <!-- Save Options -->
+  <div class="save-options" id="saveOptions">
+    <div class="save-title">Choose Format</div>
+    <div class="save-row">
+      <a class="save-card" onclick="saveAs('png')">
+        <div class="save-icon png">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/>
+          </svg>
+        </div>
+        <div class="save-info">
+          <strong>PNG – Transparent</strong>
+          <span>Best for digital use</span>
+        </div>
+      </a>
+      <a class="save-card" onclick="saveAs('jpeg')">
+        <div class="save-icon jpeg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+          </svg>
+        </div>
+        <div class="save-info">
+          <strong>JPEG – White BG</strong>
+          <span>For print or documents</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">Saved!</div>
+
+<script>
+// ── State ──
+const FONTS = [
+  { name: 'Dancing Script', label: 'Script' },
+  { name: 'Great Vibes', label: 'Elegant' },
+  { name: 'Pinyon Script', label: 'Formal' },
+  { name: 'Tangerine', label: 'Flowing' },
+  { name: 'Alex Brush', label: 'Brush' },
+  { name: 'Allura', label: 'Allura' },
+  { name: 'Playfair Display', label: 'Serif' },
+];
+
+let mode = 'draw';
+let isDrawing = false;
+let drawColor = '#1a1a2e';
+let penSize = 2.5;
+let penStyle = 'source-over';
+let typeColor = '#1a1a2e';
+let selectedFont = FONTS[0].name;
+let strokes = [];
+let currentStroke = [];
+let hasDrawing = false;
+
+// ── Canvas Setup ──
+const canvas = document.getElementById('signCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  redrawAll();
+}
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return {
+    x: src.clientX - rect.left,
+    y: src.clientY - rect.top
+  };
+}
+
+function startDraw(e) {
+  e.preventDefault();
+  isDrawing = true;
+  const p = getPos(e);
+  currentStroke = [{ x: p.x, y: p.y, color: drawColor, size: penSize, style: penStyle }];
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  document.getElementById('canvasHint').classList.add('hidden');
+  hasDrawing = true;
+  document.getElementById('undoBtn').style.display = 'flex';
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  e.preventDefault();
+  const p = getPos(e);
+  currentStroke.push({ x: p.x, y: p.y });
+  ctx.globalCompositeOperation = penStyle;
+  ctx.strokeStyle = drawColor;
+  ctx.lineWidth = penSize;
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+}
+
+function endDraw(e) {
+  if (!isDrawing) return;
+  isDrawing = false;
+  if (currentStroke.length > 1) strokes.push([...currentStroke]);
+  ctx.beginPath();
+}
+
+function redrawAll() {
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  strokes.forEach(stroke => {
+    if (stroke.length < 2) return;
+    ctx.globalCompositeOperation = stroke[0].style || 'source-over';
+    ctx.strokeStyle = stroke[0].color;
+    ctx.lineWidth = stroke[0].size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x, stroke[0].y);
+    stroke.slice(1).forEach(pt => { ctx.lineTo(pt.x, pt.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pt.x, pt.y); });
+  });
+}
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw, { passive: false });
+canvas.addEventListener('touchmove', draw, { passive: false });
+canvas.addEventListener('touchend', endDraw);
+
+window.addEventListener('resize', () => { resizeCanvas(); resizeTypeCanvas(); });
+
+// ── Type Canvas ──
+const tc = document.getElementById('typeCanvas');
+const tctx = tc.getContext('2d');
+
+function resizeTypeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = tc.getBoundingClientRect();
+  tc.width = rect.width * dpr;
+  tc.height = rect.height * dpr;
+  tctx.scale(dpr, dpr);
+  renderTypeSignature();
+}
+
+function renderTypeSignature() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = tc.width / dpr, H = tc.height / dpr;
+  tctx.clearRect(0, 0, W, H);
+  const text = document.getElementById('typeInput').value || 'Your Signature';
+  const size = parseInt(document.getElementById('typeSize').value);
+  document.getElementById('typeSizeVal').textContent = size;
+  tctx.font = `${size}px '${selectedFont}'`;
+  tctx.fillStyle = typeColor;
+  tctx.textAlign = 'center';
+  tctx.textBaseline = 'middle';
+  tctx.fillText(text, W / 2, H / 2 + 4);
+}
+
+// Build font grid
+const grid = document.getElementById('fontGrid');
+FONTS.forEach((f, i) => {
+  const d = document.createElement('div');
+  d.className = 'font-opt' + (i === 0 ? ' selected' : '');
+  d.innerHTML = `<div class="font-preview"><span style="font-family:'${f.name}',cursive">Signature</span></div><div class="font-name">${f.label}</div>`;
+  d.onclick = () => {
+    document.querySelectorAll('.font-opt').forEach(x => x.classList.remove('selected'));
+    d.classList.add('selected');
+    selectedFont = f.name;
+    renderTypeSignature();
+  };
+  grid.appendChild(d);
+});
+
+// ── Controls ──
+function setColor(c, el) {
+  drawColor = c;
+  document.querySelectorAll('#drawSection .color-swatch').forEach(s => s.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  document.getElementById('colorPicker').value = c;
+}
+
+function setColorFromPicker(c) {
+  drawColor = c;
+  document.querySelectorAll('#drawSection .color-swatch').forEach(s => s.classList.remove('selected'));
+}
+
+function setTypeColor(c, el) {
+  typeColor = c;
+  document.querySelectorAll('#typeSection .color-swatch').forEach(s => s.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  document.getElementById('typeColorPicker').value = c;
+  renderTypeSignature();
+}
+
+function updateSize(v) {
+  penSize = parseFloat(v);
+  document.getElementById('sizeVal').textContent = v;
+}
+
+function updateStyle() {
+  penStyle = document.getElementById('penStyle').value;
+}
+
+// ── Mode Switch ──
+function setMode(m) {
+  mode = m;
+  document.getElementById('drawSection').style.display = m === 'draw' ? 'block' : 'none';
+  document.getElementById('typeSection').style.display = m === 'type' ? 'block' : 'none';
+  document.getElementById('undoBtn').style.display = (m === 'draw' && strokes.length > 0) ? 'flex' : 'none';
+  document.getElementById('btnDraw').classList.toggle('active', m === 'draw');
+  document.getElementById('btnType').classList.toggle('active', m === 'type');
+  document.getElementById('saveOptions').classList.remove('visible');
+  if (m === 'type') setTimeout(() => { resizeTypeCanvas(); }, 50);
+}
+
+// ── Undo / Clear ──
+function undoLastStroke() {
+  if (!strokes.length) return;
+  strokes.pop();
+  redrawAll();
+  if (!strokes.length) {
+    document.getElementById('undoBtn').style.display = 'none';
+    document.getElementById('canvasHint').classList.remove('hidden');
+    hasDrawing = false;
+  }
+}
+
+function clearAll() {
+  strokes = [];
+  currentStroke = [];
+  hasDrawing = false;
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  document.getElementById('canvasHint').classList.remove('hidden');
+  document.getElementById('undoBtn').style.display = 'none';
+  document.getElementById('typeInput').value = '';
+  renderTypeSignature();
+  document.getElementById('saveOptions').classList.remove('visible');
+}
+
+// ── Save ──
+function showSaveOptions() {
+  document.getElementById('saveOptions').classList.toggle('visible');
+}
+
+function getActiveCanvas() {
+  return mode === 'draw' ? canvas : tc;
+}
+
+function saveAs(fmt) {
+  const src = getActiveCanvas();
+  const offscreen = document.createElement('canvas');
+  offscreen.width = src.width;
+  offscreen.height = src.height;
+  const oc = offscreen.getContext('2d');
+
+  if (fmt === 'jpeg') {
+    oc.fillStyle = '#ffffff';
+    oc.fillRect(0, 0, offscreen.width, offscreen.height);
+  }
+  oc.drawImage(src, 0, 0);
+
+  const mime = fmt === 'jpeg' ? 'image/jpeg' : 'image/png';
+  const q = fmt === 'jpeg' ? 0.95 : undefined;
+  const dataURL = offscreen.toDataURL(mime, q);
+
+  const a = document.createElement('a');
+  const filename = `signature_${Date.now()}.${fmt === 'jpeg' ? 'jpg' : 'png'}`;
+  a.download = filename;
+  a.href = dataURL;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  showToast(fmt === 'png' ? '✓ PNG saved (transparent)' : '✓ JPEG saved');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ──
+window.addEventListener('load', () => {
+  resizeCanvas();
+  setTimeout(() => resizeTypeCanvas(), 100);
+});
+</script>
+</body>
+</html>
