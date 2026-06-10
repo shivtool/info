@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Shiv Kumar – Resume</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --ink2: #3a3a5c;
+    --muted: #6b6b8a;
+    --accent: #2563eb;
+    --purple: #7c3aed;
+    --gold: #b45309;
+    --surface: #f4f6ff;
+    --border: #dde1f5;
+    --white: #ffffff;
+    --tag-bg: #eff6ff;
+    --tag-text: #1e40af;
+  }
+
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #d4d9f0 0%, #e4e6f5 50%, #cdd4ee 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 3rem 1.5rem;
+  }
+
+  /* Outer glow wrapper — screen only */
+  .page-glow {
+    position: relative;
+    border-radius: 8px;
+    padding: 6px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed, #06b6d4, #2563eb);
+    background-size: 300% 300%;
+    animation: gradShift 5s ease infinite, fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    box-shadow: 0 30px 80px rgba(37,99,235,0.35);
+  }
+  @keyframes gradShift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Corner bracket ornaments on glow wrapper */
+  .page-glow::before, .page-glow::after,
+  .c-tr, .c-bl {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    border: 2.5px solid rgba(255,255,255,0.9);
+    z-index: 20;
+    pointer-events: none;
+  }
+  .page-glow::before { top: 3px;  left: 3px;  border-right: none; border-bottom: none; border-radius: 4px 0 0 0; }
+  .page-glow::after  { bottom: 3px; right: 3px; border-left: none;  border-top: none;   border-radius: 0 0 4px 0; }
+  .c-tr { top: 3px;    right: 3px;  border-left: none;  border-bottom: none; border-radius: 0 4px 0 0; }
+  .c-bl { bottom: 3px; left: 3px;   border-right: none; border-top: none;    border-radius: 0 0 0 4px; }
+
+  /* THE PAGE */
+  .page {
+    width: 210mm;
+    background: var(--white);
+    position: relative;
+    overflow: visible;  /* allow content to flow naturally */
+    border-radius: 3px;
+  }
+
+  /* Subtle inner inset border — purely visual, won't clip content */
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 0.75px solid rgba(37,99,235,0.1);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── DECORATIVE SVG WATERMARK ── */
+  .deco-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--ink);
+    padding: 2rem 2.4rem 1.7rem;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    border-radius: 3px 3px 0 0;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(37,99,235,0.22);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: 35%;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(124,58,237,0.18);
+    animation: pulse 5s ease-in-out 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1);    opacity: 0.6; }
+    50%      { transform: scale(1.15); opacity: 1;   }
+  }
+  .header-accent {
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed, #06b6d4, #2563eb);
+    background-size: 300%;
+    animation: gradShift 4s linear infinite;
+  }
+
+  .header-inner { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 1.4rem; }
+
+  .avatar {
+    width: 100px; height: 100px; min-width: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #027014, #eb19fa);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700; color: white;
+    border: 3px solid rgba(245, 51, 8, 0.442);
+    box-shadow: 0 0 0 5px rgba(37,99,235,0.28), 0 0 0 9px rgba(37,99,235,0.1);
+    animation: avatarIn 0.65s cubic-bezier(0.22,1,0.36,1) 0.5s both;
+    overflow: hidden;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  @keyframes avatarIn {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .header-text { flex: 1; }
+  .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.95rem; font-weight: 700; color: rgb(250, 246, 6);
+    letter-spacing: -0.5px; line-height: 1.15;
+    animation: slideR 0.9s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+  }
+  .title-line {
+    font-size: 0.8rem; font-weight: 500;
+    color: rgba(117, 238, 12, 0.965); letter-spacing: 2px;
+    text-transform: uppercase; margin: 0.3rem 0 0.9rem;
+    animation: slideR 1.9s cubic-bezier(0.22,1,0.36,1) 0.45s both;
+  }
+  @keyframes slideR {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .contact-bar { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; animation: slideR 0.7s cubic-bezier(0.22,1,0.36,1) 0.6s both; }
+  .contact-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.73rem; color: rgba(255,255,255,0.82); }
+  .contact-item svg { width: 12px; height: 12px; fill: none; stroke: rgba(249, 241, 6, 0.96); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .contact-item a { color: rgba(28, 243, 135, 0.82); text-decoration: none; border-bottom: 1px solid rgba(207, 8, 247, 0.802); }
+
+  /* ── BODY LAYOUT ── */
+  .body { display: flex; position: relative; z-index: 1; }
+
+  .sidebar {
+    width: 200px; min-width: 250px;
+    background: var(--surface);
+    padding: 1.5rem 1.1rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  /* Decorative sidebar dots pattern */
+  .sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 60px; right: -1px;
+    width: 2px; height: 40px;
+    background: linear-gradient(180deg, transparent, #2563eb, transparent);
+  }
+
+  .main { flex: 1; padding: 1.5rem 1.7rem 1.5rem 1.5rem; position: relative; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 1.35rem; }
+  .section:last-child { margin-bottom: 0; }
+
+  .section-title {
+    font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.65rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 28px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 1px;
+  }
+  .sidebar .section-title { font-size: 0.57rem; letter-spacing: 2px; }
+
+  /* Skills */
+  .skill-item { margin-bottom: 0.6rem; }
+  .skill-label { font-size: 0.68rem; color: var(--ink2); font-weight: 500; margin-bottom: 0.2rem; display: flex; justify-content: space-between; }
+  .skill-pct { color: var(--muted); font-size: 0.62rem; font-weight: 400; }
+  .skill-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .skill-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    width: 0; transition: width 1.3s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 0.26rem; }
+  .tag {
+    font-size: 0.58rem; font-weight: 500;
+    padding: 2px 7px; border-radius: 99px;
+    background: var(--tag-bg); color: var(--tag-text);
+    border: 0.5px solid #bfdbfe;
+    opacity: 0; transform: scale(0.82);
+    animation: tagIn 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes tagIn { to { opacity: 1; transform: scale(1); } }
+
+  /* Profile */
+  .profile-text {
+    font-size: 0.79rem; color: var(--ink2); line-height: 1.70;
+    padding: 0.65rem 0.75rem;
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 5px 5px 0;
+  }
+
+  /* Experience */
+  .exp-item {
+    display: flex; gap: 0.65rem; margin-bottom: 0.8rem;
+    opacity: 0; transform: translateX(-10px);
+    animation: expIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes expIn { to { opacity: 1; transform: translateX(0); } }
+  .exp-dot-wrap { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  .exp-dot {
+    width: 10px; height: 10px; min-height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .exp-line { width: 1px; flex: 1; background: var(--border); margin-top: 4px; }
+  .exp-item:last-child .exp-line { display: none; }
+  .exp-body { flex: 1; padding-bottom: 0.65rem; }
+  .exp-role { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
+  .exp-org { font-size: 0.7rem; color: var(--accent); font-weight: 500; }
+  .exp-year {
+    font-size: 0.6rem; color: white; background: var(--muted);
+    display: inline-block; padding: 1px 6px;
+    border-radius: 99px; margin-top: 2px; font-weight: 500;
+  }
+
+  /* Education */
+  .edu-item {
+    border-left: 2.5px solid var(--accent);
+    padding: 0.45rem 0.65rem; margin-bottom: 0.55rem;
+    background: var(--surface); border-radius: 0 5px 5px 0;
+    opacity: 0; animation: eduIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes eduIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .edu-degree { font-size: 0.76rem; font-weight: 600; color: var(--ink); }
+  .edu-school { font-size: 0.68rem; color: var(--muted); margin-top: 1px; }
+  .edu-year {
+    font-size: 0.6rem; color: white; background: var(--gold);
+    display: inline-block; padding: 1px 6px;
+    border-radius: 99px; margin-top: 2px; font-weight: 600;
+  }
+
+  /* Projects / AI cards */
+  .project-item {
+    padding: 0.6rem 0.75rem 0.6rem 0.85rem;
+    border: 1px solid var(--border); border-radius: 5px;
+    margin-bottom: 0.5rem; background: var(--white);
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(8px);
+    animation: projIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes projIn { to { opacity: 1; transform: translateY(0); } }
+  .project-item::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #2563eb, #7c3aed);
+  }
+  .project-title { font-size: 0.76rem; font-weight: 600; color: var(--ink); padding-left: 0.28rem; }
+  .project-desc  { font-size: 0.68rem; color: var(--ink2); line-height: 1.62; margin-top: 0.2rem; padding-left: 0.28rem; }
+
+  /* Tech table */
+  .tech-table { width: 100%; border-collapse: collapse; font-size: 0.66rem; }
+  .tech-table tr { border-bottom: 1px solid var(--border); }
+  .tech-table tr:last-child { border-bottom: none; }
+  .tech-table td { padding: 0.38rem 0.32rem; vertical-align: top; }
+  .tech-table td:first-child { color: var(--muted); font-weight: 500; width: 36%; white-space: nowrap; }
+  .tech-table td:last-child { color: var(--ink2); }
+
+  /* Footer strip */
+  .footer-strip {
+    height: 4px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed, #06b6d4, #2563eb);
+    background-size: 300%;
+    animation: gradShift 4s linear infinite;
+    border-radius: 0 0 3px 3px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    @page { margin: 10mm; }
+    body { background: white; padding: 0; display: block; }
+    .page-glow { padding: 0; background: none; box-shadow: none; animation: none; }
+    .page-glow::before, .page-glow::after, .c-tr, .c-bl { display: none; }
+    .page {
+      width: 100%;
+      box-shadow: none; animation: none; overflow: visible;
+      border: 2.5px solid #2563eb;
+    }
+    .page::before { border: 0.5px solid rgba(37,99,235,0.15); }
+    .exp-item, .edu-item, .project-item, .tag, .avatar { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .skill-fill { transition: none; }
+    .header::before, .header::after { animation: none; }
+    .header-accent, .footer-strip { background: #2563eb; animation: none; }
+    .deco-bg { display: none; }
+    .print-btn { display: none; }
+    /* prevent cards from splitting across pages */
+    .project-item, .edu-item, .exp-item { break-inside: avoid; }
+    .section { break-inside: avoid; }
+  }
+
+  /* Print button */
+  .print-btn {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white; border: none;
+    padding: 0.7rem 1.4rem; border-radius: 99px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 22px rgba(37,99,235,0.45);
+    display: flex; align-items: center; gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,99,235,0.55); }
+  .print-btn svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">
+  <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  Print / Save PDF
+</button>
+
+<div class="page-glow">
+  <div class="c-tr"></div>
+  <div class="c-bl"></div>
+
+<div class="page">
+
+  <!-- Decorative watermark art -->
+  <div class="deco-bg">
+    <svg width="100%" height="100%" viewBox="0 0 794 1123" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <!-- Large faint circle top-right -->
+      <circle cx="740" cy="80" r="180" fill="none" stroke="#2563eb" stroke-width="0.6" opacity="0.07"/>
+      <circle cx="740" cy="80" r="130" fill="none" stroke="#7c3aed" stroke-width="0.4" opacity="0.06"/>
+      <circle cx="740" cy="80" r="80"  fill="none" stroke="#2563eb" stroke-width="0.3" opacity="0.05"/>
+      <!-- Bottom-left decorative arcs -->
+      <circle cx="60"  cy="1060" r="160" fill="none" stroke="#7c3aed" stroke-width="0.6" opacity="0.07"/>
+      <circle cx="60"  cy="1060" r="110" fill="none" stroke="#2563eb" stroke-width="0.4" opacity="0.06"/>
+      <circle cx="60"  cy="1060" r="60"  fill="none" stroke="#7c3aed" stroke-width="0.3" opacity="0.05"/>
+      <!-- Mid-right subtle ring -->
+      <circle cx="760" cy="580" r="90" fill="none" stroke="#06b6d4" stroke-width="0.4" opacity="0.05"/>
+      <circle cx="760" cy="580" r="50" fill="none" stroke="#06b6d4" stroke-width="0.3" opacity="0.04"/>
+      <!-- Diagonal dot grid — top half -->
+      <g opacity="0.045" fill="#2563eb">
+        <circle cx="700" cy="200" r="2"/><circle cx="720" cy="220" r="1.5"/><circle cx="680" cy="220" r="1.5"/>
+        <circle cx="700" cy="240" r="2"/><circle cx="720" cy="260" r="1.5"/><circle cx="680" cy="260" r="1.5"/>
+        <circle cx="700" cy="280" r="2"/><circle cx="740" cy="200" r="1.5"/><circle cx="660" cy="200" r="1.5"/>
+        <circle cx="740" cy="240" r="1.5"/><circle cx="660" cy="240" r="1.5"/>
+        <circle cx="740" cy="280" r="1.5"/><circle cx="660" cy="280" r="1.5"/>
+      </g>
+      <!-- Diagonal dot grid — bottom half -->
+      <g opacity="0.04" fill="#7c3aed">
+        <circle cx="90"  cy="880" r="2"/><circle cx="110" cy="900" r="1.5"/><circle cx="70"  cy="900" r="1.5"/>
+        <circle cx="90"  cy="920" r="2"/><circle cx="110" cy="940" r="1.5"/><circle cx="70"  cy="940" r="1.5"/>
+        <circle cx="90"  cy="960" r="2"/><circle cx="130" cy="880" r="1.5"/><circle cx="50"  cy="880" r="1.5"/>
+        <circle cx="130" cy="920" r="1.5"/><circle cx="50"  cy="920" r="1.5"/>
+      </g>
+      <!-- Thin horizontal accent line mid-page -->
+      <line x1="30" y1="560" x2="764" y2="560" stroke="#2563eb" stroke-width="0.35" opacity="0.05" stroke-dasharray="4 8"/>
+      <!-- Corner flourish — top left (inside page) -->
+      <path d="M18 18 L60 18 M18 18 L18 60" stroke="#2563eb" stroke-width="1" opacity="0.12" stroke-linecap="round" fill="none"/>
+      <path d="M24 24 L50 24 M24 24 L24 50" stroke="#2563eb" stroke-width="0.5" opacity="0.08" stroke-linecap="round" fill="none"/>
+      <!-- Corner flourish — top right -->
+      <path d="M776 18 L734 18 M776 18 L776 60" stroke="#7c3aed" stroke-width="1" opacity="0.12" stroke-linecap="round" fill="none"/>
+      <path d="M770 24 L744 24 M770 24 L770 50" stroke="#7c3aed" stroke-width="0.5" opacity="0.08" stroke-linecap="round" fill="none"/>
+      <!-- Corner flourish — bottom left -->
+      <path d="M18 1105 L60 1105 M18 1105 L18 1063" stroke="#7c3aed" stroke-width="1" opacity="0.12" stroke-linecap="round" fill="none"/>
+      <!-- Corner flourish — bottom right -->
+      <path d="M776 1105 L734 1105 M776 1105 L776 1063" stroke="#2563eb" stroke-width="1" opacity="0.12" stroke-linecap="round" fill="none"/>
+      <!-- Subtle hex/diamond shape mid-left -->
+      <polygon points="22,562 30,550 38,562 30,574" fill="none" stroke="#2563eb" stroke-width="0.6" opacity="0.1"/>
+      <!-- Subtle hex/diamond shape mid-right -->
+      <polygon points="772,562 780,550 788,562 780,574" fill="none" stroke="#7c3aed" stroke-width="0.6" opacity="0.1"/>
+    </svg>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="avatar">
+        <img src="shiv.jpg" alt="Dr. Shiv Kumar" onerror="this.style.display='none';this.parentNode.innerHTML='SK';">
+      </div>
+      <div class="header-text">
+        <div class="name">Dr. Shiv Kumar</div>
+        <div class="title-line">Software Architect &nbsp;·&nbsp; Educational Administrator &nbsp;·&nbsp; PhD Computer Science</div>
+        <div class="contact-bar">
+          <div class="contact-item">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lucknow &amp; Barabanki, UP
+          </div>
+          <div class="contact-item">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.5 2 2 0 0 1 3.55 1.29h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16l.42.92z"/></svg>
+            8090155304
+          </div>
+          <div class="contact-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <a href="https://shivtool.github.io/info/home.html" target="_blank">shivtool.github.io</a>
+          </div>
+          <div class="contact-item">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            ceshivkumar@gmail.com
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="header-accent"></div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="section">
+        <div class="section-title">Skills</div>
+        <div class="skill-item">
+          <div class="skill-label">Python (3.14+) <span class="skill-pct">92%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="92"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">System Architecture <span class="skill-pct">88%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="88"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">Cybersecurity <span class="skill-pct">82%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="82"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">UI/UX Design <span class="skill-pct">80%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="80"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">Rust / C++ / Java <span class="skill-pct">75%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="75"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">PWA Development <span class="skill-pct">78%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="78"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label">AI / Prompt Eng. <span class="skill-pct">85%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-w="85"></div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Specializations</div>
+        <div class="tags">
+          <span class="tag" style="animation-delay:0.1s">Ethical Hacking</span>
+          <span class="tag" style="animation-delay:0.15s">IP Surveillance</span>
+          <span class="tag" style="animation-delay:0.2s">Glassmorphism UI</span>
+          <span class="tag" style="animation-delay:0.25s">PowerShell</span>
+          <span class="tag" style="animation-delay:0.3s">Win Optimization</span>
+          <span class="tag" style="animation-delay:0.35s">Graphic Design</span>
+          <span class="tag" style="animation-delay:0.4s">Photoshop</span>
+          <span class="tag" style="animation-delay:0.45s">Prompt Engineering</span>
+          <span class="tag" style="animation-delay:0.5s">LLM Integration</span>
+          <span class="tag" style="animation-delay:0.55s">AI Automation</span>
+          <span class="tag" style="animation-delay:0.6s">Claude / GPT APIs</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Tech Stack</div>
+        <table class="tech-table">
+          <tr><td>Languages</td><td>Python, Rust, C++, Java, JavaScript, HTML, CSS, Kotlin.</td></tr>
+          <tr><td>Frameworks</td><td>WinForms, WPF, Electron, React, Flask, FastAPI, TensorFlow, PyTorch.</td></tr>
+          <tr><td>Tools</td><td>Git, Docker, VS Code, PyCharm, Figma, Postman, Wireshark.</td></tr>
+          <tr><td>Databases</td><td>SQLite, PostgreSQL, MySQL, MongoDB.</td></tr>
+          <tr><td>Cloud / DevOps</td><td>AWS (EC2, S3), Azure, CI/CD Pipelines, GitHub Actions.</td></tr>
+          <tr><td>Operating Systems</td><td>Windows (expert), Linux (proficient), macOS (familiar)</td></tr>
+          <tr><td>Mobile</td><td>Android (Kotlin), PWA (JavaScript)</td></tr>
+          <tr><td>AI</td><td> AI API Integration, Automation Scripting</td></tr>
+          <tr><td>Version Control</td><td>Git, GitHub, GitLab</td></tr>
+          <tr><td>Android Development</td><td>Kotlin, Android SDK</td></tr>
+          <tr><td>Architecture</td><td>Windows, PowerShell, PWA</td></tr>
+          <tr><td>Security</td><td>Cybersecurity, Media Forensics Tools, SHA256 Hashing, File Integrity Checking, File Encryption, File & Folder Locker, Ethical Hacking</td></tr>
+          <tr><td>Design</td><td>Glassmorphism, UI/UX, Photoshop</td></tr>
+          <tr><td>Hardware</td><td>IP Camera, Networking</td></tr>
+          <tr><td>AI / ML</td><td>LLMs, Prompt Eng., Automation</td></tr>
+        </table>
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <div class="section">
+        <div class="section-title">Professional Profile</div>
+        <p class="profile-text">
+          A distinguished PhD scholar in Computer Science with over a decade of experience as a software architect and educational administrator. Expert in developing industrial-grade software solutions while overseeing complex institutional infrastructure for institutions like Shree Durge Maa Bal Govind Inter College. Combines deep technical expertise with practical administrative leadership across educational and government sectors in Uttar Pradesh.
+        </p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Key Projects &amp; Achievements</div>
+        <div class="project-item" style="animation-delay:0.2s">
+          <div class="project-title">FeeBook – School Management System</div>
+          <div class="project-desc">Orchestrated the design and packaging of an industrial-grade school management system, focusing on user interface details and executable deployment for real-world institutional use.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.3s">
+          <div class="project-title">Institutional Digital Transformation</div>
+          <div class="project-desc">Managing digital infrastructure and administrative workflows for educational institutions in Achli Kheda and the broader Barabanki region.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.4s">
+          <div class="project-title">Web Innovation – shivtool.github.io</div>
+          <div class="project-desc">Developed and deployed custom web tools with integrated PWA capabilities for native-app experiences, serving local communities and institutions.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.5s">
+          <div class="project-title">Hardware &amp; Surveillance Infrastructure</div>
+          <div class="project-desc">Extensive experience in system maintenance, advanced troubleshooting, and IP camera surveillance hardware management across multiple institutional sites.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Artificial Intelligence Expertise</div>
+        <div class="project-item" style="animation-delay:0.1s; border-left-color:#7c3aed;">
+          <div class="project-title" style="color:#5b21b6;">Prompt Engineering &amp; LLM Integration</div>
+          <div class="project-desc">Expert-level proficiency in crafting advanced prompts for large language models including Claude, GPT-4, and Gemini. Skilled at designing multi-step reasoning chains, system prompt architecture, and role-based AI workflows for real-world applications.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.2s; border-left-color:#7c3aed;">
+          <div class="project-title" style="color:#5b21b6;">AI-Powered Application Development</div>
+          <div class="project-desc">Developed intelligent desktop and web applications integrating AI APIs — including automated document processing, AI-assisted school management features in FeeBook, and smart form-filling tools using natural language inputs.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.3s; border-left-color:#7c3aed;">
+          <div class="project-title" style="color:#5b21b6;">AI Automation &amp; Workflow Optimization</div>
+          <div class="project-desc">Applied AI-driven automation using Python scripting and LLM APIs to streamline institutional workflows — including census data processing, fee management pipelines, and intelligent report generation for educational and government sectors.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.4s; border-left-color:#7c3aed;">
+          <div class="project-title" style="color:#5b21b6;">Conversational AI &amp; Chatbot Systems</div>
+          <div class="project-desc">Designed and deployed conversational AI systems for institutional use, integrating Claude and GPT APIs into web-based tools. Expertise in context window management, multi-turn dialogue design, and building AI-first user experiences.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Work History</div>
+        <div class="exp-item" style="animation-delay:0.15s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Educational Administrator</div>
+            <div class="exp-org">Shree Durge Maa Bal Govind Inter College &amp; GPM Convent School</div>
+            <div class="exp-year">Ongoing</div>
+          </div>
+        </div>
+        <div class="exp-item" style="animation-delay:0.25s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Computer Operator</div>
+            <div class="exp-org">Community Health Center, Gosaiganj</div>
+            <div class="exp-year">2020 – Present</div>
+          </div>
+        </div>
+        <div class="exp-item" style="animation-delay:0.35s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Computer Operator</div>
+            <div class="exp-org">The Loni Urban Multi State Credit &amp; Thrift Co-operative Society</div>
+            <div class="exp-year">2016 – 2019</div>
+          </div>
+        </div>
+        <div class="exp-item" style="animation-delay:0.45s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Computer Operator</div>
+            <div class="exp-org">Optionone Industries</div>
+            <div class="exp-year">2015 – 2016</div>
+          </div>
+        </div>
+        <div class="exp-item" style="animation-delay:0.55s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Computer Teacher</div>
+            <div class="exp-org">Prakash Institute of ITI and Computer Science</div>
+            <div class="exp-year">2013 – 2015</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Academic Credentials</div>
+        <div class="edu-item" style="animation-delay:0.1s">
+          <div class="edu-degree">PhD in Computer Science</div>
+          <div class="edu-school">Kanpur University</div>
+          <div class="edu-year">2023</div>
+        </div>
+        <div class="edu-item" style="animation-delay:0.2s">
+          <div class="edu-degree">MCA – Master of Computer Application</div>
+          <div class="edu-school">UPTECH Lucknow</div>
+          <div class="edu-year">2014</div>
+        </div>
+        <div class="edu-item" style="animation-delay:0.3s">
+          <div class="edu-degree">Diploma in Computer Hardware &amp; Networking</div>
+          <div class="edu-school">UPTECH Lucknow</div>
+          <div class="edu-year">2013</div>
+        </div>
+        <div class="edu-item" style="animation-delay:0.4s">
+          <div class="edu-degree">B.A. Political Science</div>
+          <div class="edu-school">Kanpur University</div>
+          <div class="edu-year">2012</div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+
+  <div class="footer-strip"></div>
+
+</div><!-- /page -->
+</div><!-- /page-glow -->
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.skill-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+    }, 600);
+  });
+</script>
+</body>
+</html>
