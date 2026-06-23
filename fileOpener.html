@@ -88,6 +88,14 @@
     flex-shrink: 0;
   }
 
+  .logo-mark img {
+    width: 40px;      /* यहाँ अपनी ज़रूरत के हिसाब से पिक्सेल बदलें */
+    height: 40px;     /* इससे इमेज का रेश्यो बना रहेगा */
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
   .logo-text { line-height: 1.15; }
   .logo-name {
     font-family: var(--font-display);
@@ -718,7 +726,9 @@
 <!-- HEADER -->
 <header>
   <div class="logo-wrap">
-    <div class="logo-mark">SC</div>
+    <div class="logo-mark">
+      <img src="sclogo.png" alt="Logo">
+  </div>
     <div class="logo-text">
       <div class="logo-name">Shiv Computer</div>
       <div class="logo-tagline">Professional File Opener</div>
