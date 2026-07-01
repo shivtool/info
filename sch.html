@@ -156,124 +156,37 @@
         transform: scale(0.97);
     }
 
-    .result-wrap {
+    .status-msg {
         position: relative;
         z-index: 1;
-        width: 100%;
-        max-width: 900px;
-        margin-top: 25px;
+        margin-top: 20px;
         display: none;
-        flex-direction: column;
-        animation: popIn 0.5s ease;
-    }
-
-    .result-header {
-        display: flex;
-        justify-content: space-between;
         align-items: center;
-        background: rgba(255,255,255,0.1);
+        gap: 10px;
+        background: rgba(255,255,255,0.12);
         backdrop-filter: blur(15px);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 14px 14px 0 0;
-        padding: 12px 18px;
-        font-size: 0.9rem;
-    }
-
-    .result-header a {
-        color: #00ffea;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .close-btn {
-        background: rgba(255,0,80,0.7);
-        border: none;
-        color: #fff;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-weight: bold;
-        line-height: 1;
-    }
-
-    iframe {
-        width: 100%;
-        height: 70vh;
-        border: none;
-        border-radius: 0 0 14px 14px;
-        background: #fff;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    }
-
-    .hint {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.7);
-        margin-top: 8px;
-        text-align: center;
-    }
-
-    .loader-box {
-        width: 100%;
-        height: 70vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: #fff;
-        border-radius: 0 0 14px 14px;
-        gap: 14px;
+        border: 1px solid rgba(255,255,255,0.25);
+        padding: 12px 22px;
+        border-radius: 30px;
+        font-size: 0.95rem;
+        animation: popIn 0.4s ease;
     }
 
     .spinner {
-        width: 46px;
-        height: 46px;
-        border: 5px solid #e0e0e0;
-        border-top-color: #00b3ff;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-top-color: #00ffea;
         border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+        animation: spin 0.7s linear infinite;
     }
 
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
 
-    .loader-box p {
-        color: #555;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.95rem;
-    }
-
-    .error-box {
-        width: 100%;
-        min-height: 70vh;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: #fff;
-        border-radius: 0 0 14px 14px;
-        gap: 14px;
-        padding: 30px;
-        text-align: center;
-    }
-
-    .error-box .emoji { font-size: 2.5rem; }
-    .error-box p { color: #444; font-family: 'Poppins', sans-serif; margin: 0; }
-    .error-box a.btn-link {
-        display: inline-block;
-        margin-top: 6px;
-        padding: 12px 22px;
-        background: linear-gradient(45deg, #ff00de, #00d4ff);
-        color: #fff;
-        text-decoration: none;
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
     @media (max-width: 500px) {
         h2 { font-size: 1.4rem; }
-        iframe { height: 60vh; }
     }
 </style>
 </head>
@@ -287,35 +200,19 @@
     <h2>SCHOOL PORTAL</h2>
     <p class="desc">
         अपने स्कूल की पूरी जानकारी जानने के लिए नीचे <b>6 अंकों का स्कूल कोड</b> दर्ज करें और
-        "फेच डाटा" बटन पर क्लिक करें। सर्च करने के बाद स्कूल की जानकारी वाला पेज इसी पेज के अंदर नीचे खुल जाएगा।
+        "फेच डाटा" बटन पर क्लिक करें। सर्च करने के बाद स्कूल की जानकारी वाला पेज अपने आप <b>0.5 सेकंड में नए टैब</b> में खुल जाएगा।
     </p>
     <input type="number" id="schoolCode" placeholder="Enter 6-Digit Code" maxlength="6">
     <button onclick="redirectToSchool()">FETCH DATA</button>
 </div>
 
-<div class="result-wrap" id="resultWrap">
-    <div class="result-header">
-        <span id="resultTitle">स्कूल जानकारी</span>
-        <div>
-            <a id="openNewTab" href="#" target="_blank">नए टैब में खोलें ↗</a>
-            <button class="close-btn" onclick="closeResult()" title="बंद करें">×</button>
-        </div>
-    </div>
-    <div class="loader-box" id="loaderBox">
-        <div class="spinner"></div>
-        <p>जानकारी लोड हो रही है...</p>
-    </div>
-    <iframe id="schoolFrame" style="display:none;"></iframe>
-    <div class="error-box" id="errorBox">
-        <div class="emoji">⚠️</div>
-        <p>जानकारी इस पेज के अंदर लोड नहीं हो पाई।</p>
-        <a class="btn-link" id="errorOpenLink" href="#" target="_blank">नए टैब में खोलें ↗</a>
-    </div>
-    <p class="hint">अगर पेज लोड नहीं हो रहा है, तो कृपया ऊपर "नए टैब में खोलें" पर क्लिक करें।</p>
+<div class="status-msg" id="statusMsg">
+    <div class="spinner"></div>
+    <span id="statusText">जानकारी लोड हो रही है...</span>
 </div>
 
 <script>
-    async function redirectToSchool() {
+    function redirectToSchool() {
         const input = document.getElementById('schoolCode').value;
         if (!/^\d{6}$/.test(input)) {
             alert("कृपया सही 6 अंकों का कोड दर्ज करें।");
@@ -323,48 +220,20 @@
         }
 
         const url = "https://upmsp.edu.in/Pehchan/SchoolInformation.aspx?Code=" + input;
-        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
 
-        document.getElementById('openNewTab').href = url;
-        document.getElementById('errorOpenLink').href = url;
-        document.getElementById('resultTitle').textContent = "स्कूल कोड: " + input + " की जानकारी";
+        const statusMsg = document.getElementById('statusMsg');
+        const statusText = document.getElementById('statusText');
 
-        const wrap = document.getElementById('resultWrap');
-        const loaderBox = document.getElementById('loaderBox');
-        const errorBox = document.getElementById('errorBox');
-        const frame = document.getElementById('schoolFrame');
+        statusText.textContent = "स्कूल कोड " + input + " की जानकारी खोली जा रही है...";
+        statusMsg.style.display = 'flex';
 
-        wrap.style.display = 'flex';
-        loaderBox.style.display = 'flex';
-        errorBox.style.display = 'none';
-        frame.style.display = 'none';
-        wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        try {
-            const res = await fetch(proxyUrl);
-            if (!res.ok) throw new Error('Fetch failed');
-            let html = await res.text();
-
-            // Inject <base> tag so relative CSS/JS/image paths resolve against the original site
-            if (/<head[^>]*>/i.test(html)) {
-                html = html.replace(/<head([^>]*)>/i, '<head$1><base href="https://upmsp.edu.in/Pehchan/">');
-            } else {
-                html = '<base href="https://upmsp.edu.in/Pehchan/">' + html;
-            }
-
-            frame.srcdoc = html;
-            frame.style.display = 'block';
-            loaderBox.style.display = 'none';
-        } catch (err) {
-            loaderBox.style.display = 'none';
-            errorBox.style.display = 'flex';
-        }
-    }
-
-    function closeResult() {
-        document.getElementById('resultWrap').style.display = 'none';
-        document.getElementById('schoolFrame').src = '';
-        document.getElementById('schoolFrame').srcdoc = '';
+        setTimeout(function () {
+            window.open(url, '_blank');
+            statusText.textContent = "नए टैब में खोल दिया गया ✓";
+            setTimeout(function () {
+                statusMsg.style.display = 'none';
+            }, 2000);
+        }, 500);
     }
 </script>
 
