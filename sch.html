@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Portal | Rangeen UI</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        background: linear-gradient(-45deg, #ff00de, #00d4ff, #7b2ff7, #ff8a00, #00ffb3);
+        background-size: 400% 400%;
+        animation: bgShift 15s ease infinite;
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+    }
+
+    @keyframes bgShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* floating glow orbs in background */
+    .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.5;
+        z-index: 0;
+        pointer-events: none;
+        animation: floatOrb 10s ease-in-out infinite;
+    }
+    .orb1 { width: 300px; height: 300px; background: #ff00de; top: -80px; left: -80px; animation-duration: 12s; }
+    .orb2 { width: 250px; height: 250px; background: #00d4ff; bottom: -60px; right: -60px; animation-duration: 9s; }
+    .orb3 { width: 200px; height: 200px; background: #ffe600; top: 40%; left: 70%; animation-duration: 14s; }
+
+    @keyframes floatOrb {
+        0%, 100% { transform: translateY(0) translateX(0); }
+        50% { transform: translateY(30px) translateX(20px); }
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        padding: 35px 30px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.5);
+        text-align: center;
+        width: 100%;
+        max-width: 440px;
+        margin-top: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: popIn 0.6s ease;
+    }
+
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 50px 0 rgba(0, 212, 255, 0.4);
+    }
+
+    h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        margin: 0 0 10px;
+        letter-spacing: 3px;
+        font-size: 1.8rem;
+        background: linear-gradient(90deg, #ff00de, #00d4ff, #ffe600);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 4s linear infinite;
+    }
+
+    @keyframes shine {
+        to { background-position: 200% center; }
+    }
+
+    .desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.85);
+        margin-bottom: 22px;
+    }
+
+    input {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 18px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1.2rem;
+        text-align: center;
+        letter-spacing: 4px;
+        font-family: 'Orbitron', sans-serif;
+        transition: 0.3s;
+    }
+
+    input::placeholder {
+        letter-spacing: normal;
+        font-family: 'Poppins', sans-serif;
+        color: rgba(255,255,255,0.5);
+        font-size: 1rem;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px #00d4ff;
+        background: rgba(0,0,0,0.4);
+    }
+
+    button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(45deg, #ff00de, #00d4ff);
+        background-size: 200% auto;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: 0.4s;
+    }
+
+    button:hover {
+        background-position: right center;
+        box-shadow: 0 0 25px #00d4ff, 0 0 25px #ff00de;
+        transform: scale(1.03);
+    }
+
+    button:active {
+        transform: scale(0.97);
+    }
+
+    .result-wrap {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 900px;
+        margin-top: 25px;
+        display: none;
+        flex-direction: column;
+        animation: popIn 0.5s ease;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 14px 14px 0 0;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+    }
+
+    .result-header a {
+        color: #00ffea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .close-btn {
+        background: rgba(255,0,80,0.7);
+        border: none;
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    iframe {
+        width: 100%;
+        height: 70vh;
+        border: none;
+        border-radius: 0 0 14px 14px;
+        background: #fff;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .hint {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.7);
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    .loader-box {
+        width: 100%;
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border-radius: 0 0 14px 14px;
+        gap: 14px;
+    }
+
+    .spinner {
+        width: 46px;
+        height: 46px;
+        border: 5px solid #e0e0e0;
+        border-top-color: #00b3ff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .loader-box p {
+        color: #555;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+    }
+
+    .error-box {
+        width: 100%;
+        min-height: 70vh;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border-radius: 0 0 14px 14px;
+        gap: 14px;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .error-box .emoji { font-size: 2.5rem; }
+    .error-box p { color: #444; font-family: 'Poppins', sans-serif; margin: 0; }
+    .error-box a.btn-link {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 12px 22px;
+        background: linear-gradient(45deg, #ff00de, #00d4ff);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 500px) {
+        h2 { font-size: 1.4rem; }
+        iframe { height: 60vh; }
+    }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="container">
+    <h2>SCHOOL PORTAL</h2>
+    <p class="desc">
+        अपने स्कूल की पूरी जानकारी जानने के लिए नीचे <b>6 अंकों का स्कूल कोड</b> दर्ज करें और
+        "फेच डाटा" बटन पर क्लिक करें। सर्च करने के बाद स्कूल की जानकारी वाला पेज इसी पेज के अंदर नीचे खुल जाएगा।
+    </p>
+    <input type="number" id="schoolCode" placeholder="Enter 6-Digit Code" maxlength="6">
+    <button onclick="redirectToSchool()">FETCH DATA</button>
+</div>
+
+<div class="result-wrap" id="resultWrap">
+    <div class="result-header">
+        <span id="resultTitle">स्कूल जानकारी</span>
+        <div>
+            <a id="openNewTab" href="#" target="_blank">नए टैब में खोलें ↗</a>
+            <button class="close-btn" onclick="closeResult()" title="बंद करें">×</button>
+        </div>
+    </div>
+    <div class="loader-box" id="loaderBox">
+        <div class="spinner"></div>
+        <p>जानकारी लोड हो रही है...</p>
+    </div>
+    <iframe id="schoolFrame" style="display:none;"></iframe>
+    <div class="error-box" id="errorBox">
+        <div class="emoji">⚠️</div>
+        <p>जानकारी इस पेज के अंदर लोड नहीं हो पाई।</p>
+        <a class="btn-link" id="errorOpenLink" href="#" target="_blank">नए टैब में खोलें ↗</a>
+    </div>
+    <p class="hint">अगर पेज लोड नहीं हो रहा है, तो कृपया ऊपर "नए टैब में खोलें" पर क्लिक करें।</p>
+</div>
+
+<script>
+    async function redirectToSchool() {
+        const input = document.getElementById('schoolCode').value;
+        if (!/^\d{6}$/.test(input)) {
+            alert("कृपया सही 6 अंकों का कोड दर्ज करें।");
+            return;
+        }
+
+        const url = "https://upmsp.edu.in/Pehchan/SchoolInformation.aspx?Code=" + input;
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+
+        document.getElementById('openNewTab').href = url;
+        document.getElementById('errorOpenLink').href = url;
+        document.getElementById('resultTitle').textContent = "स्कूल कोड: " + input + " की जानकारी";
+
+        const wrap = document.getElementById('resultWrap');
+        const loaderBox = document.getElementById('loaderBox');
+        const errorBox = document.getElementById('errorBox');
+        const frame = document.getElementById('schoolFrame');
+
+        wrap.style.display = 'flex';
+        loaderBox.style.display = 'flex';
+        errorBox.style.display = 'none';
+        frame.style.display = 'none';
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        try {
+            const res = await fetch(proxyUrl);
+            if (!res.ok) throw new Error('Fetch failed');
+            let html = await res.text();
+
+            // Inject <base> tag so relative CSS/JS/image paths resolve against the original site
+            if (/<head[^>]*>/i.test(html)) {
+                html = html.replace(/<head([^>]*)>/i, '<head$1><base href="https://upmsp.edu.in/Pehchan/">');
+            } else {
+                html = '<base href="https://upmsp.edu.in/Pehchan/">' + html;
+            }
+
+            frame.srcdoc = html;
+            frame.style.display = 'block';
+            loaderBox.style.display = 'none';
+        } catch (err) {
+            loaderBox.style.display = 'none';
+            errorBox.style.display = 'flex';
+        }
+    }
+
+    function closeResult() {
+        document.getElementById('resultWrap').style.display = 'none';
+        document.getElementById('schoolFrame').src = '';
+        document.getElementById('schoolFrame').srcdoc = '';
+    }
+</script>
+
+</body>
+</html>
