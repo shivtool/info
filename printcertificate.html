@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiv Computer - Certificate Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dark: #8B6914;
+    --navy: #0D1B2A;
+    --navy-mid: #1A2E45;
+    --navy-light: #243B55;
+    --cream: #FDF8EE;
+    --cream-dark: #F5EDD8;
+    --red: #8B0000;
+    --green: #1a5c2a;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, #0a1628 100%);
+    min-height: 100vh;
+    color: var(--white);
+  }
+
+  /* ===== HEADER ===== */
+  .site-header {
+    background: linear-gradient(90deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy) 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-circle {
+    width: 64px; height: 64px;
+    background: radial-gradient(circle, var(--gold-light), var(--gold), var(--gold-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--navy);
+    box-shadow: 0 0 20px rgba(201,168,76,0.6), 0 0 40px rgba(201,168,76,0.3);
+    border: 3px solid var(--gold-light);
+    flex-shrink: 0;
+  }
+
+  .brand-text h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+  }
+
+  .brand-text p {
+    font-size: 11px;
+    color: rgba(201,168,76,0.7);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--gold);
+    color: var(--navy);
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 36px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    display: none;
+  }
+
+  .panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ===== FORM STYLES ===== */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 4px;
+    color: var(--white);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+
+  select option { background: var(--navy-mid); color: white; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--navy);
+    border: none;
+    padding: 14px 36px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(201,168,76,0.4);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 12px 28px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .btn-secondary:hover { background: rgba(201,168,76,0.1); }
+
+  .btn-danger {
+    background: rgba(139,0,0,0.2);
+    color: #ff6b6b;
+    border: 1px solid rgba(139,0,0,0.5);
+    padding: 8px 16px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+  }
+
+  .btn-danger:hover { background: rgba(139,0,0,0.4); }
+
+  /* ===== GOOGLE FORM SECTION ===== */
+  .form-link-box {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .form-link-box h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold-light);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .google-form-preview {
+    width: 100%;
+    height: 500px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 6px;
+    background: white;
+    margin-top: 16px;
+  }
+
+  .iframe-placeholder {
+    width: 100%;
+    height: 500px;
+    border: 2px dashed rgba(201,168,76,0.3);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: rgba(201,168,76,0.6);
+    font-size: 13px;
+    text-align: center;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .iframe-icon { font-size: 40px; }
+
+  /* ===== SCORE INPUT ===== */
+  .score-display {
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .score-big {
+    font-family: 'Cinzel', serif;
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .score-label { font-size: 12px; color: rgba(201,168,76,0.7); letter-spacing: 3px; margin-top: 6px; }
+
+  .pass-badge {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 12px;
+  }
+
+  .pass-badge.pass { background: rgba(26,92,42,0.4); color: #4ade80; border: 1px solid rgba(74,222,128,0.4); }
+  .pass-badge.fail { background: rgba(139,0,0,0.4); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.4); }
+
+  /* ===== HISTORY TABLE ===== */
+  .history-table { width: 100%; border-collapse: collapse; }
+
+  .history-table th {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+  }
+
+  .history-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .history-table tr:hover td { background: rgba(201,168,76,0.05); }
+
+  .status-pass { color: #4ade80; font-weight: 600; }
+  .status-fail { color: #ff6b6b; font-weight: 600; }
+
+  .empty-history {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+  }
+
+  .empty-history .icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ===== ALERT ===== */
+  .alert {
+    padding: 14px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .alert.show { display: flex; animation: fadeIn 0.3s ease; }
+  .alert.success { background: rgba(26,92,42,0.3); border: 1px solid rgba(74,222,128,0.4); color: #4ade80; }
+  .alert.error { background: rgba(139,0,0,0.3); border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; }
+  .alert.info { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.4); color: var(--gold); }
+
+  /* ===== BUTTONS ROW ===== */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  /* ===== SETTINGS ===== */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* ===== CERTIFICATE PRINT STYLES ===== */
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    body > *:not(#cert-print-area) { display: none !important; }
+
+    #cert-print-area {
+      display: block !important;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+    }
+  }
+
+  /* ===== CERTIFICATE STYLES ===== */
+  #cert-print-area {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: white;
+    z-index: 99999;
+    overflow: auto;
+  }
+
+  .cert-overlay-close {
+    position: fixed;
+    top: 16px; right: 16px;
+    background: var(--navy);
+    color: white;
+    border: 1px solid var(--gold);
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    z-index: 100000;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cert-overlay-btns {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 100000;
+  }
+
+  .cert-overlay-btns button {
+    padding: 10px 28px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .print-btn { background: var(--gold); color: var(--navy); }
+  .close-btn-bottom { background: var(--navy); color: white; border: 1px solid var(--gold) !important; }
+
+  .certificate {
+    width: 297mm;
+    height: 210mm;
+    margin: 0 auto;
+    background: #FFFEF8;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* Outer ornate border */
+  .cert-border-outer {
+    position: absolute;
+    top: 8mm; left: 8mm; right: 8mm; bottom: 8mm;
+    border: 3px solid #C9A84C;
+    pointer-events: none;
+  }
+
+  .cert-border-inner {
+    position: absolute;
+    top: 12mm; left: 12mm; right: 12mm; bottom: 12mm;
+    border: 1px solid #C9A84C;
+    pointer-events: none;
+  }
+
+  /* Corner ornaments */
+  .cert-corner {
+    position: absolute;
+    width: 24mm;
+    height: 24mm;
+    font-size: 28px;
+    line-height: 1;
+    color: #C9A84C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cert-corner.tl { top: 8mm; left: 8mm; }
+  .cert-corner.tr { top: 8mm; right: 8mm; }
+  .cert-corner.bl { bottom: 8mm; left: 8mm; }
+  .cert-corner.br { bottom: 8mm; right: 8mm; }
+
+  /* Background watermark */
+  .cert-watermark {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif;
+    font-size: 120px;
+    font-weight: 900;
+    color: rgba(201,168,76,0.04);
+    letter-spacing: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* Decorative top ribbon */
+  .cert-ribbon {
+    position: absolute;
+    top: 16mm;
+    left: 20mm; right: 20mm;
+    height: 12mm;
+    background: linear-gradient(90deg, transparent, #C9A84C 20%, #8B6914 50%, #C9A84C 80%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: #FDF8EE;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .cert-ribbon-bottom {
+    position: absolute;
+    bottom: 16mm;
+    left: 20mm; right: 20mm;
+    height: 8mm;
+    background: linear-gradient(90deg, transparent, #C9A84C 20%, #8B6914 50%, #C9A84C 80%, transparent);
+    opacity: 0.7;
+  }
+
+  /* Main content */
+  .cert-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 22mm 28mm 18mm;
+    width: 100%;
+  }
+
+  /* Logo area */
+  .cert-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 6mm;
+  }
+
+  .cert-logo-circle {
+    width: 18mm;
+    height: 18mm;
+    background: radial-gradient(circle, #E8C97A, #C9A84C, #8B6914);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0D1B2A;
+    border: 2px solid #C9A84C;
+    box-shadow: 0 2px 8px rgba(201,168,76,0.4);
+  }
+
+  .cert-org-name {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #8B6914;
+    letter-spacing: 3px;
+    line-height: 1.2;
+  }
+
+  .cert-org-sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: #C9A84C;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .cert-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4mm 0;
+    justify-content: center;
+  }
+
+  .cert-divider-line { flex: 1; max-width: 40mm; height: 1px; background: linear-gradient(90deg, transparent, #C9A84C); }
+  .cert-divider-line.right { background: linear-gradient(90deg, #C9A84C, transparent); }
+  .cert-divider-dot { width: 6px; height: 6px; background: #C9A84C; border-radius: 50%; }
+
+  .cert-presents {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: #555;
+    letter-spacing: 2px;
+  }
+
+  .cert-title-main {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #8B0000;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin: 3mm 0;
+    text-shadow: 1px 1px 0 rgba(139,0,0,0.2);
+  }
+
+  .cert-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 4mm;
+  }
+
+  .cert-awarded-to {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: #777;
+    letter-spacing: 1px;
+    margin-bottom: 2mm;
+  }
+
+  .cert-name {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0D1B2A;
+    letter-spacing: 2px;
+    border-bottom: 2px solid #C9A84C;
+    display: inline-block;
+    padding-bottom: 2mm;
+    margin-bottom: 4mm;
+    min-width: 80mm;
+  }
+
+  .cert-body-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 4mm;
+  }
+
+  .cert-body-text strong { color: #8B6914; }
+
+  .cert-score-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #0D1B2A, #1A2E45);
+    border: 2px solid #C9A84C;
+    border-radius: 6px;
+    padding: 6px 20px;
+    margin: 4mm 0;
+  }
+
+  .cert-score-val {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #E8C97A;
+  }
+
+  .cert-score-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 9px;
+    color: rgba(232,201,122,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  /* Signatures */
+  .cert-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6mm;
+    padding: 0 10mm;
+    align-items: flex-end;
+  }
+
+  .cert-sig {
+    text-align: center;
+    min-width: 40mm;
+  }
+
+  .cert-sig-line {
+    width: 40mm;
+    height: 1px;
+    background: #8B6914;
+    margin: 0 auto 3px;
+  }
+
+  .cert-sig-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    letter-spacing: 1px;
+  }
+
+  .cert-sig-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 8px;
+    color: #777;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Seal */
+  .cert-seal {
+    width: 22mm;
+    height: 22mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, #E8C97A, #C9A84C, #8B6914);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #8B6914;
+    box-shadow: 0 0 0 3px #C9A84C, 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .cert-seal-text {
+    font-family: 'Cinzel', serif;
+    font-size: 7px;
+    font-weight: 700;
+    color: #0D1B2A;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .cert-id-badge {
+    position: absolute;
+    bottom: 20mm;
+    right: 20mm;
+    background: rgba(13,27,42,0.06);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 7px;
+    color: #999;
+    letter-spacing: 1px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .form-grid, .settings-grid { grid-template-columns: 1fr; }
+    .site-header { flex-direction: column; gap: 12px; text-align: center; }
+    .panel { padding: 20px; }
+    .container { padding: 0 12px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ===== SITE HEADER ===== -->
+<header class="site-header">
+  <div class="brand">
+    <div class="logo-circle">SC</div>
+    <div class="brand-text">
+      <h1>SHIV COMPUTER</h1>
+      <p>Certificate Management System</p>
+    </div>
+  </div>
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showPanel('exam')">📝 Exam</button>
+    <button class="nav-btn" onclick="showPanel('manual')">✏️ Manual</button>
+    <button class="nav-btn" onclick="showPanel('history')">📋 History</button>
+    <button class="nav-btn" onclick="showPanel('settings')">⚙️ Settings</button>
+  </div>
+</header>
+
+<!-- ===== MAIN CONTAINER ===== -->
+<div class="container">
+
+  <!-- EXAM PANEL (Google Form Integration) -->
+  <div class="panel active" id="panel-exam">
+    <div class="panel-title">📝 Google Form Exam — Certificate Generation</div>
+
+    <div class="form-link-box">
+      <h3>🔗 Google Form URL Configure Karein</h3>
+      <div style="display:flex;gap:12px;align-items:flex-end;">
+        <div style="flex:1;">
+          <label>Google Form / Quiz Link</label>
+          <input type="url" id="form-url-input" placeholder="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true" />
+        </div>
+        <button class="btn-primary" onclick="loadGoogleForm()" style="padding:12px 20px;white-space:nowrap;">Load Form</button>
+      </div>
+      <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;">💡 Tip: Google Form ke Share option mein "Embed HTML" se embedded link milega. viewform?embedded=true add karein.</p>
+    </div>
+
+    <div id="form-iframe-container">
+      <div class="iframe-placeholder">
+        <div class="iframe-icon">📋</div>
+        <strong style="color:rgba(201,168,76,0.8);">Google Form yahan dikhega</strong>
+        <p>Upar Google Form URL paste karke "Load Form" click karein</p>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <div class="panel-title" style="font-size:16px;margin-bottom:20px;">📊 Form Submit ke Baad — Score Darj Karein</div>
+
+      <div class="alert info show" id="form-info-alert">
+        ℹ️ Form submit karne ke baad, Google Form ne jo score diya hai woh neeche darj karein. 90% ya usse zyada score par certificate automatically generate hoga.
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Student/Candidate Ka Naam *</label>
+          <input type="text" id="exam-name" placeholder="Poora naam likhein" />
+        </div>
+        <div class="form-group">
+          <label>Course / Exam Naam *</label>
+          <input type="text" id="exam-course" placeholder="e.g. MS Office, Tally, DCA" />
+        </div>
+        <div class="form-group">
+          <label>Prapt Ank (Score %) *</label>
+          <input type="number" id="exam-score" min="0" max="100" placeholder="e.g. 92" oninput="updateScoreDisplay()" />
+        </div>
+        <div class="form-group">
+          <label>Kul Prashna (Total Questions)</label>
+          <input type="number" id="exam-total" placeholder="e.g. 50" />
+        </div>
+        <div class="form-group">
+          <label>Sahi Uttar (Correct Answers)</label>
+          <input type="number" id="exam-correct" placeholder="e.g. 47" />
+        </div>
+        <div class="form-group">
+          <label>Pariksha Tithi (Exam Date)</label>
+          <input type="date" id="exam-date" />
+        </div>
+        <div class="form-group">
+          <label>Roll Number / Reg. No.</label>
+          <input type="text" id="exam-roll" placeholder="e.g. SC2024001" />
+        </div>
+        <div class="form-group">
+          <label>Grade (Auto)</label>
+          <input type="text" id="exam-grade" readonly placeholder="Score ke baad auto fill" style="cursor:not-allowed;opacity:0.7;" />
+        </div>
+      </div>
+
+      <div class="score-display" id="score-display" style="display:none;">
+        <div class="score-big" id="score-big-text">--</div>
+        <div class="score-label">PRAPT ANK / SCORE</div>
+        <div id="pass-badge-exam"></div>
+      </div>
+
+      <div class="alert success" id="alert-success"></div>
+      <div class="alert error" id="alert-error"></div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="processExamResult()">🎓 Certificate Generate Karein</button>
+        <button class="btn-secondary" onclick="resetExamForm()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL PANEL -->
+  <div class="panel" id="panel-manual">
+    <div class="panel-title">✏️ Manual Certificate Generate Karein</div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Candidate Ka Naam *</label>
+        <input type="text" id="m-name" placeholder="Poora naam" />
+      </div>
+      <div class="form-group">
+        <label>Father's / Guardian's Naam</label>
+        <input type="text" id="m-father" placeholder="Pita/Palak ka naam" />
+      </div>
+      <div class="form-group">
+        <label>Course Naam *</label>
+        <input type="text" id="m-course" placeholder="e.g. Computer Fundamentals" />
+      </div>
+      <div class="form-group">
+        <label>Duration</label>
+        <input type="text" id="m-duration" placeholder="e.g. 3 Months" />
+      </div>
+      <div class="form-group">
+        <label>Score (%)</label>
+        <input type="number" id="m-score" min="0" max="100" placeholder="0-100" oninput="updateManualGrade()" />
+      </div>
+      <div class="form-group">
+        <label>Grade</label>
+        <input type="text" id="m-grade" placeholder="A+, A, B, C" />
+      </div>
+      <div class="form-group">
+        <label>Certificate Type</label>
+        <select id="m-type">
+          <option value="completion">Certificate of Completion</option>
+          <option value="excellence">Certificate of Excellence</option>
+          <option value="participation">Certificate of Participation</option>
+          <option value="achievement">Certificate of Achievement</option>
+          <option value="merit">Certificate of Merit</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tithi (Date)</label>
+        <input type="date" id="m-date" />
+      </div>
+      <div class="form-group">
+        <label>Roll / Registration No.</label>
+        <input type="text" id="m-roll" placeholder="Auto generate hoga" />
+      </div>
+      <div class="form-group">
+        <label>Center Code</label>
+        <input type="text" id="m-center" placeholder="SC-MAIN" value="SC-MAIN" />
+      </div>
+    </div>
+
+    <div class="alert success" id="m-alert-success"></div>
+    <div class="alert error" id="m-alert-error"></div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generateManualCertificate()">🎓 Certificate Generate Karein</button>
+      <button class="btn-secondary" onclick="resetManualForm()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- HISTORY PANEL -->
+  <div class="panel" id="panel-history">
+    <div class="panel-title" style="justify-content:space-between;">
+      <span>📋 Certificate History</span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-secondary" onclick="exportHistory()" style="padding:6px 14px;font-size:11px;">📤 Export CSV</button>
+        <button class="btn-danger" onclick="clearHistory()">🗑️ Clear All</button>
+      </div>
+    </div>
+
+    <div id="history-container">
+      <div class="empty-history">
+        <div class="icon">📭</div>
+        <p>Koi certificate history nahi mili.</p>
+        <p style="font-size:12px;margin-top:6px;opacity:0.6;">Certificates generate karne par yahan dikhai denge.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="panel" id="panel-settings">
+    <div class="panel-title">⚙️ System Settings</div>
+
+    <div class="settings-grid">
+      <div class="form-group">
+        <label>Institution Naam</label>
+        <input type="text" id="s-inst" value="SHIV COMPUTER" />
+      </div>
+      <div class="form-group">
+        <label>Sub-title / Tagline</label>
+        <input type="text" id="s-sub" value="COMPUTER EDUCATION CENTER" />
+      </div>
+      <div class="form-group">
+        <label>Address Line 1</label>
+        <input type="text" id="s-addr1" placeholder="e.g. Main Market, Near..." />
+      </div>
+      <div class="form-group">
+        <label>City, State, PIN</label>
+        <input type="text" id="s-addr2" placeholder="e.g. Jaipur, Rajasthan - 302001" />
+      </div>
+      <div class="form-group">
+        <label>Phone / Mobile</label>
+        <input type="tel" id="s-phone" placeholder="+91 XXXXX XXXXX" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="s-email" placeholder="info@shivcomputer.com" />
+      </div>
+      <div class="form-group">
+        <label>Pass Score (%) — Default: 90%</label>
+        <input type="number" id="s-pass" value="90" min="50" max="100" />
+      </div>
+      <div class="form-group">
+        <label>Director / Principal Naam</label>
+        <input type="text" id="s-director" placeholder="Director ka naam" />
+      </div>
+      <div class="form-group">
+        <label>Examiner Naam</label>
+        <input type="text" id="s-examiner" placeholder="Chief Examiner ka naam" />
+      </div>
+      <div class="form-group">
+        <label>Logo Initials (2-3 Akshar)</label>
+        <input type="text" id="s-logo" value="SC" maxlength="3" />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="saveSettings()">💾 Settings Save Karein</button>
+      <button class="btn-secondary" onclick="loadSettings()">↺ Reload</button>
+    </div>
+
+    <div class="alert success" id="s-alert-success" style="margin-top:16px;"></div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ===== CERTIFICATE PRINT AREA ===== -->
+<div id="cert-print-area">
+  <button class="cert-overlay-close" onclick="closeCertificate()">✕ Band Karein</button>
+
+  <div class="certificate" id="certificate-template">
+    <!-- Borders -->
+    <div class="cert-border-outer"></div>
+    <div class="cert-border-inner"></div>
+
+    <!-- Corners -->
+    <div class="cert-corner tl">❧</div>
+    <div class="cert-corner tr">❧</div>
+    <div class="cert-corner bl">❧</div>
+    <div class="cert-corner br">❧</div>
+
+    <!-- Watermark -->
+    <div class="cert-watermark" id="cert-wm">SC</div>
+
+    <!-- Top Ribbon -->
+    <div class="cert-ribbon">✦ &nbsp; CERTIFICATE OF ACHIEVEMENT &nbsp; ✦</div>
+
+    <!-- Content -->
+    <div class="cert-content">
+
+      <!-- Logo + Org -->
+      <div class="cert-logo-row">
+        <div class="cert-logo-circle" id="cert-logo-text">SC</div>
+        <div>
+          <div class="cert-org-name" id="cert-org-name">SHIV COMPUTER</div>
+          <div class="cert-org-sub" id="cert-org-sub">COMPUTER EDUCATION CENTER</div>
+        </div>
+      </div>
+
+      <div class="cert-divider">
+        <div class="cert-divider-line"></div>
+        <div class="cert-divider-dot"></div>
+        <div class="cert-divider-line right"></div>
+      </div>
+
+      <div class="cert-presents">This is to certify with pride and honour that</div>
+
+      <div class="cert-title-main" id="cert-cert-type">CERTIFICATE OF EXCELLENCE</div>
+
+      <div class="cert-awarded-to">Proudly Awarded To</div>
+
+      <div class="cert-name" id="cert-name">CANDIDATE NAME</div>
+
+      <div class="cert-body-text" id="cert-body-text">
+        has successfully completed the examination in <strong id="cert-course">Course Name</strong><br>
+        and demonstrated exceptional proficiency with outstanding results.
+      </div>
+
+      <div class="cert-score-box">
+        <div class="cert-score-val" id="cert-score-val">95%</div>
+        <div class="cert-score-label">
+          SCORE<br>
+          <span id="cert-grade-val" style="font-size:12px;color:#E8C97A;">A+</span>
+        </div>
+        <div style="width:1px;height:28px;background:rgba(201,168,76,0.4);"></div>
+        <div class="cert-score-label">
+          GRADE<br>
+          <span id="cert-date-val" style="font-size:10px;color:#C9A84C;">DD/MM/YYYY</span>
+        </div>
+        <div style="width:1px;height:28px;background:rgba(201,168,76,0.4);"></div>
+        <div class="cert-score-label">
+          DATE<br>
+          <span id="cert-roll-val" style="font-size:9px;color:#aaa;">ROLL NO.</span>
+        </div>
+      </div>
+
+      <!-- Signatures -->
+      <div class="cert-signatures">
+        <div class="cert-sig">
+          <div class="cert-sig-line"></div>
+          <div class="cert-sig-name" id="cert-examiner">Chief Examiner</div>
+          <div class="cert-sig-title">CHIEF EXAMINER</div>
+        </div>
+
+        <div class="cert-seal">
+          <div class="cert-seal-text" id="cert-seal-text">SHIV<br>COMPUTER<br>⭐</div>
+        </div>
+
+        <div class="cert-sig">
+          <div class="cert-sig-line"></div>
+          <div class="cert-sig-name" id="cert-director">Director</div>
+          <div class="cert-sig-title">DIRECTOR / PRINCIPAL</div>
+        </div>
+      </div>
+
+    </div><!-- /cert-content -->
+
+    <div class="cert-ribbon-bottom"></div>
+
+    <div class="cert-id-badge" id="cert-id-badge">CERT ID: SC000001</div>
+
+  </div><!-- /certificate -->
+
+  <div class="cert-overlay-btns">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button class="close-btn-bottom" onclick="closeCertificate()">✕ Band Karein</button>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ===== PANEL NAVIGATION =====
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'history') renderHistory();
+}
+
+// ===== SETTINGS =====
+const DEFAULT_SETTINGS = {
+  institution: 'SHIV COMPUTER',
+  subtitle: 'COMPUTER EDUCATION CENTER',
+  addr1: '', addr2: '',
+  phone: '', email: '',
+  passScore: 90,
+  director: 'Director',
+  examiner: 'Chief Examiner',
+  logo: 'SC'
+};
+
+function getSettings() {
+  try {
+    return JSON.parse(localStorage.getItem('sc_settings') || 'null') || DEFAULT_SETTINGS;
+  } catch { return DEFAULT_SETTINGS; }
+}
+
+function saveSettings() {
+  const s = {
+    institution: document.getElementById('s-inst').value || DEFAULT_SETTINGS.institution,
+    subtitle: document.getElementById('s-sub').value || DEFAULT_SETTINGS.subtitle,
+    addr1: document.getElementById('s-addr1').value,
+    addr2: document.getElementById('s-addr2').value,
+    phone: document.getElementById('s-phone').value,
+    email: document.getElementById('s-email').value,
+    passScore: parseInt(document.getElementById('s-pass').value) || 90,
+    director: document.getElementById('s-director').value || 'Director',
+    examiner: document.getElementById('s-examiner').value || 'Chief Examiner',
+    logo: document.getElementById('s-logo').value || 'SC'
+  };
+  localStorage.setItem('sc_settings', JSON.stringify(s));
+  showAlert('s-alert-success', '✅ Settings safaltapoorvak save ho gayi!', 'success');
+}
+
+function loadSettings() {
+  const s = getSettings();
+  document.getElementById('s-inst').value = s.institution;
+  document.getElementById('s-sub').value = s.subtitle;
+  document.getElementById('s-addr1').value = s.addr1;
+  document.getElementById('s-addr2').value = s.addr2;
+  document.getElementById('s-phone').value = s.phone;
+  document.getElementById('s-email').value = s.email;
+  document.getElementById('s-pass').value = s.passScore;
+  document.getElementById('s-director').value = s.director;
+  document.getElementById('s-examiner').value = s.examiner;
+  document.getElementById('s-logo').value = s.logo;
+}
+
+// ===== GOOGLE FORM =====
+function loadGoogleForm() {
+  const url = document.getElementById('form-url-input').value.trim();
+  const container = document.getElementById('form-iframe-container');
+  if (!url) {
+    container.innerHTML = `<div class="iframe-placeholder"><div class="iframe-icon">⚠️</div><strong>URL darj karein</strong><p>Google Form ka link upar paste karein</p></div>`;
+    return;
+  }
+
+  // Ensure embedded param
+  let embedUrl = url;
+  if (!embedUrl.includes('embedded=true')) {
+    embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'embedded=true';
+  }
+
+  container.innerHTML = `
+    <div style="text-align:center;padding:12px 0;font-size:12px;color:rgba(201,168,76,0.7);margin-bottom:8px;">
+      ✅ Google Form Load ho raha hai... (Agar na dikhe to direct link par jaaein)
+      <a href="${url}" target="_blank" style="color:var(--gold);margin-left:8px;">↗ Form Kholein</a>
+    </div>
+    <iframe src="${embedUrl}" class="google-form-preview" frameborder="0" marginheight="0" marginwidth="0" allow="autoplay">Loading…</iframe>
+  `;
+}
+
+// ===== SCORE DISPLAY =====
+function getGrade(score) {
+  if (score >= 95) return 'A+';
+  if (score >= 90) return 'A';
+  if (score >= 80) return 'B+';
+  if (score >= 70) return 'B';
+  if (score >= 60) return 'C';
+  return 'D';
+}
+
+function updateScoreDisplay() {
+  const score = parseInt(document.getElementById('exam-score').value);
+  const settings = getSettings();
+  const passScore = settings.passScore || 90;
+
+  if (!isNaN(score)) {
+    const display = document.getElementById('score-display');
+    display.style.display = 'block';
+    document.getElementById('score-big-text').textContent = score + '%';
+    const badge = document.getElementById('pass-badge-exam');
+    const grade = getGrade(score);
+    document.getElementById('exam-grade').value = grade;
+
+    if (score >= passScore) {
+      badge.innerHTML = `<span class="pass-badge pass">✅ PASS — Certificate Eligible (Grade: ${grade})</span>`;
+    } else {
+      badge.innerHTML = `<span class="pass-badge fail">❌ FAIL — ${passScore}% chahiye (Aapka: ${score}%)</span>`;
+    }
+  } else {
+    document.getElementById('score-display').style.display = 'none';
+  }
+}
+
+function updateManualGrade() {
+  const score = parseInt(document.getElementById('m-score').value);
+  if (!isNaN(score)) {
+    document.getElementById('m-grade').value = getGrade(score);
+  }
+}
+
+// ===== ALERTS =====
+function showAlert(id, msg, type = 'success') {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert show ' + type;
+  setTimeout(() => { el.className = 'alert ' + type; }, 4000);
+}
+
+// ===== EXAM CERTIFICATE =====
+function processExamResult() {
+  const name = document.getElementById('exam-name').value.trim();
+  const course = document.getElementById('exam-course').value.trim();
+  const scoreVal = document.getElementById('exam-score').value;
+  const score = parseInt(scoreVal);
+  const date = document.getElementById('exam-date').value;
+  const roll = document.getElementById('exam-roll').value.trim();
+  const total = document.getElementById('exam-total').value;
+  const correct = document.getElementById('exam-correct').value;
+  const settings = getSettings();
+  const passScore = settings.passScore || 90;
+
+  if (!name) { showAlert('alert-error', '❌ Candidate ka naam darj karein!', 'error'); return; }
+  if (!course) { showAlert('alert-error', '❌ Course ka naam darj karein!', 'error'); return; }
+  if (isNaN(score)) { showAlert('alert-error', '❌ Score darj karein (0-100)!', 'error'); return; }
+  if (score < passScore) {
+    showAlert('alert-error', `❌ Score ${score}% hai. Certificate ke liye ${passScore}% chahiye. Candidate pass nahi hua.`, 'error');
+    return;
+  }
+
+  const grade = getGrade(score);
+  const certDate = date ? new Date(date).toLocaleDateString('hi-IN') : new Date().toLocaleDateString('hi-IN');
+  const rollNo = roll || generateRollNo();
+  const certId = generateCertId();
+
+  const certData = {
+    id: certId,
+    name, course, score, grade,
+    roll: rollNo,
+    date: date || new Date().toISOString().split('T')[0],
+    type: 'excellence',
+    total, correct,
+    source: 'Google Form Exam',
+    timestamp: new Date().toISOString()
+  };
+
+  saveToHistory(certData);
+  showCertificate(certData);
+  showAlert('alert-success', `✅ Certificate successfully generate ho gaya! (ID: ${certId})`, 'success');
+}
+
+// ===== MANUAL CERTIFICATE =====
+function generateManualCertificate() {
+  const name = document.getElementById('m-name').value.trim();
+  const course = document.getElementById('m-course').value.trim();
+  const score = parseInt(document.getElementById('m-score').value) || 0;
+  const grade = document.getElementById('m-grade').value.trim() || getGrade(score);
+  const date = document.getElementById('m-date').value;
+  const roll = document.getElementById('m-roll').value.trim() || generateRollNo();
+  const type = document.getElementById('m-type').value;
+
+  if (!name) { showAlert('m-alert-error', '❌ Candidate ka naam darj karein!', 'error'); return; }
+  if (!course) { showAlert('m-alert-error', '❌ Course ka naam darj karein!', 'error'); return; }
+
+  const certId = generateCertId();
+  const certData = {
+    id: certId,
+    name, course, score, grade,
+    roll,
+    date: date || new Date().toISOString().split('T')[0],
+    type,
+    source: 'Manual',
+    timestamp: new Date().toISOString()
+  };
+
+  saveToHistory(certData);
+  showCertificate(certData);
+  showAlert('m-alert-success', `✅ Certificate generate ho gaya! (ID: ${certId})`, 'success');
+}
+
+// ===== CERTIFICATE DISPLAY =====
+const CERT_TYPE_LABELS = {
+  completion: 'CERTIFICATE OF COMPLETION',
+  excellence: 'CERTIFICATE OF EXCELLENCE',
+  participation: 'CERTIFICATE OF PARTICIPATION',
+  achievement: 'CERTIFICATE OF ACHIEVEMENT',
+  merit: 'CERTIFICATE OF MERIT'
+};
+
+function showCertificate(data) {
+  const settings = getSettings();
+  const certType = CERT_TYPE_LABELS[data.type] || 'CERTIFICATE OF EXCELLENCE';
+  const formattedDate = new Date(data.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // Update cert DOM
+  document.getElementById('cert-logo-text').textContent = settings.logo;
+  document.getElementById('cert-wm').textContent = settings.logo;
+  document.getElementById('cert-org-name').textContent = settings.institution;
+  document.getElementById('cert-org-sub').textContent = settings.subtitle;
+  document.getElementById('cert-cert-type').textContent = certType;
+  document.getElementById('cert-name').textContent = data.name.toUpperCase();
+  document.getElementById('cert-course').textContent = data.course;
+  document.getElementById('cert-score-val').textContent = data.score + '%';
+  document.getElementById('cert-grade-val').textContent = data.grade;
+  document.getElementById('cert-date-val').textContent = formattedDate;
+  document.getElementById('cert-roll-val').textContent = data.roll;
+  document.getElementById('cert-director').textContent = settings.director;
+  document.getElementById('cert-examiner').textContent = settings.examiner;
+  document.getElementById('cert-seal-text').innerHTML = settings.institution.split(' ')[0] + '<br>' + (settings.institution.split(' ')[1] || '') + '<br>⭐';
+  document.getElementById('cert-id-badge').textContent = 'CERT ID: ' + data.id;
+
+  // Update ribbon text
+  document.querySelector('.cert-ribbon').innerHTML = `✦ &nbsp; ${certType} &nbsp; ✦`;
+
+  // Body text
+  let bodyText = `has successfully completed the examination in <strong id="cert-course">${data.course}</strong><br>`;
+  if (data.score >= 95) bodyText += 'and demonstrated <strong>exceptional outstanding proficiency</strong> with highest distinction.';
+  else if (data.score >= 90) bodyText += 'and demonstrated <strong>excellent academic proficiency</strong> with distinction.';
+  else bodyText += 'and demonstrated <strong>remarkable dedication and skill</strong> in this domain.';
+  document.getElementById('cert-body-text').innerHTML = bodyText;
+
+  document.getElementById('cert-print-area').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCertificate() {
+  document.getElementById('cert-print-area').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ===== HISTORY =====
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('sc_cert_history') || '[]'); }
+  catch { return []; }
+}
+
+function saveToHistory(certData) {
+  const history = getHistory();
+  history.unshift(certData);
+  localStorage.setItem('sc_cert_history', JSON.stringify(history.slice(0, 500))); // max 500 records
+}
+
+function renderHistory() {
+  const history = getHistory();
+  const container = document.getElementById('history-container');
+
+  if (history.length === 0) {
+    container.innerHTML = `<div class="empty-history"><div class="icon">📭</div><p>Koi certificate history nahi mili.</p><p style="font-size:12px;margin-top:6px;opacity:0.6;">Certificates generate karne par yahan dikhai denge.</p></div>`;
+    return;
+  }
+
+  let html = `<table class="history-table">
+    <thead>
+      <tr>
+        <th>Cert ID</th>
+        <th>Naam</th>
+        <th>Course</th>
+        <th>Score</th>
+        <th>Grade</th>
+        <th>Date</th>
+        <th>Source</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  history.forEach((cert, idx) => {
+    const date = new Date(cert.date).toLocaleDateString('en-IN');
+    const passClass = cert.score >= 90 ? 'status-pass' : 'status-fail';
+    html += `<tr>
+      <td style="font-size:11px;font-family:monospace;">${cert.id}</td>
+      <td><strong>${cert.name}</strong></td>
+      <td>${cert.course}</td>
+      <td class="${passClass}">${cert.score}%</td>
+      <td>${cert.grade || '-'}</td>
+      <td>${date}</td>
+      <td style="font-size:11px;opacity:0.6;">${cert.source || 'Manual'}</td>
+      <td>
+        <button onclick="reprintCert(${idx})" style="background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.5);color:#C9A84C;padding:5px 12px;font-size:11px;cursor:pointer;border-radius:4px;font-family:Poppins,sans-serif;">🖨 Reprint</button>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function reprintCert(idx) {
+  const history = getHistory();
+  if (history[idx]) showCertificate(history[idx]);
+}
+
+function clearHistory() {
+  if (confirm('Kya aap sure hain? Saari history delete ho jaayegi!')) {
+    localStorage.removeItem('sc_cert_history');
+    renderHistory();
+  }
+}
+
+function exportHistory() {
+  const history = getHistory();
+  if (history.length === 0) { alert('Export karne ke liye koi data nahi!'); return; }
+
+  let csv = 'Cert ID,Naam,Course,Score,Grade,Date,Source\n';
+  history.forEach(c => {
+    csv += `"${c.id}","${c.name}","${c.course}","${c.score}%","${c.grade}","${c.date}","${c.source}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'ShivComputer_Certificates_' + new Date().toISOString().split('T')[0] + '.csv';
+  link.click();
+}
+
+// ===== UTILITIES =====
+function generateCertId() {
+  const history = getHistory();
+  const num = String(history.length + 1).padStart(6, '0');
+  return 'SC' + new Date().getFullYear() + num;
+}
+
+function generateRollNo() {
+  return 'SC' + new Date().getFullYear() + Math.floor(Math.random() * 9000 + 1000);
+}
+
+function resetExamForm() {
+  ['exam-name','exam-course','exam-score','exam-total','exam-correct','exam-date','exam-roll','exam-grade'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('score-display').style.display = 'none';
+}
+
+function resetManualForm() {
+  ['m-name','m-father','m-course','m-duration','m-score','m-grade','m-roll'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+// ===== INIT =====
+window.onload = function() {
+  loadSettings();
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('exam-date').value = today;
+  document.getElementById('m-date').value = today;
+};
+</script>
+
+</body>
+</html>
