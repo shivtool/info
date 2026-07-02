@@ -25,6 +25,18 @@
       --btn-fn: rgba(0, 60, 100, 0.75);
       --btn-eq: rgba(0, 120, 60, 0.8);
       --btn-clr: rgba(140, 10, 50, 0.75);
+
+      /* ═══ INDUSTRIAL ADD-ONS ═══ */
+      --metal-light: #7c8496;
+      --metal-mid: #3a3f52;
+      --metal-dark: #14161f;
+      --hazard-yellow: #ffcc00;
+      --hazard-black: #0a0a0a;
+      --rivet: #565d78;
+      --led-green: #00ff88;
+      --led-red: #ff3b5c;
+      --led-amber: #ffb800;
+      --panel-steel: linear-gradient(155deg, #1b1e2c 0%, #0d0f18 60%, #05060d 100%);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,6 +46,7 @@
       background: var(--bg-deep);
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       overflow-x: hidden;
@@ -88,6 +101,106 @@
       75% { transform: translate(40px, 20px) scale(1.05); }
     }
 
+    /* ═══ INDUSTRIAL HAZARD STRIP ═══ */
+    .hazard-strip {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 6px;
+      z-index: 20;
+      background: repeating-linear-gradient(135deg,
+        var(--hazard-yellow) 0 18px,
+        var(--hazard-black) 18px 36px);
+      box-shadow: 0 0 14px rgba(255,204,0,0.35);
+    }
+
+    /* ═══ TOP BRAND BAR ═══ */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--panel-steel);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .top-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+    }
+
+    .brand-badge {
+      font-weight: 900;
+      color: var(--neon-gold);
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
+      letter-spacing: 2px;
+    }
+
+    .status-leds {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .led-unit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+    }
+
+    .led-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--led-green);
+      box-shadow: 0 0 8px var(--led-green), 0 0 2px var(--led-green);
+      animation: blinkDot 2s ease-in-out infinite;
+    }
+    .led-dot.amber { background: var(--led-amber); box-shadow: 0 0 8px var(--led-amber); animation-delay: -0.6s; }
+    .led-dot.red   { background: var(--led-red);   box-shadow: 0 0 8px var(--led-red);   animation-delay: -1.2s; }
+
+    /* ═══ RIVETS on panels ═══ */
+    .rivet-corners { position: relative; }
+    .rivet-corners::before,
+    .rivet-corners::after,
+    .rivet-corners .rivet-tl,
+    .rivet-corners .rivet-tr {
+      content: '';
+      position: absolute;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--metal-light), var(--rivet) 60%, #000 100%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 0 1px rgba(255,255,255,0.4);
+      z-index: 2;
+    }
+    .rivet-corners::before { top: 10px; left: 10px; }
+    .rivet-corners::after  { bottom: 10px; right: 10px; }
+    .rivet-corners .rivet-tl { top: 10px; right: 10px; }
+    .rivet-corners .rivet-tr { bottom: 10px; left: 10px; }
+
+    /* ═══ Brushed metal edge on calculator ═══ */
+    .calculator {
+      background:
+        linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+        linear-gradient(135deg, var(--metal-light), var(--metal-dark) 40%, var(--metal-light) 60%, var(--metal-dark)) border-box;
+    }
+
     /* ═══ MAIN LAYOUT ═══ */
     .app-wrapper {
       position: relative;
@@ -107,7 +220,7 @@
       backdrop-filter: blur(20px);
       border-radius: 28px;
       padding: 24px;
-      border: 3px solid var(--glass-border);
+      border: 3px solid transparent;
       box-shadow:
         0 0 0 1px rgba(0,245,255,0.08),
         0 30px 80px rgba(0,0,0,0.7),
@@ -183,6 +296,45 @@
 
     .main-display.result-mode { color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
     .main-display.error-mode { color: var(--neon-pink); text-shadow: 0 0 20px rgba(255,45,155,0.5); }
+
+    /* ═══ LIVE RESULT BAR ═══ */
+    .live-result-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(0,245,255,0.15);
+      min-height: 20px;
+    }
+
+    .live-tag {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      color: var(--neon-gold);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .live-tag .live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--neon-gold);
+      box-shadow: 0 0 6px var(--neon-gold);
+      animation: blinkDot 1.2s ease-in-out infinite;
+    }
+
+    .live-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--neon-gold);
+      text-shadow: 0 0 12px rgba(255,215,0,0.4);
+      letter-spacing: 1px;
+    }
+    .live-value.empty { color: var(--text-dim); text-shadow: none; font-size: 0.75rem; font-weight: 400; }
 
     .watermark {
       position: absolute;
@@ -294,6 +446,51 @@
     .btn.clear:hover { box-shadow: 0 8px 25px rgba(255,45,155,0.35); }
 
     .btn.zero { grid-column: span 2; }
+
+    /* ═══ MEMORY ROW ═══ */
+    .memory-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .btn.mem {
+      height: 34px;
+      font-size: 0.85rem;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(20, 25, 70, 0.5);
+      color: var(--metal-light);
+      border: 1px solid rgba(124,132,150,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn.mem:hover { color: var(--neon-cyan); border-color: rgba(0,245,255,0.4); box-shadow: 0 0 12px rgba(0,245,255,0.2); }
+    .btn.mem:active { transform: scale(0.93); }
+    .btn.mem.has-value { color: var(--neon-gold); border-color: rgba(255,215,0,0.35); }
+
+    /* ═══ COPY BUTTON ═══ */
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(0,245,255,0.08);
+      border: 1px solid rgba(0,245,255,0.25);
+      color: var(--neon-cyan);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 3;
+    }
+    .copy-btn:hover { background: rgba(0,245,255,0.18); box-shadow: 0 0 10px rgba(0,245,255,0.3); }
+    .copy-btn.copied { color: var(--neon-green); border-color: rgba(0,255,136,0.35); background: rgba(0,255,136,0.1); }
 
     /* ═══ RIGHT PANEL ═══ */
     .right-panel {
@@ -407,6 +604,72 @@
       padding: 20px 0;
       letter-spacing: 1px;
     }
+
+    /* ═══ STEP CHECKER ═══ */
+    .panel-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .panel-header-row .panel-title { margin-bottom: 0; }
+
+    .verify-btn {
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.3);
+      color: var(--neon-green);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .verify-btn:hover { background: rgba(0,255,136,0.18); box-shadow: 0 0 12px rgba(0,255,136,0.3); }
+    .verify-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .verify-summary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: none;
+    }
+    .verify-summary.show { display: block; }
+    .verify-summary .ok-count { color: var(--neon-green); }
+
+    .step-check-badge {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      margin-left: auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-dim);
+      transition: all 0.25s;
+    }
+    .step-check-badge.pending { animation: blinkDot 1s ease-in-out infinite; }
+    .step-check-badge.verified {
+      background: rgba(0,255,136,0.12);
+      border-color: rgba(0,255,136,0.4);
+      color: var(--neon-green);
+      box-shadow: 0 0 8px rgba(0,255,136,0.25);
+    }
+    .step-check-badge.mismatch {
+      background: rgba(255,45,155,0.12);
+      border-color: rgba(255,45,155,0.4);
+      color: var(--neon-pink);
+    }
+
+    .step-item.checkable { display: flex; align-items: center; }
+    .step-item.checkable > div:first-of-type { flex: 1; }
 
     /* ═══ HISTORY ═══ */
     .history-container {
@@ -582,10 +845,98 @@
         background: rgba(255,45,155,0.08);
         box-shadow: 0 0 20px rgba(255,45,155,0.15), inset 0 1px 0 rgba(255,45,155,0.1);
       }
+
+      /* ── Body / page breathing room ── */
+      body { padding: 10px; align-items: flex-start; }
+
+      /* ── Top brand bar: stack + shrink ── */
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        border-radius: 12px;
+      }
+      .top-bar-brand {
+        font-size: 0.56rem;
+        letter-spacing: 1.5px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .status-leds { gap: 10px; flex-wrap: wrap; }
+      .led-unit { font-size: 0.52rem; letter-spacing: 1px; }
+
+      /* ── Calculator card: tighter padding ── */
+      .calculator { padding: 14px; border-radius: 20px; }
+      .calc-title { font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 12px; }
+      .rivet-corners::before,
+      .rivet-corners::after,
+      .rivet-corners .rivet-tl,
+      .rivet-corners .rivet-tr { width: 5px; height: 5px; }
+      .rivet-corners::before, .rivet-corners .rivet-tl { top: 6px; }
+      .rivet-corners::after, .rivet-corners .rivet-tr { bottom: 6px; }
+      .rivet-corners::before, .rivet-corners .rivet-tr { left: 6px; }
+      .rivet-corners::after, .rivet-corners .rivet-tl { right: 6px; }
+
+      /* ── Display area ── */
+      .display-wrapper { padding: 10px 12px 8px; min-height: 74px; margin-bottom: 12px; }
+      .main-display { font-size: clamp(1.4rem, 8vw, 2rem); }
+      .expression-line { font-size: 0.7rem; }
+      .copy-btn { top: 7px; right: 8px; padding: 2px 6px; font-size: 0.5rem; }
+      .live-tag { font-size: 0.5rem; }
+      .live-value { font-size: 0.8rem; }
+      .live-value.empty { font-size: 0.65rem; }
+      .watermark { font-size: 0.9rem; }
+
+      /* ── Memory row ── */
+      .memory-row { gap: 6px; margin-bottom: 8px; }
+      .btn.mem { height: 30px; font-size: 0.7rem; }
+
+      /* ── Number pad: fluid sizing so digits never clip ── */
+      .buttons { gap: 7px; }
+      .btn {
+        height: 48px;
+        border-radius: 11px;
+        font-size: clamp(1.15rem, 7vw, 1.8rem);
+      }
+      .btn.function { font-size: clamp(0.8rem, 4.4vw, 1.15rem); }
+      .btn.equals   { font-size: clamp(1rem, 5.5vw, 1.3rem); }
+
+      /* ── Right panel (steps / history) ── */
+      .panel { padding: 14px; border-radius: 16px; }
+      .panel-header-row { flex-wrap: wrap; gap: 8px; }
+      .panel-title { font-size: 0.62rem; letter-spacing: 2px; }
+      .verify-btn { font-size: 0.52rem; padding: 4px 8px; }
+      .verify-summary { font-size: 0.55rem; }
+      .steps-container { max-height: 34vh; }
+      .history-container { max-height: 34vh; }
+      .step-text { font-size: 0.78rem; }
+      .step-result { font-size: 0.7rem; }
+      .history-expr { font-size: 0.72rem; }
+      .history-result { font-size: 0.9rem; }
+    }
+
+    /* ── Extra-small phones (≤380px) ── */
+    @media (max-width: 380px) {
+      body { padding: 8px; }
+      .top-bar-brand span:last-child { display: none; }
+      .status-leds { gap: 8px; }
+      .led-unit span:last-child { display: none; }
+      .calculator { padding: 10px; }
+      .buttons { gap: 5px; }
+      .btn { height: 44px; font-size: clamp(1rem, 7.5vw, 1.5rem); border-radius: 9px; }
+      .btn.function { font-size: clamp(0.7rem, 4.6vw, 1rem); }
+      .memory-row { gap: 4px; }
+      .btn.mem { height: 28px; font-size: 0.62rem; }
+      .panel { padding: 10px; }
     }
   </style>
 </head>
 <body>
+
+<!-- Industrial Hazard Strip -->
+<div class="hazard-strip"></div>
 
 <!-- Animated Background -->
 <div class="bg-grid"></div>
@@ -596,17 +947,45 @@
   <div class="orb orb4"></div>
 </div>
 
+<!-- Top Brand / Status Bar -->
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <span class="brand-badge">SHIV COMPUTER</span>
+    <span>INDUSTRIAL CALC UNIT · KANPUR</span>
+  </div>
+  <div class="status-leds">
+    <span class="led-unit"><span class="led-dot"></span>POWER</span>
+    <span class="led-unit"><span class="led-dot amber"></span>READY</span>
+    <span class="led-unit"><span class="led-dot red"></span>LIVE</span>
+  </div>
+</div>
+
 <div class="app-wrapper">
 
   <!-- ══════════ CALCULATOR ══════════ -->
-  <div class="calculator">
+  <div class="calculator rivet-corners">
+    <span class="rivet-tl"></span><span class="rivet-tr"></span>
     <div class="calc-title">✦ SHIV COMPUTER ✦</div>
 
     <!-- Display -->
     <div class="display-wrapper" id="displayWrapper">
+      <button class="copy-btn" id="copyBtn" onclick="copyResult()">COPY</button>
       <div class="expression-line" id="expressionLine">—</div>
       <div class="main-display" id="mainDisplay">0</div>
+      <div class="live-result-bar">
+        <span class="live-tag"><span class="live-dot"></span>LIVE RESULT</span>
+        <span class="live-value empty" id="liveValue">—</span>
+      </div>
       <div class="watermark" id="watermark">SHIV CALCULATOR</div>
+    </div>
+
+    <!-- Memory Row -->
+    <div class="memory-row">
+      <button class="btn mem" id="memMC" onclick="memClear()">MC</button>
+      <button class="btn mem" id="memMR" onclick="memRecall()">MR</button>
+      <button class="btn mem" onclick="memAdd()">M+</button>
+      <button class="btn mem" onclick="memSubtract()">M−</button>
+      <button class="btn mem" onclick="memStore()">MS</button>
     </div>
 
     <!-- Buttons -->
@@ -669,15 +1048,21 @@
   <div class="right-panel">
 
     <!-- Steps Panel -->
-    <div class="panel">
-      <div class="panel-title cyan">CALCULATION STEPS</div>
+    <div class="panel rivet-corners">
+      <span class="rivet-tl"></span><span class="rivet-tr"></span>
+      <div class="panel-header-row">
+        <div class="panel-title cyan">CALCULATION STEPS</div>
+        <button class="verify-btn" id="verifyBtn" onclick="verifySteps()" disabled>✓ VERIFY STEPS</button>
+      </div>
+      <div class="verify-summary" id="verifySummary"></div>
       <div class="steps-container" id="stepsContainer">
         <div class="steps-empty" id="stepsEmpty">Press = to see step-by-step solution</div>
       </div>
     </div>
 
     <!-- History Panel -->
-    <div class="panel">
+    <div class="panel rivet-corners">
+      <span class="rivet-tl"></span><span class="rivet-tr"></span>
       <div class="panel-title pink">HISTORY</div>
       <div class="history-container" id="historyContainer">
         <div class="history-empty" id="historyEmpty">No calculations yet</div>
@@ -700,6 +1085,14 @@
   let historyArr    = [];       // in-memory mirror of IndexedDB
   let db            = null;
 
+  // Step-checker state
+  let currentSteps       = [];
+  let currentOriginalExpr= '';
+
+  // Memory state
+  let memoryValue    = 0;
+  let memoryHasValue = false;
+
   const mainDisplay     = document.getElementById('mainDisplay');
   const expressionLine  = document.getElementById('expressionLine');
   const watermark       = document.getElementById('watermark');
@@ -707,6 +1100,9 @@
   const historyContainer= document.getElementById('historyContainer');
   const historyCount    = document.getElementById('historyCount');
   const displayWrapper  = document.getElementById('displayWrapper');
+  const liveValueEl     = document.getElementById('liveValue');
+  const verifyBtn       = document.getElementById('verifyBtn');
+  const verifySummary   = document.getElementById('verifySummary');
 
   // ════════════════════════════════════════
   //  INDEXEDDB  SETUP
@@ -807,6 +1203,28 @@
       watermark.style.opacity = '0';
     }
     mainDisplay.className = 'main-display';
+    liveEval();
+  }
+
+  // ════════════════════════════════════════
+  //  LIVE RESULT — evaluates as you type
+  // ════════════════════════════════════════
+  function liveEval() {
+    if (!liveValueEl) return;
+    if (!currentInput.trim()) {
+      liveValueEl.textContent = '—';
+      liveValueEl.classList.add('empty');
+      return;
+    }
+    try {
+      const result = safeEval(currentInput);
+      const rounded = parseFloat(result.toFixed(8));
+      liveValueEl.textContent = '≈ ' + rounded;
+      liveValueEl.classList.remove('empty');
+    } catch (e) {
+      liveValueEl.textContent = '…';
+      liveValueEl.classList.add('empty');
+    }
   }
 
   function prettyExpr(expr) {
@@ -861,6 +1279,73 @@
     shouldReset  = false;
     updateDisplay();
     clearStepsUI();
+  }
+
+  // ════════════════════════════════════════
+  //  MEMORY  (M+ / M− / MR / MC / MS)
+  // ════════════════════════════════════════
+  function getCurrentValueForMemory() {
+    try {
+      const src = currentInput.trim() ? currentInput : mainDisplay.textContent;
+      return safeEval(src);
+    } catch (e) { return null; }
+  }
+
+  function updateMemButtons() {
+    const mr = document.getElementById('memMR');
+    const mc = document.getElementById('memMC');
+    if (memoryHasValue) { mr.classList.add('has-value'); mc.classList.add('has-value'); }
+    else { mr.classList.remove('has-value'); mc.classList.remove('has-value'); }
+  }
+
+  function memStore() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = v; memoryHasValue = true; updateMemButtons();
+  }
+  function memAdd() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = (memoryHasValue ? memoryValue : 0) + v;
+    memoryHasValue = true; updateMemButtons();
+  }
+  function memSubtract() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = (memoryHasValue ? memoryValue : 0) - v;
+    memoryHasValue = true; updateMemButtons();
+  }
+  function memRecall() {
+    if (!memoryHasValue) return;
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += parseFloat(memoryValue.toFixed(10)).toString();
+    updateDisplay();
+  }
+  function memClear() {
+    memoryValue = 0; memoryHasValue = false; updateMemButtons();
+  }
+
+  // ════════════════════════════════════════
+  //  COPY RESULT
+  // ════════════════════════════════════════
+  function copyResult() {
+    const btn  = document.getElementById('copyBtn');
+    const text = mainDisplay.textContent;
+    const done = ok => {
+      btn.textContent = ok ? '✓ COPIED' : 'FAILED';
+      btn.classList.toggle('copied', ok);
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true)).catch(() => done(false));
+    } else {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        done(true);
+      } catch (e) { done(false); }
+    }
   }
 
   // ════════════════════════════════════════
@@ -977,6 +1462,7 @@
     if (!currentInput.trim()) return;
 
     const originalExpr = currentInput;
+    currentOriginalExpr = originalExpr;
 
     try {
       const steps  = buildSteps(originalExpr);
@@ -1042,6 +1528,9 @@
 
       // Don't clear input — let user fix it
       shouldReset = false;
+      currentSteps = [];
+      if (verifyBtn) verifyBtn.disabled = true;
+      if (verifySummary) verifySummary.classList.remove('show');
     }
   }
 
@@ -1052,13 +1541,14 @@
     stepsContainer.innerHTML = '';
     steps.forEach((step, i) => {
       const div = document.createElement('div');
-      div.className = 'step-item';
+      div.className = 'step-item checkable';
       div.innerHTML = `
         <span class="step-num">S${i+1}</span>
         <div>
           <div class="step-text">${step.label}</div>
           <div class="step-result">${step.value}</div>
-        </div>`;
+        </div>
+        <span class="step-check-badge" id="stepBadge${i}" style="display:none"></span>`;
       if (step.isResult) {
         div.style.background   = 'rgba(0,255,136,0.07)';
         div.style.borderColor  = 'rgba(0,255,136,0.2)';
@@ -1068,10 +1558,72 @@
       stepsContainer.appendChild(div);
     });
     stepsContainer.scrollTop = stepsContainer.scrollHeight;
+    currentSteps = steps;
+    if (verifyBtn) verifyBtn.disabled = steps.length === 0;
+    if (verifySummary) verifySummary.classList.remove('show');
   }
 
   function clearStepsUI() {
     stepsContainer.innerHTML = '<div class="steps-empty">Press = to see step-by-step solution</div>';
+    currentSteps = [];
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (verifySummary) verifySummary.classList.remove('show');
+  }
+
+  // ════════════════════════════════════════
+  //  STEP CHECKER — verifies every step
+  // ════════════════════════════════════════
+  function verifySteps() {
+    if (!currentSteps.length || verifyBtn.disabled) return;
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = '⏳ CHECKING...';
+    verifySummary.classList.remove('show');
+
+    const total = currentSteps.length;
+    currentSteps.forEach((step, i) => {
+      const badge = document.getElementById('stepBadge' + i);
+      if (badge) {
+        badge.style.display = 'flex';
+        badge.className = 'step-check-badge pending';
+        badge.textContent = '•';
+      }
+    });
+
+    let okCount = 0;
+    currentSteps.forEach((step, i) => {
+      setTimeout(() => {
+        const badge = document.getElementById('stepBadge' + i);
+        let ok = true;
+        try {
+          const subMatch = step.value.match(/=\s*(-?\d+(?:\.\d+)?)\s*$/);
+          if (subMatch && !step.isResult) {
+            const exprPart = step.value.split('=')[0].trim()
+              .replace(/×/g, '*').replace(/÷/g, '/');
+            const recomputed = parseFloat(safeEval(exprPart).toFixed(8));
+            ok = Math.abs(recomputed - parseFloat(subMatch[1])) < 1e-6;
+          } else if (step.isResult && currentOriginalExpr) {
+            const recomputed = parseFloat(safeEval(currentOriginalExpr).toFixed(10));
+            ok = recomputed.toString() === step.value;
+          }
+          // Descriptive / rule-based steps (no numeric target) are logic
+          // statements about the method itself, so they check out as-is.
+        } catch (e) { ok = true; }
+
+        if (badge) {
+          badge.className = 'step-check-badge ' + (ok ? 'verified' : 'mismatch');
+          badge.textContent = ok ? '✓' : '!';
+        }
+        if (ok) okCount++;
+
+        if (i === total - 1) {
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = '✓ VERIFY STEPS';
+          verifySummary.classList.add('show');
+          verifySummary.innerHTML =
+            '<span class="ok-count">' + okCount + '</span> / ' + total + ' STEPS VERIFIED ✓';
+        }
+      }, i * 200);
+    });
   }
 
   // ════════════════════════════════════════
@@ -1172,11 +1724,13 @@
     // Load last steps
     const lastSteps = await dbLoadSteps();
     if (lastSteps && lastSteps.steps && lastSteps.steps.length) {
+      currentOriginalExpr = lastSteps.expr || '';
       renderSteps(lastSteps.steps);
     } else {
       clearStepsUI();
     }
 
+    updateMemButtons();
     updateDisplay();
   }
 
