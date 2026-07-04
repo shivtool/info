@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNG Lab — Shiv Computer</title>
+<link rel="icon" type="image/png" href="SHIV.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --bg: #14120f;
+    --bg-soft: #1c1915;
+    --frame: #2a2620;
+    --safelight: #c1432e;
+    --safelight-dim: #7a2c1f;
+    --cream: #ede6d6;
+    --cream-dim: #a89f8c;
+    --olive: #6b8f71;
+    --sprocket: #0b0a08;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top left, rgba(193,67,46,0.08), transparent 55%),
+      var(--bg);
+    color:var(--cream);
+    font-family:'IBM Plex Mono', monospace;
+    min-height:100vh;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:980px;margin:0 auto;}
+
+  header{margin-bottom:34px;}
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--safelight);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Archivo Black', sans-serif;
+    font-size:clamp(28px,5vw,44px);
+    line-height:1.05;
+    margin:0 0 10px;
+    letter-spacing:-.01em;
+  }
+  h1 span{color:var(--safelight);}
+  .sub{color:var(--cream-dim);font-size:14px;max-width:560px;line-height:1.6;}
+
+  .panel{
+    background:var(--bg-soft);
+    border:1px solid var(--frame);
+    border-radius:4px;
+    padding:22px;
+    margin-bottom:22px;
+  }
+  .panel h2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.2em;
+    color:var(--cream-dim);
+    margin:0 0 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .panel h2::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--frame);
+  }
+
+  #dropzone{
+    border:2px dashed var(--frame);
+    border-radius:4px;
+    padding:40px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .2s, background .2s;
+    position:relative;
+  }
+  #dropzone.drag{
+    border-color:var(--safelight);
+    background:rgba(193,67,46,0.06);
+  }
+  #dropzone .icon{font-size:34px;margin-bottom:10px;color:var(--safelight-dim);}
+  #dropzone .main{font-size:14px;color:var(--cream);margin-bottom:4px;}
+  #dropzone .hint{font-size:12px;color:var(--cream-dim);}
+  #fileInput{display:none;}
+  #srcPreviewWrap{display:none;align-items:center;gap:16px;margin-top:16px;}
+  #srcPreviewWrap img{
+    width:64px;height:64px;object-fit:contain;
+    background:
+      linear-gradient(45deg,#333 25%,transparent 25%),
+      linear-gradient(-45deg,#333 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#333 75%),
+      linear-gradient(-45deg,transparent 75%,#333 75%);
+    background-size:10px 10px;
+    background-position:0 0,0 5px,5px -5px,-5px 0;
+    background-color:#222;
+    border:1px solid var(--frame);
+    border-radius:3px;
+  }
+  #srcMeta{font-size:12px;color:var(--cream-dim);line-height:1.6;}
+  #srcMeta b{color:var(--cream);}
+  #clearBtn{
+    margin-left:auto;
+    background:none;border:1px solid var(--frame);color:var(--cream-dim);
+    padding:6px 12px;border-radius:3px;font-size:11px;cursor:pointer;
+    font-family:inherit;text-transform:uppercase;letter-spacing:.1em;
+  }
+  #clearBtn:hover{border-color:var(--safelight);color:var(--safelight);}
+
+  .presets{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .preset-chip{
+    position:relative;
+  }
+  .preset-chip input{position:absolute;opacity:0;inset:0;cursor:pointer;}
+  .preset-chip label{
+    display:block;
+    border:1px solid var(--frame);
+    padding:8px 14px;
+    border-radius:3px;
+    font-size:13px;
+    color:var(--cream-dim);
+    cursor:pointer;
+    transition:all .15s;
+    user-select:none;
+  }
+  .preset-chip input:checked + label{
+    border-color:var(--safelight);
+    color:var(--cream);
+    background:rgba(193,67,46,0.12);
+  }
+  .preset-chip .tag{
+    display:block;
+    font-size:9px;
+    letter-spacing:.1em;
+    color:var(--safelight-dim);
+    margin-top:2px;
+  }
+  .preset-chip input:checked + label .tag{color:var(--safelight);}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .custom-add input[type=number]{
+    width:90px;
+    background:var(--sprocket);
+    border:1px solid var(--frame);
+    color:var(--cream);
+    padding:8px 10px;
+    border-radius:3px;
+    font-family:inherit;
+    font-size:13px;
+  }
+  .custom-add button, .action-btn{
+    background:var(--safelight-dim);
+    border:1px solid var(--safelight);
+    color:var(--cream);
+    padding:8px 16px;
+    border-radius:3px;
+    font-family:inherit;
+    font-size:12px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .custom-add button:hover, .action-btn:hover{background:var(--safelight);}
+
+  .opts{display:flex;gap:24px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:var(--cream-dim);}
+  .opts label{display:flex;align-items:center;gap:8px;cursor:pointer;}
+  select{
+    background:var(--sprocket);
+    border:1px solid var(--frame);
+    color:var(--cream);
+    padding:6px 10px;
+    border-radius:3px;
+    font-family:inherit;
+    font-size:12px;
+  }
+  input[type=color]{
+    width:34px;height:26px;border:1px solid var(--frame);border-radius:3px;background:none;padding:0;cursor:pointer;
+  }
+
+  .generate-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px;flex-wrap:wrap;}
+  #generateBtn{
+    background:var(--safelight);
+    border:1px solid var(--safelight);
+    font-size:13px;
+    padding:12px 26px;
+  }
+  #generateBtn:disabled{opacity:.35;cursor:not-allowed;}
+  #downloadAllBtn{background:var(--olive);border-color:var(--olive);}
+  #downloadAllBtn:hover{background:#7fa885;}
+  #downloadAllBtn:disabled{opacity:.35;cursor:not-allowed;background:var(--olive);}
+
+  /* Contact sheet */
+  #sheet{
+    background:var(--sprocket);
+    border-radius:4px;
+    padding:18px 18px 8px;
+    display:none;
+    position:relative;
+  }
+  #sheet.show{display:block;}
+  .sprocket-strip{
+    position:absolute;top:0;bottom:0;width:18px;
+    background-image:repeating-linear-gradient(
+      to bottom, transparent 0 10px, var(--bg-soft) 10px 20px
+    );
+    opacity:.5;
+  }
+  .sprocket-strip.left{left:0;}
+  .sprocket-strip.right{right:0;}
+  #frames{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:14px;
+    margin:0 22px;
+  }
+  .frame{
+    background:var(--bg-soft);
+    border:1px solid var(--frame);
+    border-radius:3px;
+    padding:12px 10px 10px;
+    text-align:center;
+  }
+  .frame .thumb-box{
+    width:100%;
+    aspect-ratio:1;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:10px;
+    background:
+      linear-gradient(45deg,#2a2620 25%,transparent 25%),
+      linear-gradient(-45deg,#2a2620 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#2a2620 75%),
+      linear-gradient(-45deg,transparent 75%,#2a2620 75%);
+    background-size:12px 12px;
+    background-position:0 0,0 6px,6px -6px,-6px 0;
+    background-color:#1c1915;
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .frame img{max-width:100%;max-height:100%;image-rendering:pixelated;}
+  .frame .label{font-size:12px;color:var(--cream);font-weight:600;}
+  .frame .tag{font-size:9px;color:var(--safelight-dim);letter-spacing:.1em;margin-bottom:6px;text-transform:uppercase;}
+  .frame .dl{
+    display:inline-block;
+    margin-top:8px;
+    font-size:10px;
+    color:var(--cream-dim);
+    border:1px solid var(--frame);
+    padding:4px 10px;
+    border-radius:20px;
+    cursor:pointer;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    transition:all .15s;
+  }
+  .frame .dl:hover{color:var(--cream);border-color:var(--olive);}
+
+  footer{
+    margin-top:30px;
+    text-align:center;
+    font-size:11px;
+    color:var(--cream-dim);
+    letter-spacing:.05em;
+  }
+  footer b{color:var(--safelight-dim);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Shiv Computer — Icon Lab</div>
+    <h1>PNG Multi-<span>Size</span> Converter</h1>
+    <p class="sub">Ek image upload karo, extension/app ke liye zaroori saare icon sizes ek saath generate karo — 16px se 1024px tak — aur sabko ek ZIP me download karo.</p>
+  </header>
+
+  <div class="panel">
+    <h2>01 — Source Image</h2>
+    <div id="dropzone">
+      <div class="icon">◎</div>
+      <div class="main">Click karke image chuno, ya yahan drag-drop karo</div>
+      <div class="hint">PNG · JPG · WEBP · SVG supported</div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    <div id="srcPreviewWrap">
+      <img id="srcPreviewImg" alt="preview">
+      <div id="srcMeta"></div>
+      <button id="clearBtn" type="button">Remove</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>02 — Output Sizes</h2>
+    <div class="presets" id="presetChips"></div>
+    <div class="row custom-add">
+      <input type="number" id="customSizeInput" placeholder="custom px" min="1" max="4096">
+      <button type="button" id="addCustomBtn">+ Add Size</button>
+    </div>
+
+    <div class="opts">
+      <label>Background:
+        <select id="bgMode">
+          <option value="transparent">Transparent</option>
+          <option value="white">White fill</option>
+          <option value="custom">Custom colour</option>
+        </select>
+      </label>
+      <input type="color" id="bgColorPicker" value="#ffffff" style="display:none;">
+      <label>Fit:
+        <select id="fitMode">
+          <option value="contain">Fit inside (no crop)</option>
+          <option value="cover">Fill & crop (square)</option>
+          <option value="stretch">Stretch to exact size</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="generate-row">
+      <div style="font-size:12px;color:var(--cream-dim);"><span id="selCount">0</span> size(s) selected</div>
+      <div class="row">
+        <button class="action-btn" id="generateBtn" disabled>Generate Contact Sheet</button>
+        <button class="action-btn" id="downloadAllBtn" disabled>⇩ Download All (.zip)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="sheetPanel" style="display:none;">
+    <h2>03 — Contact Sheet</h2>
+    <div id="sheet">
+      <div class="sprocket-strip left"></div>
+      <div class="sprocket-strip right"></div>
+      <div id="frames"></div>
+    </div>
+  </div>
+
+  <footer>Runs 100% locally in your browser — no upload to any server. <b>Shiv Computer</b> · Icon Lab</footer>
+</div>
+
+<script>
+const PRESETS = [
+  {size:16, tag:'favicon'},
+  {size:19, tag:'toolbar'},
+  {size:32, tag:'favicon'},
+  {size:38, tag:'toolbar'},
+  {size:48, tag:'manifest'},
+  {size:64, tag:'icon'},
+  {size:96, tag:'icon'},
+  {size:128, tag:'chrome store'},
+  {size:180, tag:'apple touch'},
+  {size:192, tag:'android'},
+  {size:256, tag:'icon'},
+  {size:512, tag:'android'},
+  {size:1024, tag:'app store'}
+];
+
+let selectedSizes = new Set([16,32,48,128]);
+let sourceImage = null;
+let sourceName = 'image';
+let generatedBlobs = {}; // size -> blob
+
+const presetChips = document.getElementById('presetChips');
+function renderChips(){
+  presetChips.innerHTML = '';
+  const sorted = [...new Set([...PRESETS.map(p=>p.size), ...selectedSizes])].sort((a,b)=>a-b);
+  sorted.forEach(size=>{
+    const preset = PRESETS.find(p=>p.size===size);
+    const id = 'chip_'+size;
+    const wrap = document.createElement('div');
+    wrap.className = 'preset-chip';
+    wrap.innerHTML = `
+      <input type="checkbox" id="${id}" ${selectedSizes.has(size)?'checked':''}>
+      <label for="${id}">${size}×${size}${preset ? `<span class="tag">${preset.tag}</span>` : '<span class="tag">custom</span>'}</label>
+    `;
+    wrap.querySelector('input').addEventListener('change', e=>{
+      if(e.target.checked) selectedSizes.add(size); else selectedSizes.delete(size);
+      updateSelCount();
+    });
+    presetChips.appendChild(wrap);
+  });
+  updateSelCount();
+}
+function updateSelCount(){
+  document.getElementById('selCount').textContent = selectedSizes.size;
+  document.getElementById('generateBtn').disabled = !(sourceImage && selectedSizes.size>0);
+}
+renderChips();
+
+document.getElementById('addCustomBtn').addEventListener('click', ()=>{
+  const input = document.getElementById('customSizeInput');
+  const val = parseInt(input.value, 10);
+  if(val && val>0 && val<=4096){
+    selectedSizes.add(val);
+    renderChips();
+    input.value = '';
+  }
+});
+
+// bg mode toggle
+const bgMode = document.getElementById('bgMode');
+const bgColorPicker = document.getElementById('bgColorPicker');
+bgMode.addEventListener('change', ()=>{
+  bgColorPicker.style.display = bgMode.value === 'custom' ? 'inline-block' : 'none';
+});
+
+// Drop zone
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+dropzone.addEventListener('click', ()=>fileInput.click());
+['dragover','dragenter'].forEach(evt=>dropzone.addEventListener(evt, e=>{e.preventDefault();dropzone.classList.add('drag');}));
+['dragleave','drop'].forEach(evt=>dropzone.addEventListener(evt, e=>{e.preventDefault();dropzone.classList.remove('drag');}));
+dropzone.addEventListener('drop', e=>{
+  const file = e.dataTransfer.files[0];
+  if(file) loadFile(file);
+});
+fileInput.addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(file) loadFile(file);
+});
+
+function loadFile(file){
+  sourceName = file.name.replace(/\.[^/.]+$/, '') || 'image';
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const img = new Image();
+    img.onload = ()=>{
+      sourceImage = img;
+      document.getElementById('srcPreviewImg').src = e.target.result;
+      document.getElementById('srcMeta').innerHTML =
+        `<b>${file.name}</b><br>${img.naturalWidth}×${img.naturalHeight}px · ${(file.size/1024).toFixed(1)} KB`;
+      document.getElementById('srcPreviewWrap').style.display = 'flex';
+      updateSelCount();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  sourceImage = null;
+  fileInput.value = '';
+  document.getElementById('srcPreviewWrap').style.display = 'none';
+  document.getElementById('sheetPanel').style.display = 'none';
+  document.getElementById('sheet').classList.remove('show');
+  document.getElementById('downloadAllBtn').disabled = true;
+  updateSelCount();
+});
+
+function renderToCanvas(size){
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,size,size);
+
+  const mode = bgMode.value;
+  if(mode === 'white'){
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,size,size);
+  } else if(mode === 'custom'){
+    ctx.fillStyle = bgColorPicker.value;
+    ctx.fillRect(0,0,size,size);
+  }
+
+  const fit = document.getElementById('fitMode').value;
+  const iw = sourceImage.naturalWidth, ih = sourceImage.naturalHeight;
+
+  if(fit === 'stretch'){
+    ctx.drawImage(sourceImage, 0, 0, size, size);
+  } else if(fit === 'cover'){
+    const scale = Math.max(size/iw, size/ih);
+    const dw = iw*scale, dh = ih*scale;
+    ctx.drawImage(sourceImage, (size-dw)/2, (size-dh)/2, dw, dh);
+  } else { // contain
+    const scale = Math.min(size/iw, size/ih);
+    const dw = iw*scale, dh = ih*scale;
+    ctx.drawImage(sourceImage, (size-dw)/2, (size-dh)/2, dw, dh);
+  }
+  return canvas;
+}
+
+document.getElementById('generateBtn').addEventListener('click', async ()=>{
+  if(!sourceImage || selectedSizes.size===0) return;
+  const frames = document.getElementById('frames');
+  frames.innerHTML = '';
+  generatedBlobs = {};
+
+  const sizesSorted = [...selectedSizes].sort((a,b)=>a-b);
+  for(const size of sizesSorted){
+    const canvas = renderToCanvas(size);
+    const blob = await new Promise(res=>canvas.toBlob(res, 'image/png'));
+    generatedBlobs[size] = blob;
+    const preset = PRESETS.find(p=>p.size===size);
+
+    const frame = document.createElement('div');
+    frame.className = 'frame';
+    const url = URL.createObjectURL(blob);
+    frame.innerHTML = `
+      <div class="tag">${preset ? preset.tag : 'custom'}</div>
+      <div class="thumb-box"><img src="${url}" alt="${size}px"></div>
+      <div class="label">${size}×${size}</div>
+      <span class="dl">Download</span>
+    `;
+    frame.querySelector('.dl').addEventListener('click', ()=>{
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${sourceName}-${size}x${size}.png`;
+      a.click();
+    });
+    frames.appendChild(frame);
+  }
+
+  document.getElementById('sheetPanel').style.display = 'block';
+  document.getElementById('sheet').classList.add('show');
+  document.getElementById('downloadAllBtn').disabled = false;
+});
+
+document.getElementById('downloadAllBtn').addEventListener('click', async ()=>{
+  const zip = new JSZip();
+  const folder = zip.folder(sourceName + '-icons');
+  Object.entries(generatedBlobs).forEach(([size, blob])=>{
+    folder.file(`${sourceName}-${size}x${size}.png`, blob);
+  });
+  const content = await zip.generateAsync({type:'blob'});
+  const url = URL.createObjectURL(content);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${sourceName}-icon-pack.zip`;
+  a.click();
+});
+</script>
+</body>
+</html>
