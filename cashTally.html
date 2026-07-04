@@ -205,8 +205,8 @@
     #printArea thead{display:table-header-group;} /* repeat header on each printed page */
     #printArea tfoot{display:table-footer-group;}
     #printArea tr{page-break-inside:avoid;}
-    #printArea th,#printArea td{border:1px solid #bbb;padding:6px 8px;text-align:left;}
-    #printArea th{background:#efefef;font-weight:700;}
+    #printArea th,#printArea td{border:1px solid #bbb;padding:6px 8px;text-align:left;font-family:'Courier New',monospace;white-space:nowrap;}
+    #printArea th{background:#efefef;font-weight:700;font-family:Georgia,serif;}
     #printArea tbody tr:nth-child(even){background:#f7f7f7;}
     #printArea .p-total{
       margin-top:14px;padding-top:10px;border-top:2px solid #111;
@@ -538,8 +538,14 @@
 
     const theadCells = ["Date"].concat(cols.map(colLabel)).concat(["Total"]).map(c => `<th>${c}</th>`).join("");
     const bodyRows = rows.map(r => {
+      const denomCells = cols.map(key => {
+        const d = ALL_DENOMS.find(x => x.key === key);
+        const qty = r.breakdown[key] || 0;
+        if(!d || qty <= 0) return "–";
+        return `${d.value}×${qty}=${(d.value*qty).toLocaleString("en-IN")}`;
+      });
       const cells = [new Date(r.date).toLocaleString()]
-        .concat(cols.map(key => String(r.breakdown[key] || 0)))
+        .concat(denomCells)
         .concat(["₹"+r.total.toLocaleString("en-IN")]);
       return "<tr>" + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
     }).join("");
