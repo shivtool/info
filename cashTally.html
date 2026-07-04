@@ -306,29 +306,34 @@
 (function(){
   "use strict";
 
-  const NOTES = [2000,500,200,100,50,20,10];
-  const COINS = [20,10,5,2,1];
-  const ALL_DENOMS = [...NOTES, ...COINS];
+  // Unique key per row (type + value) — needed because ₹20 and ₹10 exist as
+  // BOTH a note and a coin, so the raw value alone can't identify a row.
+  const NOTE_VALUES = [2000,500,200,100,50,20,10];
+  const COIN_VALUES = [20,10,5,2,1];
+  const ALL_DENOMS = [
+    ...NOTE_VALUES.map(v => ({key:`note-${v}`, value:v, isCoin:false})),
+    ...COIN_VALUES.map(v => ({key:`coin-${v}`, value:v, isCoin:true}))
+  ];
 
   const $ = (id) => document.getElementById(id);
   const notesWrap = $("notesWrap"), coinsWrap = $("coinsWrap");
   const grandTotal = $("grandTotal"), pieceCount = $("pieceCount");
 
-  function buildRow(value, isCoin){
+  function buildRow(d){
     const row = document.createElement("div");
     row.className = "denom-row";
     row.innerHTML = `
-      <div class="denom-badge ${isCoin ? 'coin-shape':''}">₹${value}</div>
-      <div class="denom-name">${isCoin ? 'Coin' : 'Note'} × qty</div>
-      <input type="number" min="0" step="1" placeholder="0" data-value="${value}" class="qty-input">
-      <div class="denom-sub" data-sub="${value}">₹0</div>
-      <button class="denom-clear" data-clear="${value}" title="Clear this row">✕</button>
+      <div class="denom-badge ${d.isCoin ? 'coin-shape':''}">₹${d.value}</div>
+      <div class="denom-name">${d.isCoin ? 'Coin' : 'Note'} × qty</div>
+      <input type="number" min="0" step="1" placeholder="0" data-key="${d.key}" data-amount="${d.value}" class="qty-input">
+      <div class="denom-sub" data-sub="${d.key}">₹0</div>
+      <button class="denom-clear" data-clear="${d.key}" title="Clear this row">✕</button>
     `;
     return row;
   }
 
-  NOTES.forEach(v => notesWrap.appendChild(buildRow(v,false)));
-  COINS.forEach(v => coinsWrap.appendChild(buildRow(v,true)));
+  ALL_DENOMS.filter(d => !d.isCoin).forEach(d => notesWrap.appendChild(buildRow(d)));
+  ALL_DENOMS.filter(d => d.isCoin).forEach(d => coinsWrap.appendChild(buildRow(d)));
 
   function countUp(el, from, to, isCurrency){
     const dur = 450, start = performance.now();
@@ -348,13 +353,14 @@
     let total = 0, pieces = 0;
     const breakdown = {};
     document.querySelectorAll(".qty-input").forEach(inp => {
-      const value = Number(inp.dataset.value);
+      const key = inp.dataset.key;
+      const value = Number(inp.dataset.amount);
       const qty = Math.max(0, parseInt(inp.value) || 0);
       const sub = value * qty;
       total += sub;
       pieces += qty;
-      breakdown[value] = qty;
-      const subEl = document.querySelector(`.denom-sub[data-sub="${value}"]`);
+      breakdown[key] = qty;
+      const subEl = document.querySelector(`.denom-sub[data-sub="${key}"]`);
       subEl.textContent = "₹" + sub.toLocaleString("en-IN");
     });
     countUp(grandTotal, lastTotal, total, true);
@@ -369,7 +375,7 @@
   document.addEventListener("click", (e) => {
     const clr = e.target.closest("[data-clear]");
     if(clr){
-      const inp = document.querySelector(`.qty-input[data-value="${clr.dataset.clear}"]`);
+      const inp = document.querySelector(`.qty-input[data-key="${clr.dataset.clear}"]`);
       inp.value = "";
       recalc();
     }
@@ -436,7 +442,9 @@
   const historyList = $("historyList");
 
   function breakdownText(bd){
-    return ALL_DENOMS.filter(v => bd[v] > 0).map(v => `₹${v}×${bd[v]}`).join("  ·  ") || "No pieces";
+    return ALL_DENOMS.filter(d => bd[d.key] > 0)
+      .map(d => `₹${d.value}${d.isCoin ? "(coin)":""}×${bd[d.key]}`)
+      .join("  ·  ") || "No pieces";
   }
 
   async function renderHistory(filter){
@@ -504,10 +512,10 @@
   /* ============ PRINT CUSTOMIZATION ============ */
   const printModal = $("printModal");
   const colCheckGrid = $("colCheckGrid");
-  ALL_DENOMS.forEach(v => {
+  ALL_DENOMS.forEach(d => {
     const label = document.createElement("label");
     label.className = "check-item";
-    label.innerHTML = `<input type="checkbox" value="${v}" checked> ₹${v}`;
+    label.innerHTML = `<input type="checkbox" value="${d.key}" checked> ₹${d.value}${d.isCoin ? " (coin)":""}`;
     colCheckGrid.appendChild(label);
   });
 
@@ -518,16 +526,20 @@
     const title = $("printTitle").value || "Cash Denomination Tally";
     const fromDate = $("printFrom").value ? new Date($("printFrom").value) : null;
     const toDate = $("printTo").value ? new Date($("printTo").value+"T23:59:59") : null;
-    const cols = Array.from(colCheckGrid.querySelectorAll("input:checked")).map(c => Number(c.value));
+    const cols = Array.from(colCheckGrid.querySelectorAll("input:checked")).map(c => c.value);
+    const colLabel = (key) => {
+      const d = ALL_DENOMS.find(d => d.key === key);
+      return d ? `₹${d.value}${d.isCoin ? " (coin)":""}` : key;
+    };
 
     let rows = await dbGetAll();
     if(fromDate) rows = rows.filter(r => new Date(r.date) >= fromDate);
     if(toDate) rows = rows.filter(r => new Date(r.date) <= toDate);
 
-    const theadCells = ["Date"].concat(cols.map(c => "₹"+c)).concat(["Total"]).map(c => `<th>${c}</th>`).join("");
+    const theadCells = ["Date"].concat(cols.map(colLabel)).concat(["Total"]).map(c => `<th>${c}</th>`).join("");
     const bodyRows = rows.map(r => {
       const cells = [new Date(r.date).toLocaleString()]
-        .concat(cols.map(c => String(r.breakdown[c] || 0)))
+        .concat(cols.map(key => String(r.breakdown[key] || 0)))
         .concat(["₹"+r.total.toLocaleString("en-IN")]);
       return "<tr>" + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
     }).join("");
