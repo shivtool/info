@@ -1,463 +1,841 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="SHIV.png">
-    <title>सूरजमुखी - माउस फॉलो</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #87CEEB 0%, #98D8C8 50%, #90EE90 100%);
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="SHIV.png">
+<title>सूरजमुखी रक्षक | SHIV COMPUTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#5EC1FF;
+    --sky-mid:#9BDCF0;
+    --sky-bottom:#FFE8B0;
+    --sun-glow:#FFD93D;
+    --petal-gold:#FFCB3D;
+    --petal-gold-deep:#FF9F1C;
+    --seed-brown:#6B4423;
+    --seed-brown-dark:#3F2712;
+    --leaf-green:#4C9A2A;
+    --leaf-green-deep:#2E6B1B;
+    --hill-back:#8FCB77;
+    --hill-front:#6BAE52;
+    --danger:#E8544A;
+    --danger-deep:#B23A32;
+    --cream:#FFF8E7;
+    --ink:#3B2A16;
+    --shadow-soft: 0 10px 24px rgba(59,42,22,0.25);
+  }
 
-        .container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-        }
+  *{ box-sizing:border-box; }
 
-        .sunflower {
-            position: absolute;
-            width: 300px;
-            height: 400px;
-            left: 50%;
-            top: 50%;
-            transform-origin: 50% 80%;
-            transition: transform 0.3s ease-out;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-            background: none;
-            cursor: pointer;
-        }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    overflow:hidden;
+    font-family:'Mukta', sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    touch-action:none;
+  }
 
-        .petal {
-            position: absolute;
-            width: 50px;
-            height: 70px;
-            pointer-events: none;
-            animation: fall var(--fall-duration) ease-out forwards;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-            transform-style: preserve-3d;
-        }
-        
-        .petal::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #FFD700 0%, #FFC700 40%, #FFB000 60%, #FFA500 100%);
-            border-radius: 50% 50% 20% 20% / 70% 70% 30% 30%;
-            box-shadow: inset -2px -2px 8px rgba(0,0,0,0.1),
-                        inset 2px 2px 8px rgba(255,255,255,0.4);
-        }
-        
-        .petal::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 40%;
-            background: linear-gradient(to bottom, rgba(139,69,19,0.3), transparent);
-            left: 50%;
-            top: 20%;
-            transform: translateX(-50%);
-        }
+  .scene{
+    position:relative;
+    width:100vw; height:100vh;
+    background:
+      radial-gradient(120px 120px at 85% 12%, var(--sun-glow) 0%, rgba(255,217,61,0.35) 55%, rgba(255,217,61,0) 75%),
+      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+  }
 
-        .leaf {
-            position: absolute;
-            width: 60px;
-            height: 80px;
-            pointer-events: none;
-            animation: fall var(--fall-duration) ease-out forwards;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-            transform-style: preserve-3d;
-        }
-        
-        .leaf::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #228B22 0%, #32CD32 30%, #2E8B57 70%, #006400 100%);
-            border-radius: 50% 0% 50% 0%;
-            box-shadow: inset -2px -2px 8px rgba(0,0,0,0.2),
-                        inset 2px 2px 8px rgba(255,255,255,0.3);
-        }
-        
-        .leaf::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 70%;
-            background: linear-gradient(to bottom, rgba(139,69,19,0.4), transparent);
-            left: 50%;
-            top: 10%;
-            transform: translateX(-50%);
-        }
+  /* ---------- Ambient background ---------- */
+  .cloud{
+    position:absolute; top:8%;
+    background: rgba(255,255,255,0.85);
+    border-radius:50px;
+    filter: blur(0.5px);
+    animation: drift linear infinite;
+    opacity:0.9;
+  }
+  .cloud::before, .cloud::after{
+    content:''; position:absolute; background:inherit; border-radius:50%;
+  }
+  .cloud1{ width:110px; height:34px; top:10%; animation-duration:55s; }
+  .cloud1::before{ width:60px; height:60px; top:-30px; left:10px; }
+  .cloud1::after{ width:45px; height:45px; top:-20px; left:55px; }
+  .cloud2{ width:80px; height:26px; top:20%; animation-duration:70s; animation-delay:-20s; }
+  .cloud2::before{ width:44px; height:44px; top:-22px; left:8px; }
+  .cloud2::after{ width:34px; height:34px; top:-14px; left:40px; }
+  .cloud3{ width:130px; height:36px; top:6%; animation-duration:85s; animation-delay:-45s; }
+  .cloud3::before{ width:66px; height:66px; top:-34px; left:14px; }
+  .cloud3::after{ width:50px; height:50px; top:-22px; left:66px; }
 
-        .wither {
-            animation: wither 2s ease-out forwards;
-        }
+  @keyframes drift{
+    from{ transform: translateX(-20vw); }
+    to{ transform: translateX(120vw); }
+  }
 
-        @keyframes wither {
-            0% {
-                filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)) grayscale(0) brightness(1);
-                transform: translate(-50%, -50%) rotate(var(--current-rotation)) scale(1);
-            }
-            50% {
-                filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)) grayscale(0.5) brightness(0.7);
-                transform: translate(-50%, -50%) rotate(var(--current-rotation)) scale(0.9);
-            }
-            100% {
-                filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1)) grayscale(1) brightness(0.5);
-                transform: translate(-50%, 100vh) rotate(calc(var(--current-rotation) + 180deg)) scale(0.6);
-                opacity: 0;
-            }
-        }
+  .hills{
+    position:absolute; left:0; right:0; bottom:0; width:100%;
+    pointer-events:none;
+  }
+  .hill{
+    position:absolute; bottom:-40px; left:-10%; width:120%; height:160px;
+    border-radius:50% 50% 0 0 / 100% 100% 0 0;
+  }
+  .hill-back{ background:var(--hill-back); bottom:-10px; height:130px; opacity:0.9; }
+  .hill-front{ background:var(--hill-front); bottom:-40px; height:120px; }
 
-        @keyframes fall {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--fall-x), var(--fall-y)) rotateX(var(--fall-rotateX)) rotateZ(var(--fall-rotate)) scale(0.6);
-            }
-        }
+  .pollen{
+    position:absolute; bottom:0; border-radius:50%;
+    background: rgba(255,255,255,0.7);
+    animation: rise linear infinite;
+    pointer-events:none;
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:0.8; }
+    100%{ transform:translateY(-110vh) translateX(20px); opacity:0; }
+  }
 
-        .info {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            text-align: center;
-            background: rgba(0,0,0,0.5);
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-        }
+  /* ---------- HUD ---------- */
+  .hud{
+    position:absolute; top:0; left:0; right:0;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding:12px 16px;
+    z-index:30;
+    font-family:'Baloo 2', sans-serif;
+  }
+  .hud-group{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{
+    background: rgba(255,248,231,0.92);
+    border: 2px solid rgba(107,68,35,0.25);
+    box-shadow: var(--shadow-soft);
+    border-radius: 14px;
+    padding:6px 14px;
+    font-weight:700;
+    font-size:15px;
+    display:flex; align-items:center; gap:6px;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .chip .val{ color:var(--petal-gold-deep); font-size:17px; }
+  #livesChip .heart{ filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
+  #comboToast{
+    position:absolute; left:50%; top:64px; transform:translateX(-50%) translateY(-10px);
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px;
+    color:#fff; text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    background: linear-gradient(135deg, var(--petal-gold-deep), var(--danger));
+    padding:6px 18px; border-radius:20px;
+    opacity:0; pointer-events:none; z-index:31;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  #comboToast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-        .shake {
-            animation: shake 0.5s;
-        }
+  .icon-btn{
+    background: rgba(255,248,231,0.92);
+    border: 2px solid rgba(107,68,35,0.25);
+    box-shadow: var(--shadow-soft);
+    border-radius: 14px;
+    width:42px; height:42px;
+    font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:active{ transform: scale(0.94); }
 
-        @keyframes shake {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            25% { transform: translate(-50%, -50%) rotate(-5deg); }
-            75% { transform: translate(-50%, -50%) rotate(5deg); }
-        }
-    </style>
+  /* ---------- Game area ---------- */
+  .game-area{
+    position:absolute; inset:0;
+    overflow:hidden;
+  }
+  .game-area.shake{ animation: shakeScreen 0.4s; }
+  @keyframes shakeScreen{
+    0%,100%{ transform:translate(0,0); }
+    20%{ transform:translate(-8px,4px); }
+    40%{ transform:translate(7px,-5px); }
+    60%{ transform:translate(-6px,-3px); }
+    80%{ transform:translate(5px,5px); }
+  }
+
+  .fall-obj{
+    position:absolute;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+    will-change: transform;
+  }
+  .fall-obj.pest{ font-size:34px; }
+  .fall-obj.bee{ font-size:32px; }
+  .fall-obj.sun{
+    width:38px; height:38px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #FFF6C9, var(--sun-glow) 45%, var(--petal-gold-deep) 100%);
+    box-shadow: 0 0 16px 4px rgba(255,217,61,0.75), inset 0 0 8px rgba(255,255,255,0.6);
+    animation: sunPulse 1.1s ease-in-out infinite;
+  }
+  @keyframes sunPulse{
+    0%,100%{ transform: scale(1); }
+    50%{ transform: scale(1.12); }
+  }
+
+  .float-text{
+    position:absolute; font-family:'Baloo 2', sans-serif; font-weight:800;
+    pointer-events:none; z-index:25;
+    animation: floatUp 0.9s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{ opacity:1; transform: translateY(0) scale(1); }
+    100%{ opacity:0; transform: translateY(-55px) scale(1.15); }
+  }
+
+  .burst-piece{
+    position:absolute; width:10px; height:16px; border-radius:50%;
+    pointer-events:none; z-index:24;
+    animation: burstOut 0.55s ease-out forwards;
+  }
+  @keyframes burstOut{
+    0%{ opacity:1; transform: translate(0,0) rotate(0deg) scale(1); }
+    100%{ opacity:0; transform: translate(var(--bx), var(--by)) rotate(var(--br)) scale(0.4); }
+  }
+
+  .shot-petal{
+    position:absolute; width:14px; height:22px; border-radius:50% 50% 40% 40%;
+    background: linear-gradient(135deg, #FFE28A, var(--petal-gold-deep));
+    pointer-events:none; z-index:26;
+    transition: left 0.16s linear, top 0.16s linear, transform 0.16s linear;
+  }
+
+  /* ---------- Sunflower ---------- */
+  .flower-wrap{
+    position:absolute;
+    left:50%; bottom:6%;
+    transform:translateX(-50%);
+    width:260px; height:340px;
+    z-index:20;
+    pointer-events:none;
+  }
+  .stem{
+    position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+    width:14px; height:170px;
+    background: linear-gradient(180deg, var(--leaf-green), var(--leaf-green-deep));
+    border-radius: 8px;
+    box-shadow: inset -3px 0 4px rgba(0,0,0,0.15);
+  }
+  .leaf-css{
+    position:absolute; width:70px; height:38px;
+    background: linear-gradient(135deg, #63B93A, var(--leaf-green-deep));
+    border-radius: 0 100% 0 100%;
+    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.2);
+    animation: sway 3.2s ease-in-out infinite;
+  }
+  .leaf-left{ left:50%; bottom:75px; transform-origin: right center; margin-left:-72px; animation-delay:0s;}
+  .leaf-right{ left:50%; bottom:110px; transform: scaleX(-1); transform-origin: left center; margin-left:6px; animation-delay:1.1s; }
+  @keyframes sway{
+    0%,100%{ transform: rotate(0deg); }
+    50%{ transform: rotate(6deg); }
+  }
+  .leaf-right{ animation-name: swayR; }
+  @keyframes swayR{
+    0%,100%{ transform: scaleX(-1) rotate(0deg); }
+    50%{ transform: scaleX(-1) rotate(6deg); }
+  }
+
+  .head-pivot{
+    position:absolute; left:50%; bottom:210px; transform:translate(-50%, 0);
+    width:2px; height:2px;
+  }
+  .sunflower-head{
+    position:absolute; left:0; top:0; transform: translate(-50%,-50%) rotate(0deg);
+    width:210px; height:210px;
+    transition: transform 0.18s ease-out;
+    pointer-events:auto;
+  }
+  .sunflower-head.wither{
+    animation: witherAnim 1.8s ease-in forwards;
+  }
+  @keyframes witherAnim{
+    0%{ filter: grayscale(0) brightness(1); }
+    100%{ filter: grayscale(0.9) brightness(0.6); transform: translate(-50%,-40%) rotate(var(--rot)) scale(0.85); opacity:0.7; }
+  }
+
+  .petal-ring{ position:absolute; left:50%; top:50%; width:0; height:0; }
+  .head-petal{
+    position:absolute; left:0; top:0;
+    width:34px; height:92px;
+    margin:-46px 0 0 -17px;
+    border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+    background: linear-gradient(180deg, #FFE28A 0%, var(--petal-gold) 45%, var(--petal-gold-deep) 100%);
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.12), inset 3px 3px 6px rgba(255,255,255,0.35);
+  }
+  .seed-glow{
+    position:absolute; left:50%; top:50%; width:110px; height:110px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(255,217,61,0.55), rgba(255,217,61,0) 70%);
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ transform:translate(-50%,-50%) scale(1); }
+    50%{ transform:translate(-50%,-50%) scale(1.08); }
+  }
+  .seed-center{
+    position:absolute; left:50%; top:50%; width:88px; height:88px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:
+      repeating-conic-gradient(var(--seed-brown-dark) 0deg 6deg, var(--seed-brown) 6deg 12deg);
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.45), 0 3px 6px rgba(0,0,0,0.3);
+  }
+  .face{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-58%);
+    display:flex; gap:14px; z-index:2;
+  }
+  .eye{ width:9px; height:11px; background:#2A1B0E; border-radius:50%; }
+  .smile{
+    position:absolute; left:50%; top:56%; transform:translate(-50%,0);
+    width:26px; height:12px; border-bottom:4px solid #2A1B0E; border-radius:0 0 50% 50%;
+  }
+
+  /* ---------- Overlays ---------- */
+  .overlay{
+    position:absolute; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(59,42,22,0.55);
+    backdrop-filter: blur(2px);
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background: var(--cream);
+    border-radius:22px;
+    padding:34px 30px;
+    max-width:min(420px, 88vw);
+    text-align:center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    border: 3px solid rgba(107,68,35,0.2);
+  }
+  .panel h1{
+    font-family:'Baloo 2', sans-serif; font-size:30px; margin:0 0 6px;
+    color:var(--seed-brown-dark);
+  }
+  .panel p{ font-size:15px; line-height:1.6; color:#5C4225; margin:6px 0 18px; }
+  .panel .legend{
+    display:flex; justify-content:center; gap:18px; margin-bottom:20px; flex-wrap:wrap;
+    font-size:14px; font-weight:600;
+  }
+  .panel .legend span{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:22px; }
+  .panel .legend small{ font-size:12px; font-weight:500; color:#6b543a; }
+
+  .btn{
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:19px;
+    color:#fff; border:none; cursor:pointer;
+    padding:13px 34px; border-radius:16px;
+    background: linear-gradient(135deg, var(--petal-gold), var(--petal-gold-deep));
+    box-shadow: 0 8px 0 var(--seed-brown-dark), 0 12px 18px rgba(0,0,0,0.3);
+    transition: transform 0.08s ease;
+  }
+  .btn:active{ transform: translateY(6px); box-shadow: 0 2px 0 var(--seed-brown-dark), 0 6px 10px rgba(0,0,0,0.25); }
+  .btn.secondary{
+    background: linear-gradient(135deg, #8FCB77, var(--leaf-green-deep));
+    box-shadow: 0 8px 0 #1f4a12, 0 12px 18px rgba(0,0,0,0.3);
+    margin-top:10px; font-size:16px; padding:10px 26px;
+  }
+  .btn.secondary:active{ box-shadow: 0 2px 0 #1f4a12, 0 6px 10px rgba(0,0,0,0.25); }
+
+  .score-line{ font-family:'Baloo 2',sans-serif; font-size:20px; margin:10px 0; }
+  .score-line b{ color:var(--petal-gold-deep); font-size:26px; }
+  .new-best{
+    display:inline-block; margin-top:6px; font-size:13px; font-weight:700;
+    color:#fff; background:var(--danger); padding:4px 12px; border-radius:10px;
+  }
+
+  .brand-tag{
+    position:absolute; bottom:8px; right:12px; z-index:60;
+    font-family:'Baloo 2',sans-serif; font-size:11px; letter-spacing:0.5px;
+    color: rgba(59,42,22,0.55);
+  }
+
+  @media (max-width: 560px){
+    .flower-wrap{ width:190px; height:250px; }
+    .sunflower-head{ width:160px; height:160px; }
+    .head-petal{ width:26px; height:70px; margin:-35px 0 0 -13px; }
+    .seed-center, .seed-glow{ width:70px; height:70px; }
+    .stem{ height:120px; }
+    .head-pivot{ bottom:150px; }
+    .chip{ font-size:13px; padding:5px 10px; }
+    .panel{ padding:26px 20px; }
+    .panel h1{ font-size:24px; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <img src="flow.png" 
-             class="sunflower" 
-             id="sunflower" 
-             alt="सूरजमुखी का फूल">
+  <div class="scene" id="scene">
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+    <div id="pollenLayer"></div>
+
+    <div class="hills">
+      <div class="hill hill-back"></div>
+      <div class="hill hill-front"></div>
     </div>
-    <div class="info">
-        🌻 माउस को घुमाएं और देखें सूरजमुखी को फॉलो करते हुए!<br>
-        💐 फूल पर क्लिक करें और पंखुड़ियाँ झड़ते देखें! 💐
+
+    <div class="hud">
+      <div class="hud-group">
+        <div class="chip">🌻 अंक: <span class="val" id="scoreVal">0</span></div>
+        <div class="chip">📈 स्तर: <span class="val" id="levelVal">1</span></div>
+        <div class="chip" id="livesChip">❤️❤️❤️</div>
+      </div>
+      <button class="icon-btn" id="pauseBtn" title="रोकें">⏸</button>
+    </div>
+    <div id="comboToast"></div>
+
+    <div class="game-area" id="gameArea">
+
+      <div class="flower-wrap" id="flowerWrap">
+        <div class="stem"></div>
+        <div class="leaf-css leaf-left"></div>
+        <div class="leaf-css leaf-right"></div>
+        <div class="head-pivot" id="headPivot">
+          <div class="sunflower-head" id="sunflowerHead">
+            <div class="seed-glow"></div>
+            <div class="petal-ring" id="petalRing"></div>
+            <div class="seed-center"></div>
+            <div class="face">
+              <div class="eye"></div>
+              <div class="eye"></div>
+            </div>
+            <div class="smile"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <script>
-        const sunflower = document.getElementById('sunflower');
-        const container = document.querySelector('.container');
-        let currentRotation = 0;
+    <!-- Start screen -->
+    <div class="overlay" id="startScreen">
+      <div class="panel">
+        <h1>🌻 सूरजमुखी रक्षक 🌻</h1>
+        <p>कीड़ों को समय पर मार भगाओ, वरना सूरजमुखी को नुकसान होगा!<br>
+           सूरज की किरणें और मधुमक्खियाँ पकड़ कर अंक बटोरो।</p>
+        <div class="legend">
+          <span>🐛<small>कीड़ा – मारो!</small></span>
+          <span>☀️<small>किरण – पकड़ो</small></span>
+          <span>🐝<small>मधुमक्खी – बोनस</small></span>
+        </div>
+        <button class="btn" id="startBtn">▶ खेल शुरू करें</button>
+        <div style="margin-top:14px; font-size:12px; color:#8a6f50;">माउस/उंगली से निशाना लगाएँ और टैप/क्लिक करें</div>
+      </div>
+    </div>
 
-        // ऑडियो कॉन्टेक्ट बनाएं (झड़ने की आवाज के लिए)
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // बहुत हल्की और मधुर पंखुड़ी की आवाज
-        function playPetalSound() {
-            const now = audioContext.currentTime;
-            
-            // बहुत soft घंटी जैसी आवाज
-            [1, 2].forEach((harmonic, index) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600 * harmonic, now);
-                osc.frequency.exponentialRampToValueAtTime(400 * harmonic, now + 0.4);
-                
-                gain.gain.setValueAtTime(0.015 / (index + 1), now);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-                
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                
-                osc.start(now);
-                osc.stop(now + 0.4);
-            });
+    <!-- Pause screen -->
+    <div class="overlay hidden" id="pauseScreen">
+      <div class="panel">
+        <h1>⏸ रुका हुआ खेल</h1>
+        <p>जब तैयार हों, जारी रखें।</p>
+        <button class="btn" id="resumeBtn">▶ जारी रखें</button>
+      </div>
+    </div>
+
+    <!-- Game over screen -->
+    <div class="overlay hidden" id="gameOverScreen">
+      <div class="panel">
+        <h1>🥀 खेल समाप्त</h1>
+        <div class="score-line">अंतिम अंक: <b id="finalScore">0</b></div>
+        <div class="score-line" style="font-size:16px;">सर्वश्रेष्ठ अंक: <b id="bestScore">0</b></div>
+        <div id="newBestBadge" class="new-best" style="display:none;">🏆 नया रिकॉर्ड!</div>
+        <div><button class="btn" id="restartBtn">🔄 फिर से खेलें</button></div>
+      </div>
+    </div>
+
+    <div class="brand-tag">SHIV COMPUTER</div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Elements ----------
+  const scene = document.getElementById('scene');
+  const gameArea = document.getElementById('gameArea');
+  const flowerWrap = document.getElementById('flowerWrap');
+  const headPivot = document.getElementById('headPivot');
+  const sunflowerHead = document.getElementById('sunflowerHead');
+  const petalRing = document.getElementById('petalRing');
+  const pollenLayer = document.getElementById('pollenLayer');
+
+  const scoreVal = document.getElementById('scoreVal');
+  const levelVal = document.getElementById('levelVal');
+  const livesChip = document.getElementById('livesChip');
+  const comboToast = document.getElementById('comboToast');
+  const pauseBtn = document.getElementById('pauseBtn');
+
+  const startScreen = document.getElementById('startScreen');
+  const startBtn = document.getElementById('startBtn');
+  const pauseScreen = document.getElementById('pauseScreen');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const gameOverScreen = document.getElementById('gameOverScreen');
+  const restartBtn = document.getElementById('restartBtn');
+  const finalScoreEl = document.getElementById('finalScore');
+  const bestScoreEl = document.getElementById('bestScore');
+  const newBestBadge = document.getElementById('newBestBadge');
+
+  const HIGH_SCORE_KEY = 'sunflowerGuardianHighScore';
+
+  // ---------- Build flower head petals ----------
+  const PETAL_COUNT = 14;
+  for(let i=0;i<PETAL_COUNT;i++){
+    const deg = (360/PETAL_COUNT)*i;
+    const p = document.createElement('div');
+    p.className = 'head-petal';
+    p.style.transform = `rotate(${deg}deg) translateY(-64px)`;
+    petalRing.appendChild(p);
+  }
+
+  // ---------- Ambient pollen particles ----------
+  for(let i=0;i<14;i++){
+    const d = document.createElement('div');
+    d.className = 'pollen';
+    const size = 3 + Math.random()*4;
+    d.style.width = size+'px';
+    d.style.height = size+'px';
+    d.style.left = (Math.random()*100)+'vw';
+    d.style.animationDuration = (10+Math.random()*12)+'s';
+    d.style.animationDelay = (-Math.random()*20)+'s';
+    pollenLayer.appendChild(d);
+  }
+
+  // ---------- Audio ----------
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } else if(audioCtx.state === 'suspended'){
+      audioCtx.resume();
+    }
+  }
+  function tone(freq, dur, type, gainStart, freqEnd){
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+    if(freqEnd){ osc.frequency.exponentialRampToValueAtTime(freqEnd, now+dur); }
+    gain.gain.setValueAtTime(gainStart, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now+dur);
+  }
+  function sndShoot(){ tone(700,0.09,'triangle',0.05,500); }
+  function sndPestPop(){ tone(220,0.18,'square',0.05,120); }
+  function sndCatch(){ tone(900,0.22,'sine',0.05,1300); }
+  function sndBee(){ tone(1100,0.25,'sine',0.06,1600); setTimeout(()=>tone(1400,0.18,'sine',0.05,1800),70); }
+  function sndHurt(){ tone(300,0.35,'sawtooth',0.06,90); }
+  function sndLevelUp(){ tone(500,0.15,'sine',0.05,900); setTimeout(()=>tone(700,0.2,'sine',0.05,1100),120); }
+  function sndGameOver(){ tone(400,0.5,'sine',0.06,80); setTimeout(()=>tone(300,0.6,'sine',0.05,60),200); }
+
+  // ---------- Game state ----------
+  let score = 0, lives = 3, level = 1, combo = 0;
+  let lastHitTime = 0;
+  const COMBO_WINDOW = 2500;
+  let running = false, paused = false;
+  let objects = [];
+  let objIdCounter = 0;
+  let spawnAcc = 0;
+  let lastTime = 0;
+  let rafId = null;
+  let groundY = 0; // y coordinate treated as "reaches the flower"
+
+  function computeGround(){
+    const rect = gameArea.getBoundingClientRect();
+    groundY = rect.height - 190;
+  }
+  window.addEventListener('resize', computeGround);
+
+  // ---------- Mouse / touch aim (cosmetic head tracking) ----------
+  function pointToward(clientX, clientY){
+    const rect = headPivot.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const angle = Math.atan2(clientY - cy, clientX - cx);
+    const deg = angle*(180/Math.PI) + 90;
+    sunflowerHead.style.transform = `translate(-50%,-50%) rotate(${deg}deg)`;
+    sunflowerHead.dataset.rot = deg;
+  }
+  document.addEventListener('pointermove', (e)=>{
+    if(!running || paused) return;
+    pointToward(e.clientX, e.clientY);
+  });
+
+  // ---------- HUD update ----------
+  function updateHUD(){
+    scoreVal.textContent = score;
+    levelVal.textContent = level;
+    livesChip.textContent = '❤️'.repeat(Math.max(lives,0)) + '🖤'.repeat(Math.max(3-lives,0));
+  }
+
+  function showCombo(mult){
+    if(combo < 2) return;
+    comboToast.textContent = `🔥 कॉम्बो x${combo}  (+${mult.toFixed(1)}×)`;
+    comboToast.classList.add('show');
+    clearTimeout(showCombo._t);
+    showCombo._t = setTimeout(()=>comboToast.classList.remove('show'), 700);
+  }
+
+  function floatText(x, y, text, color){
+    const el = document.createElement('div');
+    el.className = 'float-text';
+    el.textContent = text;
+    el.style.left = x+'px';
+    el.style.top = y+'px';
+    el.style.fontSize = '20px';
+    el.style.color = color || '#FF9F1C';
+    gameArea.appendChild(el);
+    setTimeout(()=>el.remove(), 950);
+  }
+
+  function burst(x, y, color){
+    const n = 8;
+    for(let i=0;i<n;i++){
+      const piece = document.createElement('div');
+      piece.className = 'burst-piece';
+      piece.style.left = x+'px';
+      piece.style.top = y+'px';
+      piece.style.background = color;
+      const ang = (Math.PI*2*i)/n + Math.random()*0.3;
+      const dist = 30 + Math.random()*30;
+      piece.style.setProperty('--bx', Math.cos(ang)*dist + 'px');
+      piece.style.setProperty('--by', Math.sin(ang)*dist + 'px');
+      piece.style.setProperty('--br', (Math.random()*360)+'deg');
+      gameArea.appendChild(piece);
+      setTimeout(()=>piece.remove(), 600);
+    }
+  }
+
+  function shootPetal(targetX, targetY, cb){
+    const headRect = sunflowerHead.getBoundingClientRect();
+    const areaRect = gameArea.getBoundingClientRect();
+    const startX = headRect.left + headRect.width/2 - areaRect.left;
+    const startY = headRect.top + headRect.height/2 - areaRect.top;
+    const petal = document.createElement('div');
+    petal.className = 'shot-petal';
+    petal.style.left = startX+'px';
+    petal.style.top = startY+'px';
+    gameArea.appendChild(petal);
+    sndShoot();
+    requestAnimationFrame(()=>{
+      petal.style.left = (targetX-7)+'px';
+      petal.style.top = (targetY-11)+'px';
+    });
+    setTimeout(()=>{
+      petal.remove();
+      if(cb) cb();
+    }, 170);
+  }
+
+  // ---------- Combo handling ----------
+  function registerHit(){
+    const now = performance.now();
+    if(now - lastHitTime > COMBO_WINDOW){ combo = 0; }
+    combo += 1;
+    lastHitTime = now;
+    return 1 + Math.min(Math.floor(combo/3), 4)*0.5;
+  }
+  function breakCombo(){ combo = 0; }
+
+  // ---------- Object spawning ----------
+  const PEST_EMOJI = ['🐛','🪲','🦗'];
+  function spawnObject(){
+    const areaRect = gameArea.getBoundingClientRect();
+    const roll = Math.random();
+    let type;
+    if(roll < 0.52) type = 'pest';
+    else if(roll < 0.87) type = 'sun';
+    else type = 'bee';
+
+    const el = document.createElement('div');
+    el.className = 'fall-obj ' + type;
+    if(type==='pest'){
+      el.textContent = PEST_EMOJI[Math.floor(Math.random()*PEST_EMOJI.length)];
+    } else if(type==='bee'){
+      el.textContent = '🐝';
+    }
+    const margin = 30;
+    const x = margin + Math.random()*(areaRect.width - margin*2);
+    el.style.left = x+'px';
+    el.style.top = '-40px';
+    gameArea.appendChild(el);
+
+    const speed = (70 + (level-1)*11 + Math.random()*35); // px per second
+    const obj = { id: ++objIdCounter, el, x, y:-40, speed, type, removed:false };
+
+    function onHit(ev){
+      if(ev) ev.stopPropagation();
+      if(!running || paused || obj.removed) return;
+      obj.removed = true;
+      const rect = el.getBoundingClientRect();
+      const gRect = gameArea.getBoundingClientRect();
+      const hitX = rect.left + rect.width/2 - gRect.left;
+      const hitY = rect.top + rect.height/2 - gRect.top;
+      el.remove();
+      objects = objects.filter(o=>o.id!==obj.id);
+
+      const mult = registerHit();
+      let base = 5, color = '#8FCB77', label = '+';
+      if(type==='sun'){ base = 10; color = '#FFA500'; }
+      if(type==='bee'){ base = 25; color = '#FFC933'; }
+      const gained = Math.round(base*mult);
+      score += gained;
+
+      shootPetal(hitX, hitY, ()=>{
+        burst(hitX, hitY, type==='pest' ? '#B23A32' : '#FFCB3D');
+        floatText(hitX-10, hitY-10, '+'+gained, color);
+        if(type==='pest') sndPestPop();
+        else if(type==='bee') sndBee();
+        else sndCatch();
+      });
+
+      showCombo(mult);
+      updateHUD();
+      checkLevelUp();
+    }
+    el.addEventListener('pointerdown', onHit);
+
+    objects.push(obj);
+  }
+
+  function checkLevelUp(){
+    const newLevel = Math.floor(score/150)+1;
+    if(newLevel > level){
+      level = newLevel;
+      sndLevelUp();
+      updateHUD();
+    }
+  }
+
+  // ---------- Main loop ----------
+  function spawnIntervalMs(){
+    return Math.max(430, 1250 - (level-1)*80);
+  }
+
+  function loop(ts){
+    if(!running){ return; }
+    if(!lastTime) lastTime = ts;
+    const dt = ts - lastTime;
+    lastTime = ts;
+
+    if(!paused){
+      spawnAcc += dt;
+      const interval = spawnIntervalMs();
+      if(spawnAcc >= interval){
+        spawnAcc = 0;
+        spawnObject();
+      }
+
+      for(let i=objects.length-1; i>=0; i--){
+        const o = objects[i];
+        if(o.removed) continue;
+        o.y += o.speed * (dt/1000);
+        o.el.style.top = o.y + 'px';
+
+        if(o.y >= groundY){
+          o.removed = true;
+          o.el.remove();
+          objects.splice(i,1);
+          breakCombo();
+          if(o.type === 'pest'){
+            loseLife();
+          }
         }
-        
-        // बहुत हल्की हवा की आवाज
-        function playWindSound() {
-            const now = audioContext.currentTime;
-            const bufferSize = audioContext.sampleRate * 1;
-            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-            const data = buffer.getChannelData(0);
-            
-            // बहुत soft नॉइज़
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() - 0.5) * 0.05;
-            }
-            
-            const noise = audioContext.createBufferSource();
-            noise.buffer = buffer;
-            
-            const filter1 = audioContext.createBiquadFilter();
-            filter1.type = 'lowpass';
-            filter1.frequency.setValueAtTime(600, now);
-            filter1.Q.value = 0.5;
-            
-            const filter2 = audioContext.createBiquadFilter();
-            filter2.type = 'highpass';
-            filter2.frequency.setValueAtTime(200, now);
-            
-            const gainNode = audioContext.createGain();
-            gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.02, now + 0.2);
-            gainNode.gain.linearRampToValueAtTime(0.02, now + 0.6);
-            gainNode.gain.linearRampToValueAtTime(0.0001, now + 1);
-            
-            noise.connect(filter1);
-            filter1.connect(filter2);
-            filter2.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            noise.start(now);
-            noise.stop(now + 1);
-        }
-        
-        // बहुत धीमी मुरझाने की आवाज
-        function playWitherSound() {
-            const now = audioContext.currentTime;
-            
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(200, now);
-            osc.frequency.exponentialRampToValueAtTime(120, now + 1.5);
-            
-            gain.gain.setValueAtTime(0.025, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
-            
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            osc.start(now);
-            osc.stop(now + 1.5);
-        }
-        
-        // बहुत हल्की पत्तियों की आवाज
-        function playLeafSound() {
-            const now = audioContext.currentTime;
-            
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(500, now);
-            osc.frequency.exponentialRampToValueAtTime(300, now + 0.3);
-            
-            gain.gain.setValueAtTime(0.01, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
-            
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            osc.start(now);
-            osc.stop(now + 0.3);
-        }
+      }
+    }
 
-        document.addEventListener('mousemove', (e) => {
-            const containerRect = container.getBoundingClientRect();
-            const centerX = containerRect.left + containerRect.width / 2;
-            const centerY = containerRect.top + containerRect.height / 2;
+    rafId = requestAnimationFrame(loop);
+  }
 
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
+  function loseLife(){
+    lives -= 1;
+    sndHurt();
+    gameArea.classList.remove('shake');
+    void gameArea.offsetWidth;
+    gameArea.classList.add('shake');
+    updateHUD();
+    if(lives <= 0){
+      gameOver();
+    }
+  }
 
-            const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
-            const degrees = angle * (180 / Math.PI) + 90;
-            currentRotation = degrees;
+  // ---------- Game control ----------
+  function resetState(){
+    score = 0; lives = 3; level = 1; combo = 0; lastHitTime = 0;
+    spawnAcc = 0; lastTime = 0;
+    objects.forEach(o=>o.el.remove());
+    objects = [];
+    updateHUD();
+    sunflowerHead.classList.remove('wither');
+    sunflowerHead.style.opacity = '1';
+  }
 
-            sunflower.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
-        });
+  function startGame(){
+    ensureAudio();
+    computeGround();
+    resetState();
+    running = true; paused = false;
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    pauseScreen.classList.add('hidden');
+    lastTime = 0;
+    rafId = requestAnimationFrame(loop);
+  }
 
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const containerRect = container.getBoundingClientRect();
-            const centerX = containerRect.left + containerRect.width / 2;
-            const centerY = containerRect.top + containerRect.height / 2;
+  function gameOver(){
+    running = false;
+    cancelAnimationFrame(rafId);
+    sndGameOver();
+    sunflowerHead.style.setProperty('--rot', (sunflowerHead.dataset.rot||0)+'deg');
+    sunflowerHead.classList.add('wither');
 
-            const touchX = touch.clientX;
-            const touchY = touch.clientY;
+    const best = parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0', 10);
+    const isNew = score > best;
+    const finalBest = isNew ? score : best;
+    if(isNew) localStorage.setItem(HIGH_SCORE_KEY, String(score));
 
-            const angle = Math.atan2(touchY - centerY, touchX - centerX);
-            const degrees = angle * (180 / Math.PI) + 90;
-            currentRotation = degrees;
+    finalScoreEl.textContent = score;
+    bestScoreEl.textContent = finalBest;
+    newBestBadge.style.display = isNew ? 'inline-block' : 'none';
 
-            sunflower.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
-        });
+    setTimeout(()=>{
+      gameOverScreen.classList.remove('hidden');
+    }, 700);
+  }
 
-        // पंखुड़ियाँ झड़ने का फंक्शन
-        function createPetals() {
-            const rect = sunflower.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+  function togglePause(force){
+    if(!running) return;
+    paused = (typeof force === 'boolean') ? force : !paused;
+    pauseScreen.classList.toggle('hidden', !paused);
+    pauseBtn.textContent = paused ? '▶' : '⏸';
+  }
 
-            // फूल को हिलाएं
-            sunflower.classList.add('shake');
-            setTimeout(() => {
-                sunflower.classList.remove('shake');
-            }, 500);
+  // ---------- Events ----------
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+  pauseBtn.addEventListener('click', ()=>togglePause());
+  resumeBtn.addEventListener('click', ()=>togglePause(false));
 
-            // हवा की आवाज बजाएं
-            playWindSound();
+  document.addEventListener('keydown', (e)=>{
+    if(e.code === 'Escape'){ togglePause(); }
+    if((e.code === 'Enter' || e.code === 'Space') && !running){
+      if(!gameOverScreen.classList.contains('hidden') || !startScreen.classList.contains('hidden')){
+        startGame();
+      }
+    }
+  });
 
-            // 12-16 पंखुड़ियाँ बनाएं
-            const petalCount = Math.floor(Math.random() * 5) + 12;
-            
-            for (let i = 0; i < petalCount; i++) {
-                setTimeout(() => {
-                    const petal = document.createElement('div');
-                    petal.className = 'petal';
-                    
-                    // पंखुड़ी की शुरुआती पोजीशन
-                    const angle = (Math.PI * 2 * i) / petalCount + (Math.random() - 0.5) * 0.3;
-                    const radius = 60 + Math.random() * 20;
-                    const startX = centerX + Math.cos(angle) * radius;
-                    const startY = centerY + Math.sin(angle) * radius;
-                    
-                    petal.style.left = startX + 'px';
-                    petal.style.top = startY + 'px';
-                    
-                    // वास्तविक गिरावट - नीचे की ओर ज्यादा, बगल में कम
-                    const horizontalDrift = (Math.random() - 0.5) * 150; // -75 से +75 बगल में
-                    const verticalFall = 400 + Math.random() * 200; // 400-600 नीचे
-                    const fallX = horizontalDrift;
-                    const fallY = verticalFall;
-                    
-                    // हिलते हुए गिरना - कम rotation
-                    const fallRotate = (Math.random() - 0.5) * 360; // -180 से 180 डिग्री
-                    const fallRotateX = Math.random() * 180; // आगे-पीछे झुकना
-                    
-                    // गिरने की अलग-अलग स्पीड
-                    const fallDuration = 2 + Math.random() * 1.5; // 2-3.5 सेकंड
-                    
-                    petal.style.setProperty('--fall-x', fallX + 'px');
-                    petal.style.setProperty('--fall-y', fallY + 'px');
-                    petal.style.setProperty('--fall-rotate', fallRotate + 'deg');
-                    petal.style.setProperty('--fall-rotateX', fallRotateX + 'deg');
-                    petal.style.setProperty('--fall-duration', fallDuration + 's');
-                    
-                    document.body.appendChild(petal);
-                    
-                    // पंखुड़ी झड़ने की आवाज
-                    playPetalSound();
-                    
-                    // एनिमेशन खत्म होने पर पंखुड़ी हटाएं
-                    setTimeout(() => {
-                        petal.remove();
-                    }, fallDuration * 1000 + 500);
-                }, i * 50); // हर पंखुड़ी थोड़ी देरी से झड़े
-            }
-            
-            // 3 सेकंड बाद पत्तियां गिरने लगें
-            setTimeout(() => {
-                createLeaves(centerX, centerY);
-            }, 3000);
-            
-            // 5 सेकंड बाद फूल मुरझा कर गिरे
-            setTimeout(() => {
-                witherFlower();
-            }, 5000);
-        }
-        
-        // पत्तियाँ गिरने का फंक्शन
-        function createLeaves(centerX, centerY) {
-            playWindSound();
-            
-            const leafCount = 4 + Math.floor(Math.random() * 3); // 4-6 पत्तियां
-            
-            for (let i = 0; i < leafCount; i++) {
-                setTimeout(() => {
-                    const leaf = document.createElement('div');
-                    leaf.className = 'leaf';
-                    
-                    // पत्तियों की शुरुआती पोजीशन (नीचे की तरफ)
-                    const angle = Math.PI / 2 + (Math.random() - 0.5) * 1;
-                    const radius = 80 + Math.random() * 40;
-                    const startX = centerX + Math.cos(angle) * radius;
-                    const startY = centerY + Math.sin(angle) * radius;
-                    
-                    leaf.style.left = startX + 'px';
-                    leaf.style.top = startY + 'px';
-                    
-                    // पत्तियां भी नीचे गिरें
-                    const horizontalDrift = (Math.random() - 0.5) * 200;
-                    const verticalFall = 350 + Math.random() * 150;
-                    const fallRotate = (Math.random() - 0.5) * 360;
-                    const fallRotateX = Math.random() * 180;
-                    const fallDuration = 2.5 + Math.random() * 1;
-                    
-                    leaf.style.setProperty('--fall-x', horizontalDrift + 'px');
-                    leaf.style.setProperty('--fall-y', verticalFall + 'px');
-                    leaf.style.setProperty('--fall-rotate', fallRotate + 'deg');
-                    leaf.style.setProperty('--fall-rotateX', fallRotateX + 'deg');
-                    leaf.style.setProperty('--fall-duration', fallDuration + 's');
-                    
-                    document.body.appendChild(leaf);
-                    
-                    playLeafSound();
-                    
-                    setTimeout(() => {
-                        leaf.remove();
-                    }, fallDuration * 1000 + 500);
-                }, i * 100);
-            }
-        }
-        
-        // फूल मुरझाने का फंक्शन
-        function witherFlower() {
-            playWitherSound();
-            sunflower.style.setProperty('--current-rotation', currentRotation + 'deg');
-            sunflower.classList.add('wither');
-            sunflower.style.pointerEvents = 'none';
-            
-            // 2 सेकंड बाद फूल को रीसेट करें
-            setTimeout(() => {
-                sunflower.classList.remove('wither');
-                sunflower.style.pointerEvents = 'auto';
-                sunflower.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
-                sunflower.style.opacity = '1';
-                sunflower.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))';
-            }, 2500);
-        }
-
-        // क्लिक और टच इवेंट
-        sunflower.addEventListener('click', createPetals);
-        sunflower.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            createPetals();
-        });
-    </script>
+  computeGround();
+  updateHUD();
+})();
+</script>
 </body>
-
 </html>
-
