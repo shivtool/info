@@ -1,238 +1,1100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <title>Downloads</title>
+  <title>Shiv Computer - Download Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="SHIV.png">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #dff3f9;
+      --header-bg: linear-gradient(135deg, #0052cc, #0099ff);
+      --nav-bg: #003f99;
+      --nav-link: #ffe600;
+      --nav-hover-bg: #ff2200;
+      --card-bg: #ffffff;
+      --card-border: #0072ff;
+      --card-text: #0052cc;
+      --card-hover-bg: #e0f0ff;
+      --card-glow: #0072ff;
+      --footer-bg: #002a6e;
+      --heading-color: #003080;
+      --h2-color: #002255;
+      --particle-color: rgba(0,90,255,0.3);
+    }
+    [data-theme="mint"] {
+      --bg: #e0faf0;
+      --header-bg: linear-gradient(135deg, #007a50, #00c98a);
+      --nav-bg: #005a38;
+      --nav-link: #fff176;
+      --nav-hover-bg: #ff6f00;
+      --card-bg: #f0fff8;
+      --card-border: #00b37d;
+      --card-text: #005a38;
+      --card-hover-bg: #c8ffe8;
+      --card-glow: #00c98a;
+      --footer-bg: #003322;
+      --heading-color: #004d30;
+      --h2-color: #003322;
+      --particle-color: rgba(0,180,100,0.3);
+    }
+    [data-theme="golden"] {
+      --bg: #1a1205;
+      --header-bg: linear-gradient(135deg, #2a1800, #7a4a00);
+      --nav-bg: #1a0e00;
+      --nav-link: #ffd700;
+      --nav-hover-bg: #c0392b;
+      --card-bg: #1f1608;
+      --card-border: #c8960a;
+      --card-text: #ffd700;
+      --card-hover-bg: #2e1f00;
+      --card-glow: #ffaa00;
+      --footer-bg: #0d0900;
+      --heading-color: #ffd700;
+      --h2-color: #ffcc44;
+      --particle-color: rgba(255,180,0,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: Arial;
-      margin: 0;
-      background: #e0f7fa;
+      font-family: 'Poppins', sans-serif;
+      background-image: url("https://www.transparenttextures.com/patterns/football-no-lines.png");
+      background-color: var(--bg);
+      min-height: 100vh;
+      transition: background 0.5s;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
     }
 
     header {
-      background: #0072ff;
-      color: white;
-      padding: 10px;
-      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--header-bg);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transition: background 0.5s;
     }
-.logo {
-  width: 80px;    /* Logo छोटा करने के लिए */
-  height: auto;
-  border-radius: 10px; /* Optional – थोड़ा rounded look */
-}
-header h1, header h3 {
-  color: #fff;
-  text-align: left;
-}
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,255,255,0.35);
+      box-shadow: 0 0 18px rgba(255,255,255,0.3);
+      object-fit: cover;
+    }
+
+    .site-info h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 14px rgba(255,255,255,0.5);
+    }
+
+    .site-info h3 {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .theme-toggles {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .theme-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      padding: 7px 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .theme-btn.light-btn {
+      background: linear-gradient(135deg, #e0f0ff, #b3d9ff);
+      color: #0055aa;
+      box-shadow: 0 2px 10px rgba(0,100,255,0.2);
+    }
+    .theme-btn.mint-btn {
+      background: linear-gradient(135deg, #b2f5d8, #00e59b);
+      color: #004d2e;
+      box-shadow: 0 2px 10px rgba(0,180,100,0.3);
+    }
+    .theme-btn.golden-btn {
+      background: linear-gradient(135deg, #2a1a00, #c8860a);
+      color: #ffd700;
+      box-shadow: 0 2px 10px rgba(200,140,0,0.4);
+    }
+    .theme-btn:hover { transform: scale(1.08) translateY(-2px); }
+    .theme-btn.active { outline: 3px solid rgba(255,255,255,0.7); transform: scale(1.06); }
+
+    nav {
+      background: var(--nav-bg);
+      padding: 8px 12px;
+      overflow-x: auto;
+      transition: background 0.5s;
+    }
 
     nav ul {
       list-style: none;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      background: #005bb5;
-      padding: 10px;
-      gap: 20px;
+      gap: 6px;
     }
 
     nav ul li a {
-      color: Yellow;
+      color: var(--nav-link);
       text-decoration: none;
-      font-weight: bold;
-      padding: 5px 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      padding: 5px 13px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      display: block;
+      white-space: nowrap;
     }
 
     nav ul li a:hover {
-      background-color: #C309ED;
-      border-radius: 9px;
+      background: var(--nav-hover-bg);
+      color: #fff;
+      box-shadow: 0 0 14px var(--nav-hover-bg), 0 0 28px rgba(255,80,0,0.4);
+      transform: translateY(-2px);
     }
 
     main {
-      padding: 40px 20px;
+      padding: 50px 20px 60px;
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 30px;
+    .main-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      animation: fadeSlideDown 0.7s ease both;
     }
 
-    .social-links {
+    .main-subtitle {
+      color: var(--h2-color);
+      font-size: 1.15rem;
+      opacity: 0.85;
+      margin-bottom: 34px;
+      animation: fadeSlideDown 0.9s ease both;
+    }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== SEARCH SECTION (Glassmorphism) ===== */
+    .search-section {
+      max-width: 720px;
+      margin: 0 auto 34px;
+      padding: 0 10px;
+    }
+
+    .search-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 40px;
+      padding: 10px 18px;
+      box-shadow: 0 8px 32px rgba(0,60,150,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar-wrap:focus-within {
+      border-color: var(--card-glow);
+      box-shadow: 0 8px 32px rgba(0,60,150,0.28), 0 0 0 4px rgba(0,150,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .search-icon { font-size: 1.1rem; opacity: 0.8; }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      color: var(--heading-color);
+      min-width: 0;
+    }
+
+    .search-input::placeholder { color: rgba(0,40,100,0.5); }
+
+    .search-icon-btn {
+      border: none;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .search-icon-btn:hover { background: var(--card-glow); transform: scale(1.1); }
+    .search-icon-btn.listening { animation: micPulse 1s infinite; background: #ff3b3b; }
+
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(255,59,59,0); }
+    }
+
+    .result-counter {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--h2-color);
+      letter-spacing: 0.3px;
+      min-height: 1.2em;
+    }
+
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .cat-chip {
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.5);
+      color: var(--card-text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .cat-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,90,255,0.25); }
+
+    .cat-chip.active {
+      background: var(--card-glow);
+      color: #fff;
+      border-color: var(--card-glow);
+      box-shadow: 0 4px 14px var(--card-glow);
+    }
+
+    .quick-lists {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .quick-btn {
+      border: none;
+      border-radius: 24px;
+      padding: 8px 18px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: rgba(255,255,255,0.55);
+      color: var(--heading-color);
+      box-shadow: 0 3px 12px rgba(0,60,150,0.15);
+      transition: all 0.25s ease;
+    }
+
+    .quick-btn:hover { transform: translateY(-2px) scale(1.03); }
+
+    .quick-btn.active {
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+    }
+
+    .loading-spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 0;
+    }
+    .loading-spinner.active { display: flex; }
+    .spinner-ring {
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(0,120,255,0.15);
+      border-top-color: var(--card-glow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--heading-color);
+      padding: 40px 10px;
+      font-weight: 600;
+    }
+
+    /* ===== DOWNLOAD GRID ===== */
+    .downloads-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 20px;
-      max-width: Autopx;
+      max-width: 1300px;
       margin: auto;
-      padding: 10px;
     }
 
-    .social-links a {
+    .dl-card-wrap {
+      position: relative;
+      animation: cardPop 0.5s ease both;
+    }
+
+    @keyframes cardPop {
+      from { opacity: 0; transform: scale(0.88) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .dl-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+      background: rgba(255,255,255,0.8);
+      color: var(--card-text);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .dl-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 18px;
+      padding: 22px 16px 18px;
+      color: var(--card-text);
       text-decoration: none;
-      display: block;
-      padding: 15px;
-      background: #ffffff;
-      border: 2px solid #0072ff;
-      border-radius: 28px;
-      color: #0072ff;
-      font-weight: bold;
-      transition: all 0.5s ease;
+      font-family: 'Rajdhani', sans-serif;
+      transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      height: 100%;
     }
 
-    .social-links a:hover {
-      background: #C309ED;
-      color: #123524;
+    .dl-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .dl-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+    .dl-card:hover::after { left: 130%; }
+
+    .dl-icon {
+      font-size: 2.1rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+      transition: transform 0.3s ease;
+      margin-bottom: 4px;
+    }
+
+    .dl-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.3px;
+    }
+
+    .dl-desc {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 0.78rem;
+      color: var(--card-text);
+      opacity: 0.75;
+      line-height: 1.4;
+      margin: 4px 0 8px;
+    }
+
+    .dl-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 18px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 3px 10px rgba(0,90,255,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .dl-card:hover {
+      background: var(--card-hover-bg);
+      transform: translateY(-7px) scale(1.03);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.18), 0 0 20px var(--card-glow);
+      border-color: var(--card-glow);
+    }
+
+    .dl-card:hover .dl-icon { transform: scale(1.2) rotate(-5deg); }
+    .dl-card:hover .dl-btn { transform: scale(1.06); box-shadow: 0 5px 16px var(--card-glow); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--footer-bg);
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      padding: 28px 16px;
+      font-size: 0.85rem;
+      margin-top: 40px;
+      transition: background 0.5s;
+    }
+
+    .footer-container p { margin: 5px 0; }
+    .footer-line { width: 80px; height: 2px; background: var(--card-glow); margin: 14px auto; border-radius: 2px; }
+
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+      padding: 8px 18px;
+      border-radius: 30px;
+      background: #25D366;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+    }
+
+    .whatsapp-btn img { width: 24px; height: 24px; transition: transform 0.3s ease; }
+    .whatsapp-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 20px #25D366, 0 0 40px rgba(37,211,102,0.4);
+    }
+    .whatsapp-btn:hover img { transform: rotate(10deg) scale(1.15); }
+
+    /* ===== SCROLL TO TOP BUTTON ===== */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 26px;
+      right: 22px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,60,150,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+    #scrollTopBtn.show { display: flex; animation: fadeSlideDown 0.4s ease both; }
+    #scrollTopBtn:hover { transform: translateY(-4px) scale(1.08); }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 6px; }
+
+    /* ===== RESPONSIVE MOBILE LAYOUT ===== */
+    @media (max-width: 600px) {
+      .header-top { justify-content: center; text-align: center; }
+      .site-info h1 { font-size: 1.4rem; }
+      .main-title { font-size: 1.8rem; letter-spacing: 2px; }
+      .main-subtitle { font-size: 1rem; margin-bottom: 24px; }
+      .downloads-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .dl-card { padding: 16px 10px 14px; }
+      .dl-icon { font-size: 1.7rem; }
+      .dl-title { font-size: 0.9rem; }
+      .dl-desc { font-size: 0.7rem; }
+      .search-bar-wrap { padding: 8px 12px; border-radius: 26px; }
+      .search-input { font-size: 0.9rem; }
+      .cat-chip { font-size: 0.75rem; padding: 5px 10px; }
+      .quick-btn { font-size: 0.75rem; padding: 7px 14px; }
+      #scrollTopBtn { width: 42px; height: 42px; bottom: 16px; right: 14px; font-size: 1.1rem; }
+    }
+
+    @media (max-width: 380px) {
+      .downloads-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
     }
   </style>
 </head>
 <body>
- <header>
-  <div style="display: flex; align-items: center; background: #0072ff; padding:10px;">
-    <img src="logo.png" alt="Logo" class="logo">
-    <div class="site-info" style="margin-left: 15px;">
-      <h1 style="margin:0;">SHIV COMPUTER</h1>
-      <h3 style="margin:0;"></h3>
+
+<canvas id="particleCanvas"></canvas>
+
+<header>
+  <div class="header-top">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" class="logo">
+      <div class="site-info">
+        <h1>SHIV COMPUTER</h1>
+        <h3>Karanpur Suratganj · Barabanki</h3>
+      </div>
+    </div>
+    <div class="theme-toggles">
+      <button class="theme-btn light-btn active" onclick="setTheme('light',this)" title="Light Theme">☀️ Light</button>
+      <button class="theme-btn mint-btn" onclick="setTheme('mint',this)" title="Mint Theme">🌿 Mint</button>
+      <button class="theme-btn golden-btn" onclick="setTheme('golden',this)" title="Golden Night">🌙 Golden</button>
     </div>
   </div>
   <nav>
     <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="contact.html">Contact</a></li>
-      <li><a href="Collage.html">College</a></li>
-      <li><a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=q3n4zc18&dl=1">APP</a></li>
-      <li><a href="Photo.html">Photo</a></li>
-      <li><a href="AI.html">AI</a></li>
-      <li><a href="gamecenter.html">Game Center</a></li>
-      <li><a href="account.html">Accounting</a></li>
-      <li><a href="https://www.blogger.com/profile/16830436167123469896">Blog</a></li>
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="about.html">👤 About</a></li>
+      <li><a href="courses.html">📚 Courses</a></li>
+      <li><a href="contact.html">📞 Contact</a></li>
+      <li><a href="Collage.html">🎓 College</a></li>
+      <li><a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=q3n4zc18&amp;dl=1">📱 APP</a></li>
+      <li><a href="Photo.html">📷 Photo</a></li>
+      <li><a href="AI.html">🤖 AI</a></li>
+      <li><a href="gamecenter.html">🎮 Game Center</a></li>
+      <li><a href="account.html">🧾 Accounting</a></li>
+      <li><a href="download.html">⬇️ Downloads</a></li>
+      <li><a href="https://www.blogger.com/profile/16830436167123469896">✍️ Blog</a></li>
     </ul>
   </nav>
 </header>
-  </style>
-</head>
-<body>
-  <main>
-    <h2>Download Center</h2>
-    <div class="social-links">
-      <a href="https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&st=d115zlb8&dl=1">Accounting</a>
-      <a href="https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&st=7ixede5q&dl=1">Calculetor 1</a>
-      <a href="https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&st=2iwqdw34&dl=1">Calculetor 2</a>
-      <a href="https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&st=j98a1hcn&dl=1">Clock 1</a>
-      <a href="https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&st=r8izihlu&dl=1">Clock 2</a>
-      <a href="https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&st=ifx44nxl&dl=1">DayBook</a>
-      <a href="https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&st=u035z3jw&dl=1">Shop Inventry</a>
-      <a href="https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&st=wi92asj9&dl=1">Picture and ID print</a>
-      <a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=53zgp936&dl=1">APK</a>
-      <a href="https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&st=3weznyx9&dl=1">File and FolderLocker 1</a>
-      <a href="https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&st=cun8bya0&dl=1">File and FolderLocker 3</a>
-      <a href="https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&st=cltgd7cq&dl=1">File and Folder Locker Advance</a>
-      <a href="https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&st=6gxfbfuk&dl=1">Fee Maneger V1</a>
-      <a href="https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&st=kecsfwgr&dl=1">Fee Maneger V2</a>
-      <a href="https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&st=2aik56s7&dl=1">Letest Fee Maneger</a>
-      <a href="https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing">All Version Fee Maneger</a>
-      <a href="https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&st=v25sqc2m&dl=1">FeeBook 842</a>
-      <a href="https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&st=9b0oixte&dl=1">Auto DSC Setup</a>
-    </div>
-  </main>
 
+<main>
+  <h2 class="main-title">⬇️ Download Center</h2>
+  <p class="main-subtitle">Shiv Computer के सभी सॉफ़्टवेयर, टूल्स और ऐप — एक ही जगह पर</p>
+
+  <div class="search-section">
+    <div class="search-bar-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="toolSearch" class="search-input" placeholder="Search downloads... (Ctrl+K)" autocomplete="off">
+      <button id="voiceSearchBtn" class="search-icon-btn" title="Voice Search">🎙️</button>
+      <button id="clearSearchBtn" class="search-icon-btn" title="Clear Search" style="display:none;">✖</button>
+    </div>
+    <div class="result-counter" id="resultCounter"></div>
+
+    <div class="category-filters" id="categoryFilters">
+      <button class="cat-chip active" data-cat="All">🗂️ All</button>
+      <button class="cat-chip" data-cat="Finance">💰 Finance</button>
+      <button class="cat-chip" data-cat="Utility">🛠️ Utility</button>
+      <button class="cat-chip" data-cat="Security">🔒 Security</button>
+      <button class="cat-chip" data-cat="Education">📚 Education</button>
+      <button class="cat-chip" data-cat="Media">🖼️ Media</button>
+      <button class="cat-chip" data-cat="Mobile App">📱 Mobile App</button>
+    </div>
+
+    <div class="quick-lists">
+      <button class="quick-btn" id="showRecentBtn">🕘 Recently Downloaded</button>
+      <button class="quick-btn active" id="showAllBtn">📋 All Downloads</button>
+    </div>
+  </div>
+
+  <div id="loadingSpinner" class="loading-spinner"><div class="spinner-ring"></div></div>
+  <div id="noResults" class="no-results" style="display:none;">😕 कोई फ़ाइल नहीं मिली। दूसरा शब्द आज़माएँ।</div>
+
+  <div class="downloads-grid" id="downloadsGrid">
+      <div class="dl-card-wrap" data-category="Finance" data-name="Accounting">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&amp;st=d115zlb8&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&amp;st=d115zlb8&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Accounting</span>
+          <span class="dl-desc">पूरा हिसाब-किताब एक जगह — आय, व्यय और रिपोर्ट</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Utility" data-name="Calculator 1">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&amp;st=7ixede5q&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&amp;st=7ixede5q&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Calculator 1</span>
+          <span class="dl-desc">साधारण डेस्कटॉप कैलकुलेटर</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Utility" data-name="Calculator 2">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&amp;st=2iwqdw34&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&amp;st=2iwqdw34&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Calculator 2</span>
+          <span class="dl-desc">एडवांस फीचर्स वाला कैलकुलेटर</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Utility" data-name="Clock 1">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&amp;st=j98a1hcn&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&amp;st=j98a1hcn&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Clock 1</span>
+          <span class="dl-desc">डेस्कटॉप डिजिटल घड़ी</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Utility" data-name="Clock 2">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&amp;st=r8izihlu&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&amp;st=r8izihlu&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Clock 2</span>
+          <span class="dl-desc">स्टाइलिश एनिमेटेड घड़ी</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Finance" data-name="DayBook">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&amp;st=ifx44nxl&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&amp;st=ifx44nxl&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">DayBook</span>
+          <span class="dl-desc">रोज़ाना लेन-देन का रिकॉर्ड रखें</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Finance" data-name="Shop Inventory">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&amp;st=u035z3jw&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&amp;st=u035z3jw&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Shop Inventory</span>
+          <span class="dl-desc">दुकान का स्टॉक और इन्वेंट्री मैनेजमेंट</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Media" data-name="Picture &amp; ID Print">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&amp;st=wi92asj9&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&amp;st=wi92asj9&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Picture &amp; ID Print</span>
+          <span class="dl-desc">फोटो एडिट करें और ID कार्ड प्रिंट करें</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Mobile App" data-name="Shiv Computer APK">
+        <span class="dl-badge">Android APK</span>
+        <a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=53zgp936&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=53zgp936&amp;dl=1')">
+          <span class="dl-icon">📱</span>
+          <span class="dl-title">Shiv Computer APK</span>
+          <span class="dl-desc">Android मोबाइल एप्लिकेशन</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker 1">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&amp;st=3weznyx9&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&amp;st=3weznyx9&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">File &amp; Folder Locker 1</span>
+          <span class="dl-desc">फाइल और फोल्डर को पासवर्ड से लॉक करें</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker 3">
+        <span class="dl-badge">ZIP Archive</span>
+        <a href="https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&amp;st=cun8bya0&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&amp;st=cun8bya0&amp;dl=1')">
+          <span class="dl-icon">🗜️</span>
+          <span class="dl-title">File &amp; Folder Locker 3</span>
+          <span class="dl-desc">अपडेटेड वर्ज़न — बेहतर सिक्योरिटी के साथ</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker Advance">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&amp;st=cltgd7cq&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&amp;st=cltgd7cq&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">File &amp; Folder Locker Advance</span>
+          <span class="dl-desc">एन्क्रिप्शन के साथ एडवांस लॉकर टूल</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Education" data-name="Fee Manager V1">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&amp;st=6gxfbfuk&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&amp;st=6gxfbfuk&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Fee Manager V1</span>
+          <span class="dl-desc">स्कूल फीस मैनेजमेंट — पुराना वर्ज़न</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Education" data-name="Fee Manager V2">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&amp;st=kecsfwgr&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&amp;st=kecsfwgr&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Fee Manager V2</span>
+          <span class="dl-desc">स्कूल फीस मैनेजमेंट — अपडेटेड वर्ज़न</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Education" data-name="Latest Fee Manager">
+        <span class="dl-badge">ZIP Archive</span>
+        <a href="https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&amp;st=2aik56s7&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&amp;st=2aik56s7&amp;dl=1')">
+          <span class="dl-icon">🗜️</span>
+          <span class="dl-title">Latest Fee Manager</span>
+          <span class="dl-desc">FeeBook का सबसे नया और स्थिर वर्ज़न</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Education" data-name="All Versions – Fee Manager">
+        <span class="dl-badge">Drive Folder</span>
+        <a href="https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing')">
+          <span class="dl-icon">📁</span>
+          <span class="dl-title">All Versions – Fee Manager</span>
+          <span class="dl-desc">FeeBook के सभी पुराने-नए वर्ज़न एक साथ</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Education" data-name="FeeBook 842">
+        <span class="dl-badge">ZIP Archive</span>
+        <a href="https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&amp;st=v25sqc2m&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&amp;st=v25sqc2m&amp;dl=1')">
+          <span class="dl-icon">🗜️</span>
+          <span class="dl-title">FeeBook 842</span>
+          <span class="dl-desc">FeeBook का इंस्टॉलर वर्ज़न 8.4.2</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+      <div class="dl-card-wrap" data-category="Utility" data-name="Auto DSC Setup">
+        <span class="dl-badge">EXE Installer</span>
+        <a href="https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&amp;st=9b0oixte&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&amp;st=9b0oixte&amp;dl=1')">
+          <span class="dl-icon">💻</span>
+          <span class="dl-title">Auto DSC Setup</span>
+          <span class="dl-desc">डिजिटल सिग्नेचर सर्टिफिकेट सेटअप टूल</span>
+          <span class="dl-btn">⬇️ Download</span>
+        </a>
+      </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-line"></div>
+    <p>© 2025 <strong>Shiv Computer</strong>. All rights reserved.</p>
+    <p>📍 27, Karnpur, Uttar Pradesh – 225304 &nbsp;|&nbsp; 📞 +91-80901 53304 &nbsp;|&nbsp; ✉️ ceshivkumar@gmail.com</p>
+    <div class="footer-line"></div>
+    <a aria-label="Chat on WhatsApp" href="https://wa.me/80901553043?text=Hello%20Shiv!" class="whatsapp-btn">
+      <img src="wlogo.png" alt="WhatsApp">
+      WhatsApp Us
+    </a>
+  </div>
+</footer>
+
+<button id="scrollTopBtn" title="Scroll to Top">⬆️</button>
+
+<script>
+  /* ===== THEME TOGGLE ===== */
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('shiv-theme', theme);
+    initParticles();
+  }
+
+  const savedTheme = localStorage.getItem('shiv-theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      if (b.classList.contains(savedTheme + '-btn')) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  }
+
+  /* ===== PARTICLE SYSTEM ===== */
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], animId;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function getParticleColor() {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t === 'mint')   return ['rgba(0,180,100,', 'rgba(0,220,140,'];
+    if (t === 'golden') return ['rgba(255,170,0,',  'rgba(200,120,0,'];
+    return ['rgba(0,100,255,', 'rgba(0,180,255,'];
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+      alpha: Math.random() * 0.5 + 0.15,
+      pulse: Math.random() * Math.PI * 2
+    };
+  }
+
+  function initParticles() {
+    cancelAnimationFrame(animId);
+    particles = Array.from({ length: 90 }, createParticle);
+    animate();
+  }
+
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const colors = getParticleColor();
+
+    particles.forEach(p => {
+      p.x += p.dx; p.y += p.dy;
+      p.pulse += 0.02;
+      const a = p.alpha + Math.sin(p.pulse) * 0.1;
+
+      if (p.x < 0 || p.x > canvas.width)  p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = colors[0] + a + ')';
+      ctx.fill();
+    });
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = colors[1] + (0.12 * (1 - dist/120)) + ')';
+          ctx.lineWidth = 0.7;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  resize();
+  initParticles();
+
+  /* =========================================================
+     🔎 LIVE SEARCH + CATEGORY FILTER + RECENTLY DOWNLOADED
+  ========================================================= */
+  const downloadsGrid = document.getElementById('downloadsGrid');
+  const cardWraps   = Array.from(downloadsGrid.querySelectorAll('.dl-card-wrap'));
+  const searchInput = document.getElementById('toolSearch');
+  const clearBtn    = document.getElementById('clearSearchBtn');
+  const voiceBtn    = document.getElementById('voiceSearchBtn');
+  const resultCounter = document.getElementById('resultCounter');
+  const noResults   = document.getElementById('noResults');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const catChips    = document.querySelectorAll('.cat-chip');
+  const showRecentBtn = document.getElementById('showRecentBtn');
+  const showAllBtn  = document.getElementById('showAllBtn');
+
+  let activeCategory = 'All';
+  let activeView = 'all'; // all | recent
+  let searchTimer = null;
+
+  function getRecent() {
+    try { return JSON.parse(localStorage.getItem('shiv-dl-recent')) || []; }
+    catch (e) { return []; }
+  }
+  function setRecent(arr) { localStorage.setItem('shiv-dl-recent', JSON.stringify(arr)); }
+
+  window.recordRecent = function (href) {
+    let recent = getRecent();
+    recent = recent.filter(h => h !== href);
+    recent.unshift(href);
+    if (recent.length > 12) recent = recent.slice(0, 12);
+    setRecent(recent);
+  };
+
+  function applyFilters() {
+    loadingSpinner.classList.add('active');
+
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const query = searchInput.value.trim().toLowerCase();
+      const recent = getRecent();
+      let visibleCount = 0;
+
+      cardWraps.forEach(wrap => {
+        const name = wrap.getAttribute('data-name').toLowerCase();
+        const cat  = wrap.getAttribute('data-category');
+        const href = wrap.querySelector('.dl-card').getAttribute('href');
+
+        let matchesSearch = !query || name.includes(query);
+        let matchesCategory = activeCategory === 'All' || cat === activeCategory;
+        let matchesView = activeView !== 'recent' || recent.includes(href);
+
+        const visible = matchesSearch && matchesCategory && matchesView;
+        wrap.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      if (activeView === 'recent') {
+        recent.forEach(href => {
+          const wrap = cardWraps.find(w => w.querySelector('.dl-card').getAttribute('href') === href);
+          if (wrap) downloadsGrid.appendChild(wrap);
+        });
+      }
+
+      resultCounter.textContent = query || activeCategory !== 'All' || activeView !== 'all'
+        ? `${visibleCount} फ़ाइल मिलीं (${visibleCount} file${visibleCount === 1 ? '' : 's'} found)`
+        : `कुल ${visibleCount} डाउनलोड उपलब्ध हैं`;
+
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      loadingSpinner.classList.remove('active');
+    }, 180);
+  }
+
+  searchInput.addEventListener('input', () => {
+    clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+    applyFilters();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    applyFilters();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      applyFilters();
+      searchInput.blur();
+    }
+  });
+
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognitionAPI) {
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    voiceBtn.addEventListener('click', () => {
+      try {
+        recognition.start();
+        voiceBtn.classList.add('listening');
+      } catch (e) { /* already started */ }
+    });
+
+    recognition.addEventListener('result', (e) => {
+      const transcript = e.results[0][0].transcript;
+      searchInput.value = transcript;
+      clearBtn.style.display = 'flex';
+      applyFilters();
+    });
+
+    recognition.addEventListener('end', () => voiceBtn.classList.remove('listening'));
+    recognition.addEventListener('error', () => voiceBtn.classList.remove('listening'));
+  } else {
+    voiceBtn.addEventListener('click', () => {
+      alert('माफ़ करें, आपका ब्राउज़र Voice Search सपोर्ट नहीं करता।');
+    });
+  }
+
+  catChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      catChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCategory = chip.getAttribute('data-cat');
+      applyFilters();
+    });
+  });
+
+  function setActiveView(view, btn) {
+    activeView = view;
+    [showAllBtn, showRecentBtn].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+  showAllBtn.addEventListener('click', () => setActiveView('all', showAllBtn));
+  showRecentBtn.addEventListener('click', () => setActiveView('recent', showRecentBtn));
+
+  applyFilters();
+
+  /* =========================================================
+     ⬆️ SCROLL-TO-TOP BUTTON
+  ========================================================= */
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('show', window.scrollY > 320);
+  });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
 </body>
 </html>
-  </main>
-  <footer>
-    <div class="footer-container">
-      <p>&copy; 2025 Shiv Computer. All rights reserved.</p>
-      <p>📍 27,Karnpur, Uttar Pradesh-225304 | 📞 +91-80901 53304 | ✉️ ceshivkumar@gmail.com</p>
-      <a aria-label="Chat on WhatsApp" 
-   href="https://wa.me/80901553043?text=Hello%20Shiv!" 
-   class="whatsapp-btn">
-  <img alt="WhatsApp" src="wlogo.png" />
-  <span>WhatsApp</span>
-</a>
-
-<style>
-  .whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: white; /* Default text color white */
-    font-weight: bold;
-    font-size: 16px;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
-
-  .whatsapp-btn img {
-    width: 8mm;   /* Logo width 8mm */
-    height: 8mm;  /* Logo height 8mm */
-    transition: transform 0.3s ease;
-  }
-
-  .whatsapp-btn:hover {
-    transform: scale(1.1);  /* Zoom-in effect */
-    color: #25D366; /* WhatsApp green on hover */
-  }
-
-  .whatsapp-btn:hover img {
-    transform: rotate(10deg) scale(1.2); /* Icon rotate + zoom */
-  }
-</style>
-
-    </div>
-  </footer>
-
-  <style>
-    footer {
-      background-color: #003d80;
-      color: white;
-      text-align: center;
-      padding: 20px 10px;
-      margin-top: 40px;
-      font-size: 15px;
-    }
-
-    .footer-container p {
-      margin: 5px 0;
-    }
-  </style>
-  <!-- 🔥 Glow Hover Effects -->
-  <style>
-    nav ul li a:hover {
-      background-color: #ff0000;
-      border-radius: 9px;
-      box-shadow: 0 0 10px #ff0000, 0 0 20px #ff3333, 0 0 40px #ff6666;
-      color: #fff;
-    }
-
-    .social-links a:hover {
-      background: #facade;
-      color: #123524;
-      box-shadow: 0 0 10px #0072ff, 0 0 20px #3399ff, 0 0 40px #66ccff;
-      transform: scale(2.05);
-    }
-
-    .whatsapp-btn:hover {
-      transform: scale(2.1);
-      color: #25D366;
-      text-shadow: 0 0 10px #25D366, 0 0 20px #25D366;
-    }
-
-    .whatsapp-btn:hover img {
-      transform: rotate(10deg) scale(1.2);
-      filter: drop-shadow(0 0 10px #25D366);
-    }
-  </style>
-    <canvas id="particleCanvas"></canvas>
-    <script src="particless.js"></s>
-  </body>
-</html>
-
-
-
-
-
-
-
-
