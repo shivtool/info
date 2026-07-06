@@ -345,6 +345,258 @@
     ::-webkit-scrollbar { width: 7px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 6px; }
+
+    /* ===== SEARCH SECTION (Glassmorphism) ===== */
+    .search-section {
+      max-width: 720px;
+      margin: 0 auto 34px;
+      padding: 0 10px;
+    }
+
+    .search-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 40px;
+      padding: 10px 18px;
+      box-shadow: 0 8px 32px rgba(0,60,150,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar-wrap:focus-within {
+      border-color: var(--card-glow);
+      box-shadow: 0 8px 32px rgba(0,60,150,0.28), 0 0 0 4px rgba(0,150,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .search-icon { font-size: 1.1rem; opacity: 0.8; }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      color: var(--heading-color);
+      min-width: 0;
+    }
+
+    .search-input::placeholder { color: rgba(0,40,100,0.5); }
+
+    .search-icon-btn {
+      border: none;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .search-icon-btn:hover { background: var(--card-glow); transform: scale(1.1); }
+    .search-icon-btn.listening { animation: micPulse 1s infinite; background: #ff3b3b; }
+
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(255,59,59,0); }
+    }
+
+    .result-counter {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--h2-color);
+      letter-spacing: 0.3px;
+      min-height: 1.2em;
+    }
+
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .cat-chip {
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.5);
+      color: var(--card-text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .cat-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,90,255,0.25); }
+
+    .cat-chip.active {
+      background: var(--card-glow);
+      color: #fff;
+      border-color: var(--card-glow);
+      box-shadow: 0 4px 14px var(--card-glow);
+    }
+
+    .quick-lists {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .quick-btn {
+      border: none;
+      border-radius: 24px;
+      padding: 8px 18px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: rgba(255,255,255,0.55);
+      color: var(--heading-color);
+      box-shadow: 0 3px 12px rgba(0,60,150,0.15);
+      transition: all 0.25s ease;
+    }
+
+    .quick-btn:hover { transform: translateY(-2px) scale(1.03); }
+
+    .quick-btn.active {
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+    }
+
+    /* ===== LOADING SPINNER ===== */
+    .loading-spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 0;
+    }
+    .loading-spinner.active { display: flex; }
+    .spinner-ring {
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(0,120,255,0.15);
+      border-top-color: var(--card-glow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--heading-color);
+      padding: 40px 10px;
+      font-weight: 600;
+    }
+
+    /* ===== FAVORITE STAR + CARD WRAP ===== */
+    .tool-card-wrap {
+      position: relative;
+      animation: cardPop 0.5s ease both;
+    }
+
+    .fav-star {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 5;
+      width: 26px;
+      height: 26px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.75);
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .fav-star::before { content: '☆'; color: #b8860b; }
+    .fav-star.is-fav::before { content: '⭐'; }
+    .fav-star:hover { transform: scale(1.25) rotate(10deg); }
+
+    .tool-card-wrap .tool-card { animation: none; }
+
+    /* Better hover effects — shine sweep */
+    .tool-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+    .tool-card:hover::after { left: 130%; }
+
+    /* ===== SCROLL TO TOP BUTTON ===== */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 26px;
+      right: 22px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,60,150,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+    #scrollTopBtn.show { display: flex; animation: fadeSlideDown 0.4s ease both; }
+    #scrollTopBtn:hover { transform: translateY(-4px) scale(1.08); }
+
+    /* ===== RESPONSIVE MOBILE LAYOUT ===== */
+    @media (max-width: 600px) {
+      .header-top { justify-content: center; text-align: center; }
+      .site-info h1 { font-size: 1.4rem; }
+      .main-title { font-size: 1.8rem; letter-spacing: 2px; }
+      .main-subtitle { font-size: 1.2rem; margin-bottom: 24px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .tool-card { font-size: 0.85rem; padding: 14px 8px; }
+      .search-bar-wrap { padding: 8px 12px; border-radius: 26px; }
+      .search-input { font-size: 0.9rem; }
+      .cat-chip { font-size: 0.75rem; padding: 5px 10px; }
+      .quick-btn { font-size: 0.75rem; padding: 7px 14px; }
+      #scrollTopBtn { width: 42px; height: 42px; bottom: 16px; right: 14px; font-size: 1.1rem; }
+    }
+
+    @media (max-width: 380px) {
+      .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -393,53 +645,221 @@
       </ul>
   <p class="main-subtitle">Your all-in-one digital toolkit — powered by intelligence</p>
 
-  <div class="tools-grid">
-    <a href="fileOpener.html" class="tool-card"><span class="card-icon">📖</span>File Viewer</a>
-    <a href="https://shiv-chat-yjwv.onrender.com" class="tool-card"><span class="card-icon">🦜</span>Chat</a>
-    <a href="sigcrt.html" class="tool-card"><span class="card-icon">✍️𓂃✍︎</span>Creat Signature</a>
-    <a href="word-editor.html" class="tool-card"><span class="card-icon">✍️</span>Notes Like Handwritting</a>
-    <a href="paint.html" class="tool-card"><span class="card-icon">🎨</span>Paint</a>
-    <a href="font.html" class="tool-card"><span class="card-icon">TF</span>Hind to kruti dev 10</a>
-    <a href="carbon.html" class="tool-card"><span class="card-icon">🌏</span>Carbon Emmssion</a>
-    <a href="smart_pro.html" class="tool-card"><span class="card-icon">⚡</span>Smart Pro</a>
-    <a href="https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA" class="tool-card"><span class="card-icon">▶️</span>YouTube</a>
-    <a href="calculator.html" class="tool-card"><span class="card-icon">🔢</span>Calculator</a>
-    <a href="cashTally.html" class="tool-card"><span class="card-icon">🪙</span>Cash Tally</a>
-    <a href="calc.html" class="tool-card"><span class="card-icon">📊</span>Percentage Cal</a>
-    <a href="server.html" class="tool-card"><span class="card-icon">🛑</span>Error</a>
-    <a href="invoice.html" class="tool-card"><span class="card-icon">🧾</span>Generate Invoice</a>
-    <a href="chatcode.html" class="tool-card"><span class="card-icon">🆘</span>Help</a>
-    <a href="age.html" class="tool-card"><span class="card-icon">🗣️</span>उम्र सुने</a>
-    <a href="scan.html" class="tool-card"><span class="card-icon">🖼️</span>Image INFO</a>
-    <a href="sun.html" class="tool-card"><span class="card-icon">🌸</span>Flower Animation</a>
-    <a href="data.html" class="tool-card"><span class="card-icon">🪪</span>Create ID Card</a>
-    <a href="qrgen.html" class="tool-card"><span class="card-icon">📲</span>QR Generate</a>
-    <a href="UPID to QR .html" class="tool-card"><span class="card-icon">💳</span>Accept Payment</a>
-    <a href="https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304" class="tool-card"><span class="card-icon">🔏</span>DSC Setup</a>
-    <a href="exam.html" class="tool-card"><span class="card-icon">📝</span>Online Test</a>
-    <a href="scroll2.html" class="tool-card"><span class="card-icon">📜</span>Text Scroll</a>
-    <a href="iedit.html" class="tool-card"><span class="card-icon">🖼️</span>Picture Manager</a>
-    <a href="final.html" class="tool-card"><span class="card-icon">🏀</span>Custom Bounce</a>
-    <a href="fimng2.html" class="tool-card"><span class="card-icon">💼</span>Accounting</a>
-    <a href="count.html" class="tool-card"><span class="card-icon">🔴</span>Live Counting</a>
-    <a href="coun.html" class="tool-card"><span class="card-icon">🟢</span>Live Counter</a>
-    <a href="carg.html" class="tool-card"><span class="card-icon">🏎️</span>Super Car</a>
-    <a href="pdftojpeg.html" class="tool-card"><span class="card-icon">📄</span>PDF to JPEG</a>
-    <a href="imagetopdf.html" class="tool-card"><span class="card-icon">📎</span>Image to PDF</a>
-    <a href="imgToICO.html" class="tool-card"><span class="card-icon">🖱️</span>Image to ICO</a>
-    <a href="pnglab.html" class="tool-card"><span class="card-icon">🖼️</span>PNG Icon Lab</a>
-    <a href="pdfredu.html" class="tool-card"><span class="card-icon">🗜️</span>PDF Reducer</a>
-    <a href="gst.html" class="tool-card"><span class="card-icon">🧮</span>GST Calc</a>
-    <a href="candy2.html" class="tool-card"><span class="card-icon">🍬</span>Candy Drop</a>
-    <a href="fpajal.html" class="tool-card"><span class="card-icon">🍎</span>Fruit Puzzle</a>
-    <a href="voiceinput.html" class="tool-card"><span class="card-icon">🎤</span>Voice Input</a>
-    <a href="gltime.html" class="tool-card"><span class="card-icon">⏰</span>Local Time</a>
-    <a href="tre.html" class="tool-card"><span class="card-icon">🤖</span>Bot Training</a>
-    <a href="inventry.html" class="tool-card"><span class="card-icon">📦</span>Stock & Inventory</a>
-    <a href="stock_report.html" class="tool-card"><span class="card-icon">📈</span>Stock Report<br>ओम ट्रेडर्स</a>
-    <a href="stock_report1.html" class="tool-card"><span class="card-icon">📈</span>Stock Report<br>सोम ट्रेडर्स</a>
-    <a href="UPI_QR_Pro.html" class="tool-card"><span class="card-icon">💰</span>Payment QR</a>
-    <a href="printcertificate.html" class="tool-card"><span class="card-icon">🎓</span>Print Certificate</a>
+  <div class="search-section">
+    <div class="search-bar-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="toolSearch" class="search-input" placeholder="Search tools... (Ctrl+K)" autocomplete="off">
+      <button id="voiceSearchBtn" class="search-icon-btn" title="Voice Search">🎙️</button>
+      <button id="clearSearchBtn" class="search-icon-btn" title="Clear Search" style="display:none;">✖</button>
+    </div>
+    <div class="result-counter" id="resultCounter"></div>
+
+    <div class="category-filters" id="categoryFilters">
+      <button class="cat-chip active" data-cat="All">🗂️ All</button>
+      <button class="cat-chip" data-cat="AI">🤖 AI</button>
+      <button class="cat-chip" data-cat="Finance">💰 Finance</button>
+      <button class="cat-chip" data-cat="Media">🖼️ Media</button>
+      <button class="cat-chip" data-cat="Design">🎨 Design</button>
+      <button class="cat-chip" data-cat="Utility">🛠️ Utility</button>
+      <button class="cat-chip" data-cat="Fun">🎮 Fun</button>
+      <button class="cat-chip" data-cat="Education">📚 Education</button>
+    </div>
+
+    <div class="quick-lists">
+      <button class="quick-btn" id="showFavBtn">⭐ Favorites</button>
+      <button class="quick-btn" id="showRecentBtn">🕘 Recently Used</button>
+      <button class="quick-btn active" id="showAllBtn">📋 All Tools</button>
+    </div>
+  </div>
+
+  <div id="loadingSpinner" class="loading-spinner"><div class="spinner-ring"></div></div>
+  <div id="noResults" class="no-results" style="display:none;">😕 कोई टूल नहीं मिला। दूसरा शब्द आज़माएँ।</div>
+
+  <div class="tools-grid" id="toolsGrid">
+    <div class="tool-card-wrap" data-category="Utility" data-name="File Viewer">
+      <button class="fav-star" onclick="toggleFavorite(event,'fileOpener.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="fileOpener.html" class="tool-card" data-href="fileOpener.html" onclick="recordRecent('fileOpener.html')"><span class="card-icon">📖</span>File Viewer</a>
+    </div>
+    <div class="tool-card-wrap" data-category="AI" data-name="Chat">
+      <button class="fav-star" onclick="toggleFavorite(event,'https://shiv-chat-yjwv.onrender.com')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="https://shiv-chat-yjwv.onrender.com" class="tool-card" data-href="https://shiv-chat-yjwv.onrender.com" onclick="recordRecent('https://shiv-chat-yjwv.onrender.com')"><span class="card-icon">🦜</span>Chat</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Design" data-name="Creat Signature">
+      <button class="fav-star" onclick="toggleFavorite(event,'sigcrt.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="sigcrt.html" class="tool-card" data-href="sigcrt.html" onclick="recordRecent('sigcrt.html')"><span class="card-icon">✍️𓂃✍︎</span>Creat Signature</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Design" data-name="Notes Like Handwritting">
+      <button class="fav-star" onclick="toggleFavorite(event,'word-editor.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="word-editor.html" class="tool-card" data-href="word-editor.html" onclick="recordRecent('word-editor.html')"><span class="card-icon">✍️</span>Notes Like Handwritting</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Design" data-name="Paint">
+      <button class="fav-star" onclick="toggleFavorite(event,'paint.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="paint.html" class="tool-card" data-href="paint.html" onclick="recordRecent('paint.html')"><span class="card-icon">🎨</span>Paint</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Hind to kruti dev 10">
+      <button class="fav-star" onclick="toggleFavorite(event,'font.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="font.html" class="tool-card" data-href="font.html" onclick="recordRecent('font.html')"><span class="card-icon">TF</span>Hind to kruti dev 10</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Carbon Emmssion">
+      <button class="fav-star" onclick="toggleFavorite(event,'carbon.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="carbon.html" class="tool-card" data-href="carbon.html" onclick="recordRecent('carbon.html')"><span class="card-icon">🌏</span>Carbon Emmssion</a>
+    </div>
+    <div class="tool-card-wrap" data-category="AI" data-name="Smart Pro">
+      <button class="fav-star" onclick="toggleFavorite(event,'smart_pro.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="smart_pro.html" class="tool-card" data-href="smart_pro.html" onclick="recordRecent('smart_pro.html')"><span class="card-icon">⚡</span>Smart Pro</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="YouTube">
+      <button class="fav-star" onclick="toggleFavorite(event,'https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA" class="tool-card" data-href="https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA" onclick="recordRecent('https://www.youtube.com/channel/UC6dXjXutQ216k9TXIEDKeOA')"><span class="card-icon">▶️</span>YouTube</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Calculator">
+      <button class="fav-star" onclick="toggleFavorite(event,'calculator.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="calculator.html" class="tool-card" data-href="calculator.html" onclick="recordRecent('calculator.html')"><span class="card-icon">🔢</span>Calculator</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Cash Tally">
+      <button class="fav-star" onclick="toggleFavorite(event,'cashTally.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="cashTally.html" class="tool-card" data-href="cashTally.html" onclick="recordRecent('cashTally.html')"><span class="card-icon">🪙</span>Cash Tally</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Percentage Cal">
+      <button class="fav-star" onclick="toggleFavorite(event,'calc.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="calc.html" class="tool-card" data-href="calc.html" onclick="recordRecent('calc.html')"><span class="card-icon">📊</span>Percentage Cal</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Error">
+      <button class="fav-star" onclick="toggleFavorite(event,'server.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="server.html" class="tool-card" data-href="server.html" onclick="recordRecent('server.html')"><span class="card-icon">🛑</span>Error</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Generate Invoice">
+      <button class="fav-star" onclick="toggleFavorite(event,'invoice.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="invoice.html" class="tool-card" data-href="invoice.html" onclick="recordRecent('invoice.html')"><span class="card-icon">🧾</span>Generate Invoice</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Help">
+      <button class="fav-star" onclick="toggleFavorite(event,'chatcode.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="chatcode.html" class="tool-card" data-href="chatcode.html" onclick="recordRecent('chatcode.html')"><span class="card-icon">🆘</span>Help</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="उम्र सुने">
+      <button class="fav-star" onclick="toggleFavorite(event,'age.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="age.html" class="tool-card" data-href="age.html" onclick="recordRecent('age.html')"><span class="card-icon">🗣️</span>उम्र सुने</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="Image INFO">
+      <button class="fav-star" onclick="toggleFavorite(event,'scan.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="scan.html" class="tool-card" data-href="scan.html" onclick="recordRecent('scan.html')"><span class="card-icon">🖼️</span>Image INFO</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Fun" data-name="Flower Animation">
+      <button class="fav-star" onclick="toggleFavorite(event,'sun.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="sun.html" class="tool-card" data-href="sun.html" onclick="recordRecent('sun.html')"><span class="card-icon">🌸</span>Flower Animation</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Design" data-name="Create ID Card">
+      <button class="fav-star" onclick="toggleFavorite(event,'data.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="data.html" class="tool-card" data-href="data.html" onclick="recordRecent('data.html')"><span class="card-icon">🪪</span>Create ID Card</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="QR Generate">
+      <button class="fav-star" onclick="toggleFavorite(event,'qrgen.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="qrgen.html" class="tool-card" data-href="qrgen.html" onclick="recordRecent('qrgen.html')"><span class="card-icon">📲</span>QR Generate</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Accept Payment">
+      <button class="fav-star" onclick="toggleFavorite(event,'UPID to QR .html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="UPID to QR .html" class="tool-card" data-href="UPID to QR .html" onclick="recordRecent('UPID to QR .html')"><span class="card-icon">💳</span>Accept Payment</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="DSC Setup">
+      <button class="fav-star" onclick="toggleFavorite(event,'https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304" class="tool-card" data-href="https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304" onclick="recordRecent('https://www.scribd.com/document/935123135/DSC-Guide-FULL-for-Explorer-8090155304')"><span class="card-icon">🔏</span>DSC Setup</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Education" data-name="Online Test">
+      <button class="fav-star" onclick="toggleFavorite(event,'exam.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="exam.html" class="tool-card" data-href="exam.html" onclick="recordRecent('exam.html')"><span class="card-icon">📝</span>Online Test</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Design" data-name="Text Scroll">
+      <button class="fav-star" onclick="toggleFavorite(event,'scroll2.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="scroll2.html" class="tool-card" data-href="scroll2.html" onclick="recordRecent('scroll2.html')"><span class="card-icon">📜</span>Text Scroll</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="Picture Manager">
+      <button class="fav-star" onclick="toggleFavorite(event,'iedit.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="iedit.html" class="tool-card" data-href="iedit.html" onclick="recordRecent('iedit.html')"><span class="card-icon">🖼️</span>Picture Manager</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Fun" data-name="Custom Bounce">
+      <button class="fav-star" onclick="toggleFavorite(event,'final.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="final.html" class="tool-card" data-href="final.html" onclick="recordRecent('final.html')"><span class="card-icon">🏀</span>Custom Bounce</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Accounting">
+      <button class="fav-star" onclick="toggleFavorite(event,'fimng2.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="fimng2.html" class="tool-card" data-href="fimng2.html" onclick="recordRecent('fimng2.html')"><span class="card-icon">💼</span>Accounting</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Live Counting">
+      <button class="fav-star" onclick="toggleFavorite(event,'count.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="count.html" class="tool-card" data-href="count.html" onclick="recordRecent('count.html')"><span class="card-icon">🔴</span>Live Counting</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Live Counter">
+      <button class="fav-star" onclick="toggleFavorite(event,'coun.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="coun.html" class="tool-card" data-href="coun.html" onclick="recordRecent('coun.html')"><span class="card-icon">🟢</span>Live Counter</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Fun" data-name="Super Car">
+      <button class="fav-star" onclick="toggleFavorite(event,'carg.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="carg.html" class="tool-card" data-href="carg.html" onclick="recordRecent('carg.html')"><span class="card-icon">🏎️</span>Super Car</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="PDF to JPEG">
+      <button class="fav-star" onclick="toggleFavorite(event,'pdftojpeg.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="pdftojpeg.html" class="tool-card" data-href="pdftojpeg.html" onclick="recordRecent('pdftojpeg.html')"><span class="card-icon">📄</span>PDF to JPEG</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="Image to PDF">
+      <button class="fav-star" onclick="toggleFavorite(event,'imagetopdf.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="imagetopdf.html" class="tool-card" data-href="imagetopdf.html" onclick="recordRecent('imagetopdf.html')"><span class="card-icon">📎</span>Image to PDF</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="Image to ICO">
+      <button class="fav-star" onclick="toggleFavorite(event,'imgToICO.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="imgToICO.html" class="tool-card" data-href="imgToICO.html" onclick="recordRecent('imgToICO.html')"><span class="card-icon">🖱️</span>Image to ICO</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="PNG Icon Lab">
+      <button class="fav-star" onclick="toggleFavorite(event,'pnglab.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="pnglab.html" class="tool-card" data-href="pnglab.html" onclick="recordRecent('pnglab.html')"><span class="card-icon">🖼️</span>PNG Icon Lab</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Media" data-name="PDF Reducer">
+      <button class="fav-star" onclick="toggleFavorite(event,'pdfredu.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="pdfredu.html" class="tool-card" data-href="pdfredu.html" onclick="recordRecent('pdfredu.html')"><span class="card-icon">🗜️</span>PDF Reducer</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="GST Calc">
+      <button class="fav-star" onclick="toggleFavorite(event,'gst.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="gst.html" class="tool-card" data-href="gst.html" onclick="recordRecent('gst.html')"><span class="card-icon">🧮</span>GST Calc</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Fun" data-name="Candy Drop">
+      <button class="fav-star" onclick="toggleFavorite(event,'candy2.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="candy2.html" class="tool-card" data-href="candy2.html" onclick="recordRecent('candy2.html')"><span class="card-icon">🍬</span>Candy Drop</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Fun" data-name="Fruit Puzzle">
+      <button class="fav-star" onclick="toggleFavorite(event,'fpajal.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="fpajal.html" class="tool-card" data-href="fpajal.html" onclick="recordRecent('fpajal.html')"><span class="card-icon">🍎</span>Fruit Puzzle</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Voice Input">
+      <button class="fav-star" onclick="toggleFavorite(event,'voiceinput.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="voiceinput.html" class="tool-card" data-href="voiceinput.html" onclick="recordRecent('voiceinput.html')"><span class="card-icon">🎤</span>Voice Input</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Utility" data-name="Local Time">
+      <button class="fav-star" onclick="toggleFavorite(event,'gltime.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="gltime.html" class="tool-card" data-href="gltime.html" onclick="recordRecent('gltime.html')"><span class="card-icon">⏰</span>Local Time</a>
+    </div>
+    <div class="tool-card-wrap" data-category="AI" data-name="Bot Training">
+      <button class="fav-star" onclick="toggleFavorite(event,'tre.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="tre.html" class="tool-card" data-href="tre.html" onclick="recordRecent('tre.html')"><span class="card-icon">🤖</span>Bot Training</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Stock & Inventory">
+      <button class="fav-star" onclick="toggleFavorite(event,'inventry.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="inventry.html" class="tool-card" data-href="inventry.html" onclick="recordRecent('inventry.html')"><span class="card-icon">📦</span>Stock & Inventory</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Stock Report ओम ट्रेडर्स">
+      <button class="fav-star" onclick="toggleFavorite(event,'stock_report.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="stock_report.html" class="tool-card" data-href="stock_report.html" onclick="recordRecent('stock_report.html')"><span class="card-icon">📈</span>Stock Report<br>ओम ट्रेडर्स</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Stock Report सोम ट्रेडर्स">
+      <button class="fav-star" onclick="toggleFavorite(event,'stock_report1.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="stock_report1.html" class="tool-card" data-href="stock_report1.html" onclick="recordRecent('stock_report1.html')"><span class="card-icon">📈</span>Stock Report<br>सोम ट्रेडर्स</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Finance" data-name="Payment QR">
+      <button class="fav-star" onclick="toggleFavorite(event,'UPI_QR_Pro.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="UPI_QR_Pro.html" class="tool-card" data-href="UPI_QR_Pro.html" onclick="recordRecent('UPI_QR_Pro.html')"><span class="card-icon">💰</span>Payment QR</a>
+    </div>
+    <div class="tool-card-wrap" data-category="Education" data-name="Print Certificate">
+      <button class="fav-star" onclick="toggleFavorite(event,'printcertificate.html')" title="Favorite / Unfavorite" aria-label="Favorite"></button>
+      <a href="printcertificate.html" class="tool-card" data-href="printcertificate.html" onclick="recordRecent('printcertificate.html')"><span class="card-icon">🎓</span>Print Certificate</a>
+    </div>
   </div>
 </main>
 
@@ -455,6 +875,8 @@
     </a>
   </div>
 </footer>
+
+<button id="scrollTopBtn" title="Scroll to Top">⬆️</button>
 
 <script>
   /* ===== THEME TOGGLE ===== */
@@ -551,6 +973,214 @@
   window.addEventListener('resize', () => { resize(); initParticles(); });
   resize();
   initParticles();
+
+  /* =========================================================
+     🔎 PROFESSIONAL LIVE SEARCH + FAVORITES + RECENT + CATEGORIES
+  ========================================================= */
+  const toolsGrid   = document.getElementById('toolsGrid');
+  const cardWraps   = Array.from(toolsGrid.querySelectorAll('.tool-card-wrap'));
+  const searchInput = document.getElementById('toolSearch');
+  const clearBtn    = document.getElementById('clearSearchBtn');
+  const voiceBtn    = document.getElementById('voiceSearchBtn');
+  const resultCounter = document.getElementById('resultCounter');
+  const noResults   = document.getElementById('noResults');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const catChips    = document.querySelectorAll('.cat-chip');
+  const showFavBtn  = document.getElementById('showFavBtn');
+  const showRecentBtn = document.getElementById('showRecentBtn');
+  const showAllBtn  = document.getElementById('showAllBtn');
+
+  let activeCategory = 'All';
+  let activeView = 'all'; // all | fav | recent
+  let searchTimer = null;
+
+  /* ---- localStorage helpers ---- */
+  function getFavorites() {
+    try { return JSON.parse(localStorage.getItem('shiv-favorites')) || []; }
+    catch (e) { return []; }
+  }
+  function setFavorites(arr) { localStorage.setItem('shiv-favorites', JSON.stringify(arr)); }
+
+  function getRecent() {
+    try { return JSON.parse(localStorage.getItem('shiv-recent')) || []; }
+    catch (e) { return []; }
+  }
+  function setRecent(arr) { localStorage.setItem('shiv-recent', JSON.stringify(arr)); }
+
+  /* ---- Favorite star toggle ---- */
+  window.toggleFavorite = function (evt, href) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    let favs = getFavorites();
+    const btn = evt.currentTarget;
+    if (favs.includes(href)) {
+      favs = favs.filter(h => h !== href);
+      btn.classList.remove('is-fav');
+    } else {
+      favs.push(href);
+      btn.classList.add('is-fav');
+    }
+    setFavorites(favs);
+    if (activeView === 'fav') applyFilters();
+  };
+
+  /* ---- Record recently used tool on click ---- */
+  window.recordRecent = function (href) {
+    let recent = getRecent();
+    recent = recent.filter(h => h !== href);
+    recent.unshift(href);
+    if (recent.length > 12) recent = recent.slice(0, 12);
+    setRecent(recent);
+  };
+
+  /* ---- Paint initial favorite stars from storage ---- */
+  function paintFavoriteStars() {
+    const favs = getFavorites();
+    cardWraps.forEach(wrap => {
+      const a = wrap.querySelector('.tool-card');
+      const star = wrap.querySelector('.fav-star');
+      const href = a.getAttribute('data-href');
+      star.classList.toggle('is-fav', favs.includes(href));
+    });
+  }
+
+  /* ---- Core filter/render logic ---- */
+  function applyFilters() {
+    loadingSpinner.classList.add('active');
+
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const query = searchInput.value.trim().toLowerCase();
+      const favs = getFavorites();
+      const recent = getRecent();
+      let visibleCount = 0;
+
+      cardWraps.forEach(wrap => {
+        const name = wrap.getAttribute('data-name').toLowerCase();
+        const cat  = wrap.getAttribute('data-category');
+        const href = wrap.querySelector('.tool-card').getAttribute('data-href');
+
+        let matchesSearch = !query || name.includes(query);
+        let matchesCategory = activeCategory === 'All' || cat === activeCategory;
+        let matchesView = true;
+        if (activeView === 'fav') matchesView = favs.includes(href);
+        if (activeView === 'recent') matchesView = recent.includes(href);
+
+        const visible = matchesSearch && matchesCategory && matchesView;
+        wrap.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      // Recent view: order cards by recency
+      if (activeView === 'recent') {
+        recent.forEach(href => {
+          const wrap = cardWraps.find(w => w.querySelector('.tool-card').getAttribute('data-href') === href);
+          if (wrap) toolsGrid.appendChild(wrap);
+        });
+      }
+
+      resultCounter.textContent = query || activeCategory !== 'All' || activeView !== 'all'
+        ? `${visibleCount} टूल मिले (${visibleCount} tool${visibleCount === 1 ? '' : 's'} found)`
+        : `कुल ${visibleCount} टूल उपलब्ध हैं`;
+
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      loadingSpinner.classList.remove('active');
+    }, 180);
+  }
+
+  /* ---- Search input events ---- */
+  searchInput.addEventListener('input', () => {
+    clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+    applyFilters();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    applyFilters();
+  });
+
+  /* ---- Ctrl+K shortcut ---- */
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      applyFilters();
+      searchInput.blur();
+    }
+  });
+
+  /* ---- Voice Search ---- */
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognitionAPI) {
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    voiceBtn.addEventListener('click', () => {
+      try {
+        recognition.start();
+        voiceBtn.classList.add('listening');
+      } catch (e) { /* already started */ }
+    });
+
+    recognition.addEventListener('result', (e) => {
+      const transcript = e.results[0][0].transcript;
+      searchInput.value = transcript;
+      clearBtn.style.display = 'flex';
+      applyFilters();
+    });
+
+    recognition.addEventListener('end', () => voiceBtn.classList.remove('listening'));
+    recognition.addEventListener('error', () => voiceBtn.classList.remove('listening'));
+  } else {
+    voiceBtn.addEventListener('click', () => {
+      alert('माफ़ करें, आपका ब्राउज़र Voice Search सपोर्ट नहीं करता।');
+    });
+  }
+
+  /* ---- Category chip clicks ---- */
+  catChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      catChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCategory = chip.getAttribute('data-cat');
+      applyFilters();
+    });
+  });
+
+  /* ---- Quick view buttons: All / Favorites / Recent ---- */
+  function setActiveView(view, btn) {
+    activeView = view;
+    [showAllBtn, showFavBtn, showRecentBtn].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+  showAllBtn.addEventListener('click', () => setActiveView('all', showAllBtn));
+  showFavBtn.addEventListener('click', () => setActiveView('fav', showFavBtn));
+  showRecentBtn.addEventListener('click', () => setActiveView('recent', showRecentBtn));
+
+  /* ---- Init ---- */
+  paintFavoriteStars();
+  applyFilters();
+
+  /* =========================================================
+     ⬆️ SCROLL-TO-TOP BUTTON
+  ========================================================= */
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('show', window.scrollY > 320);
+  });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 </script>
 </body>
 </html>
