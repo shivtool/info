@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khatauni Kshetrafal Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Hind:wght@400;500;600;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo-night:#16213E;
+    --indigo-deep:#0F1830;
+    --marigold:#F5A623;
+    --marigold-dark:#D98A0E;
+    --field-green:#2E7D4F;
+    --field-green-dark:#215C3A;
+    --parchment:#FBF3E1;
+    --parchment-line:#DCCBA1;
+    --ink:#241C12;
+    --ink-soft:#5B5140;
+    --maroon-seal:#8B2635;
+    --paper-shadow: rgba(36,28,18,0.18);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Hind',sans-serif;
+    background:
+      radial-gradient(circle at 20% -10%, #24345c 0%, transparent 45%),
+      linear-gradient(180deg, var(--indigo-deep) 0%, var(--indigo-night) 380px, #EFE6CE 380px, #EFE6CE 100%);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding-bottom:60px;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Signboard header ---------- */
+  .signboard{
+    width:100%;
+    max-width:760px;
+    padding:34px 20px 26px;
+    text-align:center;
+    position:relative;
+    color:#fff;
+  }
+  .bulb-row{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .bulb{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--marigold);
+    box-shadow:0 0 6px 2px rgba(245,166,35,0.6);
+    animation:blink 1.6s infinite ease-in-out;
+  }
+  .bulb:nth-child(odd){animation-delay:.3s;}
+  .bulb:nth-child(3n){animation-delay:.6s;background:#F0563C;box-shadow:0 0 6px 2px rgba(240,86,60,0.6);}
+  @keyframes blink{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.35;transform:scale(.8);}
+  }
+
+  .brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    opacity:0;
+    animation:riseIn .7s .1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .brand-icon{
+    width:52px;height:52px;flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,6vw,42px);
+    letter-spacing:0.5px;
+    color:var(--marigold);
+    text-shadow:0 2px 0 rgba(0,0,0,0.25);
+  }
+  .brand-name span{color:#fff;}
+  .tagline{
+    margin-top:6px;
+    font-size:15px;
+    color:#D9E0F0;
+    opacity:0;
+    animation:riseIn .7s .3s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes riseIn{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .services-strip{
+    margin-top:16px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:riseIn .7s .45s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .services-strip span{
+    font-size:12px;
+    padding:5px 12px;
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:20px;
+    color:#EAEEF9;
+    background:rgba(255,255,255,0.05);
+  }
+
+  /* ---------- Ledger card ---------- */
+  .ledger-wrap{
+    width:100%;
+    max-width:760px;
+    padding:0 20px;
+    margin-top:10px;
+    z-index:2;
+  }
+  .ledger{
+    background:
+      repeating-linear-gradient(180deg, transparent 0, transparent 37px, var(--parchment-line) 38px),
+      var(--parchment);
+    border:1px solid var(--parchment-line);
+    border-radius:10px;
+    box-shadow:0 20px 40px -18px var(--paper-shadow), 0 2px 0 rgba(255,255,255,0.6) inset;
+    padding:30px 26px 26px;
+    position:relative;
+    opacity:0;
+    animation:riseIn .7s .55s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .ledger::before{
+    content:"";
+    position:absolute;
+    left:56px;top:0;bottom:0;
+    width:1px;
+    background:rgba(139,38,53,0.18);
+  }
+  .ledger-title-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+  .ledger-title{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--indigo-night);
+  }
+  .ledger-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+
+  .input-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    margin-bottom:6px;
+  }
+  .field{
+    flex:1 1 220px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+  }
+  .field input, .field select{
+    font-family:'Roboto Mono', monospace;
+    font-size:18px;
+    padding:11px 12px;
+    border:1.5px solid var(--parchment-line);
+    border-radius:8px;
+    background:#fffdf7;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .field select{font-family:'Hind',sans-serif;font-size:15px;cursor:pointer;}
+  .field input:focus, .field select:focus{
+    border-color:var(--marigold-dark);
+    box-shadow:0 0 0 3px rgba(245,166,35,0.2);
+  }
+
+  .convert-btn{
+    margin-top:18px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    padding:14px 20px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:.3px;
+    color:#fff;
+    background:linear-gradient(135deg, var(--field-green), var(--field-green-dark));
+    cursor:pointer;
+    box-shadow:0 8px 18px -6px rgba(46,125,79,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .convert-btn:hover{transform:translateY(-2px);box-shadow:0 12px 22px -6px rgba(46,125,79,0.6);}
+  .convert-btn:active{transform:translateY(0);}
+
+  /* ---------- Results ---------- */
+  .results-wrap{
+    position:relative;
+    margin-top:26px;
+  }
+  .results-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:12px;
+  }
+  .result-card{
+    background:#fffdf7;
+    border:1px solid var(--parchment-line);
+    border-radius:10px;
+    padding:14px 16px;
+    opacity:0;
+    transform:translateY(10px);
+    transition:box-shadow .2s;
+  }
+  .result-card.show{
+    animation:cardIn .5s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes cardIn{
+    to{opacity:1;transform:translateY(0);}
+  }
+  .result-card:hover{box-shadow:0 10px 20px -10px var(--paper-shadow);}
+  .result-label{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .result-value{
+    font-family:'Roboto Mono',monospace;
+    font-size:19px;
+    font-weight:700;
+    color:var(--indigo-night);
+  }
+  .result-value small{
+    font-family:'Hind',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-left:4px;
+  }
+  .result-card.bigha .result-value{color:var(--field-green-dark);}
+  .result-card.acre .result-value{color:var(--maroon-seal);}
+
+  /* Seal stamp */
+  .seal{
+    position:absolute;
+    top:-10px;
+    right:6px;
+    width:100px;
+    height:100px;
+    pointer-events:none;
+    opacity:0;
+    transform:scale(2.4) rotate(-18deg);
+    transition:opacity .18s ease-out;
+  }
+  .seal.stamp{
+    animation:stampIt .55s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes stampIt{
+    0%{opacity:0;transform:scale(2.4) rotate(-18deg);}
+    55%{opacity:.95;transform:scale(0.92) rotate(-10deg);}
+    70%{transform:scale(1.04) rotate(-11deg);}
+    100%{opacity:.9;transform:scale(1) rotate(-10deg);}
+  }
+  .seal svg{width:100%;height:100%;filter:drop-shadow(0 4px 6px rgba(139,38,53,0.35));}
+
+  .note{
+    margin-top:18px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    border-top:1px dashed var(--parchment-line);
+    padding-top:14px;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer{
+    margin-top:28px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:0 20px;
+  }
+  .footer .fname{
+    font-family:'Baloo 2',sans-serif;
+    color:var(--indigo-night);
+    font-weight:700;
+    font-size:15px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="signboard">
+    <div class="bulb-row">
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+      <div class="bulb"></div>
+    </div>
+    <div class="brand-row">
+      <svg class="brand-icon" viewBox="0 0 64 64" fill="none">
+        <rect x="8" y="14" width="48" height="30" rx="4" fill="#EAEEF9"/>
+        <rect x="12" y="18" width="40" height="20" rx="2" fill="#16213E"/>
+        <rect x="26" y="46" width="12" height="6" fill="#EAEEF9"/>
+        <rect x="20" y="52" width="24" height="4" rx="2" fill="#EAEEF9"/>
+        <path d="M18 27 L24 33 L18 39" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M30 39 H38" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-name">SHIV <span>COMPUTER</span></div>
+    </div>
+    <div class="tagline">--------------------------------------------------</div>
+    <div class="services-strip">
+      
+      <span>क्षेत्रफल परिवर्तक</span>
+
+    </div>
+  </div>
+
+  <div class="ledger-wrap">
+    <div class="ledger">
+      <div class="ledger-title-row">
+        <div>
+          <div class="ledger-title">गाटे का कुल क्षेत्रफल परिवर्तक</div>
+          <div class="ledger-sub">Khatauni Area (Gaate ka Kshetrafal) → Sq Feet, Sq Meter, Acre, Bigha-Biswa</div>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="field" style="flex:1 1 140px;">
+          <label for="unitSelect">इकाई चुनें (Unit)</label>
+          <select id="unitSelect">
+            <option value="hectare" selected>हेक्टेयर (Hectare)</option>
+            <option value="acre">एकड़ (Acre)</option>
+            <option value="sqm">वर्ग मीटर (Sq Meter)</option>
+            <option value="sqft">वर्ग फुट (Sq Feet)</option>
+            <option value="bigha">बीघा — UP मानक (Bigha)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="areaInput">क्षेत्रफल दर्ज करें (हे॰ आदि)</label>
+          <input type="number" id="areaInput" step="0.0001" value="4.3620" placeholder="जैसे: 4.3620">
+        </div>
+      </div>
+
+      <button class="convert-btn" id="convertBtn">
+        <span>क्षेत्रफल परिवर्तित करें</span> · Convert Area
+      </button>
+
+      <div class="results-wrap">
+        <div class="seal" id="seal">
+          <svg viewBox="0 0 120 120">
+            <defs>
+              <path id="circlePath" d="M 60,60 m -46,0 a 46,46 0 1,1 92,0 a 46,46 0 1,1 -92,0" />
+            </defs>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#8B2635" stroke-width="2.5"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="#8B2635" stroke-width="1.4"/>
+            <text font-family="Hind, sans-serif" font-size="10.5" font-weight="700" fill="#8B2635" letter-spacing="1.5">
+              <textPath href="#circlePath" startOffset="2%">SHIV COMPUTER • खतौनी सत्यापित •</textPath>
+            </text>
+            <path d="M40 62 L52 74 L82 44" stroke="#8B2635" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+          <div class="result-card" data-key="sqft">
+            <div class="result-label">वर्ग फुट (Square Feet)</div>
+            <div class="result-value" id="out-sqft">—</div>
+          </div>
+          <div class="result-card" data-key="sqm">
+            <div class="result-label">वर्ग मीटर (Square Meter)</div>
+            <div class="result-value" id="out-sqm">—</div>
+          </div>
+          <div class="result-card" data-key="sqyd">
+            <div class="result-label">वर्ग गज (Square Yard)</div>
+            <div class="result-value" id="out-sqyd">—</div>
+          </div>
+          <div class="result-card acre" data-key="acre">
+            <div class="result-label">एकड़ (Acre)</div>
+            <div class="result-value" id="out-acre">—</div>
+          </div>
+          <div class="result-card" data-key="hectare">
+            <div class="result-label">हेक्टेयर (Hectare)</div>
+            <div class="result-value" id="out-hectare">—</div>
+          </div>
+          <div class="result-card bigha" data-key="bigha">
+            <div class="result-label">बीघा-बिस्वा (UP मानक)</div>
+            <div class="result-value" id="out-bigha">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>नोट:</strong> बीघा-बिस्वा गणना उत्तर प्रदेश के सामान्य मानक (1 बीघा = 27,225 वर्ग फुट = 20 बिस्वा) पर आधारित है। क्षेत्र विशेष (कच्चा/पक्का बीघा) के अनुसार वास्तविक मान भिन्न हो सकता है — तहसील अभिलेख से पुष्टि अवश्य करें।
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="fname">SHIV COMPUTER</div>
+    कम्प्यूटर टाइपिंग • खतौनी/खसरा प्रिंट आउट • फोटो स्टेट<br>
+    संपर्क करें: 📞 8090155304 &nbsp;|&nbsp; 📍 LUCKNOW
+  </div>
+
+<script>
+  const FACTORS_TO_SQFT = {
+    hectare: 107639.1041671,
+    acre: 43560,
+    sqm: 10.76391041671,
+    sqft: 1,
+    bigha: 27225
+  };
+
+  const unitSelect = document.getElementById('unitSelect');
+  const areaInput = document.getElementById('areaInput');
+  const convertBtn = document.getElementById('convertBtn');
+  const seal = document.getElementById('seal');
+  const cards = document.querySelectorAll('.result-card');
+
+  function animateCount(el, endValue, decimals){
+    const duration = 650;
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = endValue * eased;
+      el.textContent = val.toLocaleString('en-IN', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function convert(){
+    const rawVal = parseFloat(areaInput.value);
+    if (isNaN(rawVal) || rawVal < 0){
+      areaInput.focus();
+      return;
+    }
+    const unit = unitSelect.value;
+    const totalSqft = rawVal * FACTORS_TO_SQFT[unit];
+
+    const sqm = totalSqft / 10.76391041671;
+    const sqyd = totalSqft / 9;
+    const acre = totalSqft / 43560;
+    const hectare = totalSqft / 107639.1041671;
+
+    const bighaExact = totalSqft / 27225;
+    const bighaWhole = Math.floor(bighaExact);
+    const biswaExact = (bighaExact - bighaWhole) * 20;
+    const biswaWhole = Math.floor(biswaExact);
+    const biswansi = Math.round((biswaExact - biswaWhole) * 20);
+
+    animateCount(document.getElementById('out-sqft'), totalSqft, 2);
+    animateCount(document.getElementById('out-sqm'), sqm, 2);
+    animateCount(document.getElementById('out-sqyd'), sqyd, 2);
+    animateCount(document.getElementById('out-acre'), acre, 4);
+    animateCount(document.getElementById('out-hectare'), hectare, 4);
+
+    const bighaEl = document.getElementById('out-bigha');
+    bighaEl.innerHTML = `${bighaWhole} <small>बीघा</small> ${biswaWhole} <small>बिस्वा</small> ${biswansi} <small>बिस्वांसी</small>`;
+
+    cards.forEach((c, i) => {
+      c.classList.remove('show');
+      void c.offsetWidth;
+      c.style.animationDelay = (i * 0.06) + 's';
+      c.classList.add('show');
+    });
+
+    seal.classList.remove('stamp');
+    void seal.offsetWidth;
+    seal.classList.add('stamp');
+  }
+
+  convertBtn.addEventListener('click', convert);
+  areaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
+
+  window.addEventListener('load', () => setTimeout(convert, 700));
+</script>
+</body>
+</html>
