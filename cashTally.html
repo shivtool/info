@@ -84,6 +84,16 @@
   .denom-group-label{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
     color:#9d92c2;margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
   .denom-group-label::after{content:'';flex:1;height:1px;background:var(--glass-brd);}
+  .coin-toggle-btn{order:2;flex:none;font-family:var(--font-body);font-size:.72rem;font-weight:700;
+    letter-spacing:0;text-transform:none;color:var(--marigold);background:rgba(242,169,59,.1);
+    border:1px solid rgba(242,169,59,.35);border-radius:20px;padding:5px 12px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;transition:background .2s,transform .15s;}
+  .coin-toggle-btn:hover{background:rgba(242,169,59,.2);}
+  .coin-toggle-btn:active{transform:scale(.96);}
+  .coin-toggle-btn .chevron{transition:transform .25s;font-size:.7rem;}
+  .coin-toggle-btn.open .chevron{transform:rotate(180deg);}
+  #coinsWrap{overflow:hidden;max-height:1200px;transition:max-height .35s ease, opacity .25s ease;opacity:1;}
+  #coinsWrap.hidden{max-height:0;opacity:0;}
 
   .denom-row{display:grid;grid-template-columns:56px 1fr 90px 110px 30px;gap:10px;align-items:center;
     padding:9px 0;border-bottom:1px solid rgba(244,238,226,.06);}
@@ -107,16 +117,24 @@
 
   .result-panel{background:linear-gradient(135deg, rgba(242,169,59,.12), rgba(108,74,182,.14));
     border:1px solid rgba(242,169,59,.25);border-radius:var(--radius-md);padding:20px;margin:20px 0;
-    position:relative;overflow:hidden;}
+    position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;}
   .result-panel::before{content:'';position:absolute;inset:0;
     background:linear-gradient(120deg,transparent 30%, rgba(255,255,255,.06) 50%, transparent 70%);
-    background-size:200% 100%;animation:sweep 4s linear infinite;}
+    background-size:200% 100%;animation:sweep 4s linear infinite;pointer-events:none;}
   @keyframes sweep{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  .result-main{position:relative;z-index:1;}
   .result-label{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;
     color:#d7cff0;position:relative;z-index:1;}
   .result-value{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.8rem,5vw,2.6rem);
     position:relative;z-index:1;}
   .result-count{font-size:.8rem;color:#bcb2df;margin-top:4px;position:relative;z-index:1;}
+  .result-split{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;
+    border-left:1px solid rgba(244,238,226,.16);padding-left:16px;}
+  .split-item{display:flex;flex-direction:column;align-items:flex-end;min-width:76px;}
+  .split-item .split-label{font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;
+    letter-spacing:.1em;color:#bcb2df;}
+  .split-item .split-val{font-family:var(--font-mono);font-weight:700;font-size:.95rem;color:var(--ink);}
 
   .action-row{display:flex;gap:10px;flex-wrap:wrap;}
   .btn{flex:1;min-width:120px;padding:13px 16px;border-radius:var(--radius-md);border:1px solid transparent;
@@ -171,9 +189,13 @@
     border-radius:var(--radius-sm);border:1px solid var(--glass-brd);background:rgba(255,255,255,.04);
     color:var(--ink);font-family:var(--font-body);}
   .date-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:180px;overflow-y:auto;}
+  .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:220px;overflow-y:auto;}
   .check-item{display:flex;align-items:center;gap:8px;font-size:.85rem;}
   .check-item input{accent-color:var(--marigold);width:16px;height:16px;}
+  .check-divider{grid-column:1 / -1;display:flex;align-items:center;gap:8px;margin:6px 0 2px;
+    font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:#9d92c2;}
+  .check-divider::after{content:'';flex:1;height:1px;background:var(--glass-brd);}
+  .field-hint{font-size:.72rem;color:#9d92c2;margin-top:6px;line-height:1.4;}
   .modal-actions{display:flex;gap:10px;margin-top:20px;}
 
   footer{position:relative;z-index:2;text-align:center;padding:24px;font-family:var(--font-mono);
@@ -205,8 +227,8 @@
     #printArea thead{display:table-header-group;} /* repeat header on each printed page */
     #printArea tfoot{display:table-footer-group;}
     #printArea tr{page-break-inside:avoid;}
-    #printArea th,#printArea td{border:1px solid #bbb;padding:6px 8px;text-align:left;font-family:'Courier New',monospace;white-space:nowrap;}
-    #printArea th{background:#efefef;font-weight:700;font-family:Georgia,serif;}
+    #printArea th,#printArea td{border:1px solid #bbb;padding:6px 8px;text-align:left;}
+    #printArea th{background:#efefef;font-weight:700;}
     #printArea tbody tr:nth-child(even){background:#f7f7f7;}
     #printArea .p-total{
       margin-top:14px;padding-top:10px;border-top:2px solid #111;
@@ -239,13 +261,24 @@
     <div class="denom-group-label">Notes</div>
     <div id="notesWrap"></div>
 
-    <div class="denom-group-label">Coins</div>
-    <div id="coinsWrap"></div>
+    <div class="denom-group-label">
+      Coins
+      <button type="button" class="coin-toggle-btn" id="coinsToggleBtn">
+        <span class="label">Show Coins</span><span class="chevron">▾</span>
+      </button>
+    </div>
+    <div id="coinsWrap" class="hidden"></div>
 
     <div class="result-panel">
-      <div class="result-label">Grand Total</div>
-      <div class="result-value" id="grandTotal">₹0</div>
-      <div class="result-count" id="pieceCount">0 pieces counted</div>
+      <div class="result-main">
+        <div class="result-label">Grand Total</div>
+        <div class="result-value" id="grandTotal">₹0</div>
+        <div class="result-count" id="pieceCount">0 pieces counted</div>
+      </div>
+      <div class="result-split">
+        <div class="split-item"><span class="split-label">Notes</span><span class="split-val" id="notesSubtotal">₹0</span></div>
+        <div class="split-item"><span class="split-label">Coins</span><span class="split-val" id="coinsSubtotal">₹0</span></div>
+      </div>
     </div>
 
     <div class="action-row">
@@ -292,6 +325,7 @@
     <div class="field-row">
       <label>Include Breakdown Columns</label>
       <div class="check-grid" id="colCheckGrid"></div>
+      <div class="field-hint">Columns match your current Notes/Coins view. Empty columns are removed from the print automatically.</div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="printCancelBtn">Cancel</button>
@@ -306,34 +340,55 @@
 (function(){
   "use strict";
 
-  // Unique key per row (type + value) — needed because ₹20 and ₹10 exist as
-  // BOTH a note and a coin, so the raw value alone can't identify a row.
-  const NOTE_VALUES = [2000,500,200,100,50,20,10];
-  const COIN_VALUES = [20,10,5,2,1];
-  const ALL_DENOMS = [
-    ...NOTE_VALUES.map(v => ({key:`note-${v}`, value:v, isCoin:false})),
-    ...COIN_VALUES.map(v => ({key:`coin-${v}`, value:v, isCoin:true}))
-  ];
+  const NOTES = [2000,500,200,100,50,20,10];
+  const COINS = [20,10,5,2,1];
+  // NOTE: ₹20 and ₹10 exist in BOTH notes and coins in real currency, so every row
+  // gets a unique key ("n20" vs "c20") — this avoids the two rows colliding on the
+  // same numeric value anywhere in the app (inputs, totals, breakdown, print).
+  const DENOM_META = {};
+  const NOTE_KEYS = NOTES.map(v => { const k = "n"+v; DENOM_META[k] = {value:v, isCoin:false}; return k; });
+  const COIN_KEYS = COINS.map(v => { const k = "c"+v; DENOM_META[k] = {value:v, isCoin:true}; return k; });
+  const ALL_KEYS = [...NOTE_KEYS, ...COIN_KEYS];
 
   const $ = (id) => document.getElementById(id);
   const notesWrap = $("notesWrap"), coinsWrap = $("coinsWrap");
   const grandTotal = $("grandTotal"), pieceCount = $("pieceCount");
+  const notesSubtotal = $("notesSubtotal"), coinsSubtotal = $("coinsSubtotal");
+  const coinsToggleBtn = $("coinsToggleBtn");
 
-  function buildRow(d){
+  /* ============ COINS SHOW/HIDE (default hidden) ============ */
+  const COIN_PREF_KEY = "cashTally_coinsVisible";
+  let coinsVisible = localStorage.getItem(COIN_PREF_KEY) === "1"; // default false (hidden)
+
+  function applyCoinsVisibility(){
+    coinsWrap.classList.toggle("hidden", !coinsVisible);
+    coinsToggleBtn.classList.toggle("open", coinsVisible);
+    coinsToggleBtn.querySelector(".label").textContent = coinsVisible ? "Hide Coins" : "Show Coins";
+    coinsToggleBtn.setAttribute("aria-expanded", String(coinsVisible));
+  }
+  coinsToggleBtn.addEventListener("click", () => {
+    coinsVisible = !coinsVisible;
+    localStorage.setItem(COIN_PREF_KEY, coinsVisible ? "1" : "0");
+    applyCoinsVisibility();
+  });
+  applyCoinsVisibility();
+
+  function buildRow(key){
+    const {value, isCoin} = DENOM_META[key];
     const row = document.createElement("div");
     row.className = "denom-row";
     row.innerHTML = `
-      <div class="denom-badge ${d.isCoin ? 'coin-shape':''}">₹${d.value}</div>
-      <div class="denom-name">${d.isCoin ? 'Coin' : 'Note'} × qty</div>
-      <input type="number" min="0" step="1" placeholder="0" data-key="${d.key}" data-amount="${d.value}" class="qty-input">
-      <div class="denom-sub" data-sub="${d.key}">₹0</div>
-      <button class="denom-clear" data-clear="${d.key}" title="Clear this row">✕</button>
+      <div class="denom-badge ${isCoin ? 'coin-shape':''}">₹${value}</div>
+      <div class="denom-name">${isCoin ? 'Coin' : 'Note'} × qty</div>
+      <input type="number" min="0" step="1" placeholder="0" data-key="${key}" class="qty-input">
+      <div class="denom-sub" data-sub="${key}">₹0</div>
+      <button class="denom-clear" data-clear="${key}" title="Clear this row">✕</button>
     `;
     return row;
   }
 
-  ALL_DENOMS.filter(d => !d.isCoin).forEach(d => notesWrap.appendChild(buildRow(d)));
-  ALL_DENOMS.filter(d => d.isCoin).forEach(d => coinsWrap.appendChild(buildRow(d)));
+  NOTE_KEYS.forEach(k => notesWrap.appendChild(buildRow(k)));
+  COIN_KEYS.forEach(k => coinsWrap.appendChild(buildRow(k)));
 
   function countUp(el, from, to, isCurrency){
     const dur = 450, start = performance.now();
@@ -350,23 +405,27 @@
   let lastTotal = 0;
 
   function recalc(){
-    let total = 0, pieces = 0;
+    let total = 0, pieces = 0, notesTotal = 0, coinsTotal = 0;
     const breakdown = {};
     document.querySelectorAll(".qty-input").forEach(inp => {
       const key = inp.dataset.key;
-      const value = Number(inp.dataset.amount);
+      const {value, isCoin} = DENOM_META[key];
       const qty = Math.max(0, parseInt(inp.value) || 0);
       const sub = value * qty;
       total += sub;
       pieces += qty;
       breakdown[key] = qty;
+      if(isCoin) coinsTotal += sub; else notesTotal += sub;
       const subEl = document.querySelector(`.denom-sub[data-sub="${key}"]`);
       subEl.textContent = "₹" + sub.toLocaleString("en-IN");
     });
     countUp(grandTotal, lastTotal, total, true);
     lastTotal = total;
     pieceCount.textContent = `${pieces} piece${pieces===1?"":"s"} counted`;
-    return {total, pieces, breakdown};
+    // live side breakdown — always visible even when the Coins section is collapsed
+    notesSubtotal.textContent = "₹" + notesTotal.toLocaleString("en-IN");
+    coinsSubtotal.textContent = "₹" + coinsTotal.toLocaleString("en-IN");
+    return {total, pieces, breakdown, notesTotal, coinsTotal};
   }
 
   document.addEventListener("input", (e) => {
@@ -442,9 +501,10 @@
   const historyList = $("historyList");
 
   function breakdownText(bd){
-    return ALL_DENOMS.filter(d => bd[d.key] > 0)
-      .map(d => `₹${d.value}${d.isCoin ? "(coin)":""}×${bd[d.key]}`)
-      .join("  ·  ") || "No pieces";
+    return ALL_KEYS.filter(k => bd[k] > 0).map(k => {
+      const {value, isCoin} = DENOM_META[k];
+      return `₹${value}${isCoin ? ' coin' : ''}×${bd[k]}`;
+    }).join("  ·  ") || "No pieces";
   }
 
   async function renderHistory(filter){
@@ -512,40 +572,57 @@
   /* ============ PRINT CUSTOMIZATION ============ */
   const printModal = $("printModal");
   const colCheckGrid = $("colCheckGrid");
-  ALL_DENOMS.forEach(d => {
+
+  // Build checklist grouped as Notes then Coins, with a clear divider between them
+  const notesDivider = document.createElement("div");
+  notesDivider.className = "check-divider";
+  notesDivider.textContent = "Notes";
+  colCheckGrid.appendChild(notesDivider);
+  NOTE_KEYS.forEach(k => {
     const label = document.createElement("label");
     label.className = "check-item";
-    label.innerHTML = `<input type="checkbox" value="${d.key}" checked> ₹${d.value}${d.isCoin ? " (coin)":""}`;
+    label.innerHTML = `<input type="checkbox" value="${k}" data-group="notes" checked> ₹${DENOM_META[k].value}`;
+    colCheckGrid.appendChild(label);
+  });
+  const coinsDivider = document.createElement("div");
+  coinsDivider.className = "check-divider";
+  coinsDivider.textContent = "Coins";
+  colCheckGrid.appendChild(coinsDivider);
+  COIN_KEYS.forEach(k => {
+    const label = document.createElement("label");
+    label.className = "check-item";
+    label.innerHTML = `<input type="checkbox" value="${k}" data-group="coins"> ₹${DENOM_META[k].value}`;
     colCheckGrid.appendChild(label);
   });
 
-  $("printOpenBtn").addEventListener("click", () => printModal.classList.add("open"));
+  $("printOpenBtn").addEventListener("click", () => {
+    // Sync the checklist to whatever is currently in use in the calculator:
+    // Notes are always included; Coins default in/out based on the Show/Hide Coins toggle.
+    colCheckGrid.querySelectorAll('input[data-group="coins"]').forEach(c => c.checked = coinsVisible);
+    colCheckGrid.querySelectorAll('input[data-group="notes"]').forEach(c => c.checked = true);
+    printModal.classList.add("open");
+  });
   $("printCancelBtn").addEventListener("click", () => printModal.classList.remove("open"));
 
   $("printGoBtn").addEventListener("click", async () => {
-    const title = $("printTitle").value || "Cash Denomination Tally";
+    const title = ($("printTitle").value || "Cash Denomination Tally").trim();
     const fromDate = $("printFrom").value ? new Date($("printFrom").value) : null;
     const toDate = $("printTo").value ? new Date($("printTo").value+"T23:59:59") : null;
-    const cols = Array.from(colCheckGrid.querySelectorAll("input:checked")).map(c => c.value);
-    const colLabel = (key) => {
-      const d = ALL_DENOMS.find(d => d.key === key);
-      return d ? `₹${d.value}${d.isCoin ? " (coin)":""}` : key;
-    };
+    let cols = Array.from(colCheckGrid.querySelectorAll("input:checked")).map(c => c.value);
 
     let rows = await dbGetAll();
     if(fromDate) rows = rows.filter(r => new Date(r.date) >= fromDate);
     if(toDate) rows = rows.filter(r => new Date(r.date) <= toDate);
 
+    // Efficient print: drop any selected column that is zero across every row in range —
+    // no unnecessary/empty columns cluttering the report.
+    cols = cols.filter(k => rows.some(r => (r.breakdown[k] || 0) > 0));
+
+    const colLabel = k => "₹" + DENOM_META[k].value + (DENOM_META[k].isCoin ? " (coin)" : "");
     const theadCells = ["Date"].concat(cols.map(colLabel)).concat(["Total"]).map(c => `<th>${c}</th>`).join("");
     const bodyRows = rows.map(r => {
-      const denomCells = cols.map(key => {
-        const d = ALL_DENOMS.find(x => x.key === key);
-        const qty = r.breakdown[key] || 0;
-        if(!d || qty <= 0) return "–";
-        return `${d.value}×${qty}=${(d.value*qty).toLocaleString("en-IN")}`;
-      });
       const cells = [new Date(r.date).toLocaleString()]
-        .concat(denomCells)
+        .concat(cols.map(k => String(r.breakdown[k] || 0)))
         .concat(["₹"+r.total.toLocaleString("en-IN")]);
       return "<tr>" + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
     }).join("");
@@ -558,7 +635,7 @@
         <div class="p-brand">${new Date().toLocaleDateString()}</div>
       </div>
       <h1>${title}</h1>
-      <div class="p-sub">Generated ${new Date().toLocaleString()} · ${rows.length} record(s)</div>
+      <div class="p-sub">Generated ${new Date().toLocaleString()} · ${rows.length} record(s)${cols.length ? "" : " · No matching denomination data"}</div>
       <table><thead><tr>${theadCells}</tr></thead><tbody>${bodyRows || `<tr><td colspan="${cols.length+2}">No records in selected range.</td></tr>`}</tbody></table>
       <div class="p-total">Combined Total: ₹${overallTotal.toLocaleString("en-IN")}</div>
       <div class="p-foot">CashTally — Denomination Tally Report · Stored locally on device</div>
