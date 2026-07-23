@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no, address=no, email=no, date=no">
+<title>Shiv Computer | Registration Format - Data Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --panel:#12151d;
+  --panel2:#171b25;
+  --gold:#d4af37;
+  --gold2:#f4d675;
+  --text:#eef1f7;
+  --muted:#9aa2b1;
+  --border:rgba(212,175,55,.25);
+  --glass:rgba(255,255,255,.04);
+  --danger:#e5484d;
+  --ok:#3fb950;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(212,175,55,.08), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(212,175,55,.06), transparent 40%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:20px;
+}
+h1,h2,h3,.brand{font-family:'Rajdhani',sans-serif;}
+.wrap{max-width:1200px;margin:0 auto;}
+
+/* Header */
+header{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  background:linear-gradient(135deg,var(--panel),var(--panel2));
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px 24px;
+  margin-bottom:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+}
+.brand{font-size:26px;font-weight:700;letter-spacing:.5px;color:var(--gold2);
+  text-shadow:0 0 20px rgba(212,175,55,.35);}
+.brand span{color:var(--text);font-weight:500;font-size:14px;display:block;letter-spacing:1px;}
+.header-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+button, .btn{
+  font-family:'Rajdhani',sans-serif;
+  font-weight:600;font-size:15px;letter-spacing:.4px;
+  padding:10px 18px;border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--glass);
+  color:var(--text);
+  cursor:pointer;
+  transition:.2s ease;
+  display:inline-flex;align-items:center;gap:8px;
+}
+button:hover,.btn:hover{border-color:var(--gold);background:rgba(212,175,55,.12);transform:translateY(-1px);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1408;border:none;}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-danger{border-color:rgba(229,72,77,.4);color:#ff9a9d;}
+.btn-danger:hover{background:rgba(229,72,77,.15);border-color:var(--danger);}
+.btn-sm{padding:6px 12px;font-size:13px;}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.tab{
+  padding:10px 20px;border-radius:10px 10px 0 0;
+  background:var(--panel);border:1px solid var(--border);border-bottom:none;
+  color:var(--muted);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px;
+  cursor:pointer;
+}
+.tab.active{color:var(--gold2);background:var(--panel2);box-shadow:0 -4px 14px rgba(212,175,55,.08) inset;}
+
+.card{
+  background:linear-gradient(160deg,var(--panel),var(--panel2));
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);
+}
+.card h2{color:var(--gold2);font-size:20px;letter-spacing:.5px;margin-bottom:16px;font-weight:700;}
+
+/* Form */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.field label{
+  display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;
+  font-family:'Rajdhani',sans-serif;letter-spacing:.6px;text-transform:uppercase;font-weight:600;
+}
+.field input[type=text], .field input[type=tel], .field select{
+  width:100%;padding:11px 12px;border-radius:9px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:var(--text);font-size:15px;font-family:'Poppins',sans-serif;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.12);}
+.field input::placeholder{color:#5a6172;}
+
+.photo-box{
+  display:flex;align-items:center;gap:14px;
+}
+.photo-preview{
+  width:90px;height:110px;border-radius:8px;border:1px dashed var(--border);
+  background:rgba(255,255,255,.03);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;color:var(--muted);font-size:11px;text-align:center;
+  flex-shrink:0;
+}
+.photo-preview img{width:100%;height:100%;object-fit:cover;}
+
+.form-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
+
+.subject-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(212,175,55,.12);border:1px solid var(--border);
+  color:var(--gold2);padding:6px 12px;border-radius:20px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;
+}
+.subject-tag .num{
+  background:var(--gold);color:#1a1408;width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;
+}
+.subject-tag .rm{cursor:pointer;color:#ff9a9d;font-weight:700;padding:0 2px;}
+.subject-tag .rm:hover{color:var(--danger);}
+
+/* Records list */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.search-box{
+  flex:1;min-width:220px;
+  padding:10px 14px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);font-size:14px;
+}
+.count-pill{
+  background:rgba(212,175,55,.1);border:1px solid var(--border);color:var(--gold2);
+  padding:6px 14px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;
+}
+
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+.rec-card{
+  background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;
+  display:flex;gap:12px;
+}
+.rec-card .thumb{
+  width:60px;height:74px;border-radius:6px;overflow:hidden;flex-shrink:0;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);
+}
+.rec-card .thumb img{width:100%;height:100%;object-fit:cover;}
+.rec-info{flex:1;min-width:0;}
+.rec-info .sr{color:var(--gold2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;}
+.rec-info .name-hi{font-size:16px;font-weight:600;}
+.rec-info .name-en{font-size:12.5px;color:var(--muted);margin-bottom:4px;}
+.rec-info .meta{font-size:11.5px;color:var(--muted);line-height:1.6;}
+.rec-card-actions{display:flex;flex-direction:column;gap:6px;}
+.icon-btn{
+  width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--glass);
+  color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.icon-btn:hover{border-color:var(--gold);background:rgba(212,175,55,.14);}
+.icon-btn.del:hover{border-color:var(--danger);background:rgba(229,72,77,.15);color:#ff9a9d;}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .big{font-size:40px;margin-bottom:10px;}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--panel2);border:1px solid var(--gold);color:var(--text);
+  padding:12px 22px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-weight:600;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s ease;z-index:999;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+input[type=file]{display:none;}
+
+/* Custom confirm modal (native confirm() is blocked/unreliable in some app webviews) */
+.confirm-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;
+}
+.confirm-overlay.show{display:flex;}
+.confirm-box{
+  background:linear-gradient(160deg,var(--panel),var(--panel2));
+  border:1px solid var(--gold);border-radius:14px;padding:24px;
+  max-width:360px;width:100%;box-shadow:0 14px 44px rgba(0,0,0,.5);
+}
+.confirm-msg{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:16px;color:var(--text);margin-bottom:20px;text-align:center;line-height:1.5;}
+.confirm-actions{display:flex;gap:10px;justify-content:center;}
+
+/* Selection checkbox for print */
+.rec-select-wrap{display:flex;align-items:center;justify-content:center;}
+.rec-select{width:19px;height:19px;accent-color:var(--gold);cursor:pointer;}
+.selected-pill{
+  background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.4);color:#7bdc8f;
+  padding:6px 14px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;
+}
+.rec-card.is-selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,175,55,.25) inset;}
+
+/* ============ PRINT LAYOUT — compact multi-student grid (max students/page) ============ */
+#printArea{display:none;}
+.print-header-title{
+  text-align:center;font-family:'Rajdhani',Arial,sans-serif;font-weight:700;
+  font-size:12px;color:#000;margin-bottom:2px;letter-spacing:.3px;
+  padding-bottom:6px;border-bottom:2.5px solid #000;
+}
+.print-header-sub{
+  text-align:center;font-size:15px;color:#333;margin-bottom:8px;letter-spacing:.4px;
+}
+/* Two students per row -> far more students fit per printed page than one big table each */
+.print-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.stu-card{
+  border:1.4px solid #000;
+  display:flex;
+  flex-direction:column;
+  font-family:'Noto Sans','Mangal',Arial,sans-serif;
+  font-size:12px;
+  line-height:1.55;
+  color:#000;
+  page-break-inside:avoid;
+  break-inside:avoid;
+  overflow:hidden;
+}
+/* Clear, unmissable S.R. No. header strip on every card */
+.stu-srbar{
+  background:#000 !important;
+  color:#fff !important;
+  font-weight:700;
+  font-size:11px;
+  letter-spacing:.4px;
+  padding:3px 8px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.stu-body{
+  display:flex;
+  gap:8px;
+  padding:6px 8px 7px;
+}
+.stu-photo, .stu-photo-ph{
+  width:72px;height:85px;flex-shrink:0;object-fit:cover;border:1px solid #999;
+}
+.stu-photo-ph{
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:#777;border-style:dashed;text-align:center;
+}
+.stu-details{flex:1;min-width:0;}
+.stu-row{
+  margin-bottom:2.5px;padding-bottom:2.5px;
+  word-break:break-word;
+  border-bottom:1px dotted #bbb;
+}
+.stu-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.stu-row b{font-weight:700;}
+.stu-namehi{font-size:12.5px;font-weight:700;}
+
+@media print{
+  html, body{
+    background:#fff !important;
+    color:#000 !important;
+    padding:0 !important;
+    margin:0 !important;
+    min-height:0 !important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .wrap, #toast{display:none !important;}
+  #printArea{
+    display:block !important;
+    width:100%;
+    background:#fff;
+  }
+  .stu-card, .stu-card *{color:#000 !important;}
+  .stu-srbar, .stu-srbar *{color:#fff !important;background:#000 !important;}
+  #printArea a{text-decoration:none !important;}
+  @page{margin:7mm;}
+}
+
+@media (max-width:640px){
+  header{flex-direction:column;align-items:flex-start;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">Shiv Computer <span>Registration Format — Data Entry System</span></div>
+    <div class="header-actions">
+      <input type="text" id="printHeaderInput" class="search-box" style="min-width:260px;" placeholder="प्रिंट हेतु संस्था का नाम (जैसे: श्री दुर्गे माँ बाल गोविन्द इंटर कालेज | अचली खेड़ा)" oninput="savePrintHeader()">
+      <button class="btn-gold" onclick="printRecords(false)">🖨️ Print All</button>
+      <button class="btn-gold" onclick="printRecords(true)">🖨️ Print Selected</button>
+      <button onclick="document.getElementById('restoreInput').click()">📥 Restore</button>
+      <input type="file" id="restoreInput" accept="application/json" onchange="restoreBackup(event)">
+      <button onclick="backupData()">📤 Backup</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="entry" onclick="switchTab('entry')">➕ नया रिकॉर्ड</div>
+    <div class="tab" data-tab="list" onclick="switchTab('list')">📋 सभी रिकॉर्ड</div>
+  </div>
+
+  <!-- ENTRY TAB -->
+  <div id="tab-entry">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <h2 id="formTitle" style="margin-bottom:0;">Student Registration Entry</h2>
+        <label style="display:flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:600;color:var(--muted);font-size:14px;cursor:pointer;">
+          <input type="checkbox" id="autoHindiToggle" checked style="width:16px;height:16px;accent-color:var(--gold);">
+          English → हिंदी Auto-Convert
+        </label>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>S.R. No. (क्रमांक) <span style="color:var(--gold2);font-weight:400;">— auto</span></label>
+          <input type="text" id="f_sr" placeholder="Auto" readonly style="cursor:not-allowed;opacity:.85;">
+        </div>
+        <div class="field">
+          <label>Student Name (हिंदी) <span style="color:var(--gold2);font-weight:400;">— auto</span></label>
+          <input type="text" id="f_nameHi" placeholder="छात्र का नाम (auto बनेगा)">
+        </div>
+        <div class="field">
+          <label>Student Name (ENGLISH) — यहाँ टाइप करें</label>
+          <input type="text" id="f_nameEn" placeholder="Type in English e.g. Shiv Kumar">
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Subjects (विषय) — टाइप कर के Enter दबाएँ या + पर क्लिक करें</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="f_subjectInput" placeholder="e.g. Physics" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubject();}">
+            <button type="button" class="btn-sm btn-gold" onclick="addSubject()" style="flex-shrink:0;">+ Add</button>
+          </div>
+          <div id="subjectTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select id="f_gender">
+            <option value="">-- चुनें --</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Medium</label>
+          <select id="f_medium">
+            <option value="">-- चुनें --</option>
+            <option>Hindi</option>
+            <option>English</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cast (जाति)</label>
+          <select id="f_cast">
+            <option value="">-- चुनें --</option>
+            <option>General</option>
+            <option>OBC</option>
+            <option>SC</option>
+            <option>ST</option>
+            <option>EWS</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Father Name (हिंदी) <span style="color:var(--gold2);font-weight:400;">— auto</span></label>
+          <input type="text" id="f_fatherHi" placeholder="पिता का नाम (auto बनेगा)">
+        </div>
+        <div class="field">
+          <label>Father Name (ENGLISH) — यहाँ टाइप करें</label>
+          <input type="text" id="f_fatherEn" placeholder="e.g. Ram Kumar">
+        </div>
+        <div class="field">
+          <label>Mother Name (हिंदी) <span style="color:var(--gold2);font-weight:400;">— auto</span></label>
+          <input type="text" id="f_motherHi" placeholder="माता का नाम (auto बनेगा)">
+        </div>
+        <div class="field">
+          <label>Mother Name (ENGLISH) — यहाँ टाइप करें</label>
+          <input type="text" id="f_motherEn" placeholder="e.g. Sita Devi">
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Address (पता)</label>
+          <input type="text" id="f_address" placeholder="Full Address / पूरा पता">
+        </div>
+        <div class="field">
+          <label>HS Roll No. / Year</label>
+          <input type="text" id="f_hsroll" placeholder="HS Roll No / Year">
+        </div>
+        <div class="field">
+          <label>Aadhar No.</label>
+          <input type="text" id="f_aadhar" maxlength="14" placeholder="XXXX XXXX XXXX">
+        </div>
+        <div class="field">
+          <label>PEN No.</label>
+          <input type="text" id="f_pen" placeholder="PEN No.">
+        </div>
+        <div class="field">
+          <label>Mobile No.</label>
+          <input type="tel" id="f_mobile" maxlength="10" placeholder="10 digit mobile">
+        </div>
+        <div class="field">
+          <label>Photo</label>
+          <div class="photo-box">
+            <div class="photo-preview" id="photoPreview">No Photo</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button class="btn-sm" type="button" onclick="document.getElementById('photoInput').click()">Upload Photo</button>
+              <button class="btn-sm btn-danger" type="button" onclick="clearPhoto()">Remove</button>
+              <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-gold" onclick="saveRecord()">💾 Save Record</button>
+        <button onclick="clearForm()">🔄 Clear Form</button>
+        <button id="cancelEditBtn" class="btn-danger" style="display:none" onclick="cancelEdit()">✖ Cancel Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST TAB -->
+  <div id="tab-list" style="display:none;">
+    <div class="card">
+      <div class="toolbar">
+        <input class="search-box" id="searchBox" placeholder="🔍 Search by name, father, mobile, aadhar..." oninput="renderList()">
+        <button class="btn-sm" type="button" onclick="selectAllVisible()">☑️ Select All</button>
+        <button class="btn-sm" type="button" onclick="clearSelection()">◻️ Clear Selection</button>
+        <button class="btn-sm btn-danger" type="button" onclick="deleteSelected()">🗑️ Delete Selected</button>
+        <span class="selected-pill" id="selectedCountPill">0 Selected</span>
+        <span class="count-pill" id="countPill">0 Records</span>
+      </div>
+      <div class="rec-grid" id="recGrid"></div>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="big">🗂️</div>
+        <div>अभी तक कोई रिकॉर्ड नहीं। "नया रिकॉर्ड" टैब से जोड़ें।</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PRINT AREA -->
+<div id="printArea"></div>
+
+<div id="toast"></div>
+
+<!-- Custom Confirm Modal -->
+<div id="confirmOverlay" class="confirm-overlay">
+  <div class="confirm-box">
+    <div id="confirmMsg" class="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button id="confirmYesBtn" class="btn-danger" type="button">हाँ, हटाएँ</button>
+      <button id="confirmNoBtn" class="btn" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'shivComputer_registrationRecords';
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let editingId = null;
+let photoData = null;
+let selectedIds = new Set();
+
+/* Some records (old data / restored backups) can end up without an `id`.
+   That made their Delete button call deleteRecord('undefined') — a STRING —
+   while the record's real id was the undefined VALUE, so the two never
+   matched and the row could never be deleted. Fix: give every record a
+   real id once, up front, and save it back. */
+function ensureRecordIds(){
+  let changed = false;
+  records.forEach(r=>{
+    if(!r.id){
+      r.id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      changed = true;
+    }
+  });
+  if(changed) persist();
+}
+ensureRecordIds();
+
+/* Reliable confirm dialog. Some in-app / embedded webviews block or silently
+   auto-reject window.confirm(), which is why Delete could appear to "not work".
+   This custom modal replaces it and always works the same way everywhere. */
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    const overlay = document.getElementById('confirmOverlay');
+    document.getElementById('confirmMsg').textContent = msg;
+    overlay.classList.add('show');
+    const yesBtn = document.getElementById('confirmYesBtn');
+    const noBtn = document.getElementById('confirmNoBtn');
+    function cleanup(result){
+      overlay.classList.remove('show');
+      yesBtn.removeEventListener('click', onYes);
+      noBtn.removeEventListener('click', onNo);
+      overlay.removeEventListener('click', onOverlay);
+      resolve(result);
+    }
+    function onYes(){ cleanup(true); }
+    function onNo(){ cleanup(false); }
+    function onOverlay(e){ if(e.target === overlay) cleanup(false); }
+    yesBtn.addEventListener('click', onYes);
+    noBtn.addEventListener('click', onNo);
+    overlay.addEventListener('click', onOverlay);
+  });
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.getElementById('tab-entry').style.display = name==='entry' ? 'block' : 'none';
+  document.getElementById('tab-list').style.display = name==='list' ? 'block' : 'none';
+  if(name==='list') renderList();
+}
+
+function handlePhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      const maxW = 300, maxH = 360;
+      let w = img.width, h = img.height;
+      const ratio = Math.min(maxW/w, maxH/h, 1);
+      canvas.width = w*ratio; canvas.height = h*ratio;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      photoData = canvas.toDataURL('image/jpeg', 0.75);
+      document.getElementById('photoPreview').innerHTML = '<img src="'+photoData+'">';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function clearPhoto(){
+  photoData = null;
+  document.getElementById('photoInput').value='';
+  document.getElementById('photoPreview').innerHTML = 'No Photo';
+}
+
+let currentSubjects = [];
+
+function addSubject(){
+  const input = document.getElementById('f_subjectInput');
+  const val = input.value.trim();
+  if(!val) return;
+  currentSubjects.push(val);
+  input.value='';
+  renderSubjectTags();
+}
+function removeSubject(idx){
+  currentSubjects.splice(idx,1);
+  renderSubjectTags();
+}
+function renderSubjectTags(){
+  const box = document.getElementById('subjectTags');
+  box.innerHTML = currentSubjects.map((s,i)=>
+    `<span class="subject-tag"><span class="num">${i+1}</span>${escapeHtml(s)}<span class="rm" onclick="removeSubject(${i})">✕</span></span>`
+  ).join('');
+}
+
+function nextSrNumber(){
+  // Highest existing numeric S.R. + 1 (falls back to count+1 if S.R.s aren't plain numbers)
+  let maxNum = 0;
+  records.forEach(r=>{
+    const n = parseInt(String(r.sr||'').trim(), 10);
+    if(!isNaN(n) && n > maxNum) maxNum = n;
+  });
+  return String(maxNum > 0 ? maxNum + 1 : records.length + 1);
+}
+function setAutoSr(){
+  document.getElementById('f_sr').value = nextSrNumber();
+}
+
+function collectForm(){
+  return {
+    sr: document.getElementById('f_sr').value.trim(),
+    nameHi: document.getElementById('f_nameHi').value.trim(),
+    nameEn: document.getElementById('f_nameEn').value.trim(),
+    subjects: currentSubjects.slice(),
+    gender: document.getElementById('f_gender').value,
+    medium: document.getElementById('f_medium').value,
+    cast: document.getElementById('f_cast').value,
+    fatherHi: document.getElementById('f_fatherHi').value.trim(),
+    fatherEn: document.getElementById('f_fatherEn').value.trim(),
+    motherHi: document.getElementById('f_motherHi').value.trim(),
+    motherEn: document.getElementById('f_motherEn').value.trim(),
+    address: document.getElementById('f_address').value.trim(),
+    hsroll: document.getElementById('f_hsroll').value.trim(),
+    aadhar: document.getElementById('f_aadhar').value.trim(),
+    pen: document.getElementById('f_pen').value.trim(),
+    mobile: document.getElementById('f_mobile').value.trim(),
+    photo: photoData
+  };
+}
+
+function saveRecord(){
+  const data = collectForm();
+  if(!data.nameHi && !data.nameEn){
+    toast('⚠️ कृपया छात्र का नाम भरें');
+    return;
+  }
+  if(editingId){
+    const idx = records.findIndex(r=>r.id===editingId);
+    if(idx>-1){ data.id = editingId; records[idx] = data; }
+    toast('✅ Record Updated');
+  } else {
+    data.id = 'r_' + Date.now();
+    if(!data.sr) data.sr = nextSrNumber();
+    records.push(data);
+    toast('✅ Record Saved');
+  }
+  persist();
+  clearForm();
+  switchTab('list');
+}
+
+function persist(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function clearForm(){
+  ['f_nameHi','f_nameEn','f_fatherHi','f_fatherEn','f_motherHi','f_motherEn','f_address','f_hsroll','f_aadhar','f_pen','f_mobile','f_subjectInput']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_gender').value='';
+  document.getElementById('f_medium').value='';
+  document.getElementById('f_cast').value='';
+  currentSubjects = [];
+  renderSubjectTags();
+  clearPhoto();
+  editingId = null;
+  lastAuto.f_nameHi=''; lastAuto.f_fatherHi=''; lastAuto.f_motherHi='';
+  document.getElementById('formTitle').textContent = 'Student Registration Entry';
+  document.getElementById('cancelEditBtn').style.display='none';
+  setAutoSr();
+}
+
+function cancelEdit(){ clearForm(); }
+
+function editRecord(id){
+  const r = records.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('f_sr').value = r.sr||'';
+  document.getElementById('f_nameHi').value = r.nameHi||'';
+  document.getElementById('f_nameEn').value = r.nameEn||'';
+  currentSubjects = (r.subjects||[]).slice();
+  renderSubjectTags();
+  document.getElementById('f_gender').value = r.gender||'';
+  document.getElementById('f_medium').value = r.medium||'';
+  document.getElementById('f_cast').value = r.cast||'';
+  document.getElementById('f_fatherHi').value = r.fatherHi||'';
+  document.getElementById('f_fatherEn').value = r.fatherEn||'';
+  document.getElementById('f_motherHi').value = r.motherHi||'';
+  document.getElementById('f_motherEn').value = r.motherEn||'';
+  document.getElementById('f_address').value = r.address||'';
+  document.getElementById('f_hsroll').value = r.hsroll||'';
+  document.getElementById('f_aadhar').value = r.aadhar||'';
+  document.getElementById('f_pen').value = r.pen||'';
+  document.getElementById('f_mobile').value = r.mobile||'';
+  photoData = r.photo || null;
+  document.getElementById('photoPreview').innerHTML = photoData ? '<img src="'+photoData+'">' : 'No Photo';
+  // treat loaded Hindi values as the "auto baseline" so typing more English won't clobber a manually-set Hindi value
+  lastAuto.f_nameHi = r.nameHi||'';
+  lastAuto.f_fatherHi = r.fatherHi||'';
+  lastAuto.f_motherHi = r.motherHi||'';
+  editingId = id;
+  document.getElementById('formTitle').textContent = 'Edit Record — ' + (r.nameHi||r.nameEn);
+  document.getElementById('cancelEditBtn').style.display='inline-flex';
+  switchTab('entry');
+}
+
+async function deleteSelected(){
+  if(selectedIds.size===0){ toast('⚠️ कृपया हटाने के लिए कम से कम एक रिकॉर्ड चुनें'); return; }
+  const ok = await showConfirm(selectedIds.size + ' चुने हुए रिकॉर्ड हटाएँ? यह पूर्ववत नहीं किया जा सकता।');
+  if(!ok) return;
+  records = records.filter(r=>!selectedIds.has(r.id));
+  selectedIds.clear();
+  persist();
+  renderList();
+  toast('🗑️ Selected Records Deleted');
+}
+
+async function deleteRecord(id){
+  const ok = await showConfirm('क्या आप वाकई इस रिकॉर्ड को हटाना चाहते हैं?');
+  if(!ok) return;
+  records = records.filter(r=>r.id!==id);
+  selectedIds.delete(id);
+  persist();
+  renderList();
+  toast('🗑️ Record Deleted');
+}
+
+function renderList(){
+  const grid = document.getElementById('recGrid');
+  const empty = document.getElementById('emptyState');
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const filtered = records.filter(r=>{
+    if(!q) return true;
+    return (r.nameHi+r.nameEn+r.fatherHi+r.fatherEn+r.mobile+r.aadhar+r.pen).toLowerCase().includes(q);
+  });
+  document.getElementById('countPill').textContent = filtered.length + ' Records';
+  updateSelectedPill();
+  grid.innerHTML='';
+  if(filtered.length===0){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  filtered.forEach(r=>{
+    const card = document.createElement('div');
+    const isSel = selectedIds.has(r.id);
+    card.className = 'rec-card' + (isSel ? ' is-selected' : '');
+    const subjTxt = (r.subjects&&r.subjects.length) ? r.subjects.join(', ') : '-';
+    card.innerHTML = `
+      <div class="rec-select-wrap">
+        <input type="checkbox" class="rec-select" title="Select for print" ${isSel?'checked':''} onchange="toggleSelect('${r.id}', this.checked, this)">
+      </div>
+      <div class="thumb">${r.photo ? '<img src="'+r.photo+'">' : 'No Photo'}</div>
+      <div class="rec-info">
+        <div class="sr">S.R. ${escapeHtml(r.sr||'-')}</div>
+        <div class="name-hi">${escapeHtml(r.nameHi||'-')}</div>
+        <div class="name-en">${escapeHtml(r.nameEn||'')}</div>
+        <div class="meta">
+          Father: ${escapeHtml(r.fatherHi||r.fatherEn||'-')}<br>
+          Subjects: ${escapeHtml(subjTxt)}<br>
+          Mobile: ${escapeHtml(r.mobile||'-')} | Cast: ${escapeHtml(r.cast||'-')}
+        </div>
+      </div>
+      <div class="rec-card-actions">
+        <button class="icon-btn" title="Edit" onclick="editRecord('${r.id}')">✏️</button>
+        <button class="icon-btn del" title="Delete" onclick="deleteRecord('${r.id}')">🗑️</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleSelect(id, checked, el){
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  if(el){ const card = el.closest('.rec-card'); if(card) card.classList.toggle('is-selected', checked); }
+  updateSelectedPill();
+}
+
+function selectAllVisible(){
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const filtered = records.filter(r=>{
+    if(!q) return true;
+    return (r.nameHi+r.nameEn+r.fatherHi+r.fatherEn+r.mobile+r.aadhar+r.pen).toLowerCase().includes(q);
+  });
+  filtered.forEach(r=>selectedIds.add(r.id));
+  renderList();
+}
+
+function clearSelection(){
+  selectedIds.clear();
+  renderList();
+}
+
+function updateSelectedPill(){
+  const pill = document.getElementById('selectedCountPill');
+  if(pill) pill.textContent = selectedIds.size + ' Selected';
+}
+
+function escapeHtml(s){
+  return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ===== PRINT — compact card per student (all fields kept, just laid out tighter so many more fit per page) ===== */
+function buildSubjectsText(subjects){
+  if(!subjects || subjects.length===0) return '-';
+  if(subjects.length===1) return escapeHtml(subjects[0]);
+  return subjects.map((s,i)=> (i+1)+'.'+escapeHtml(s)).join(', ');
+}
+
+function buildNameCell(hi, en){
+  hi = (hi||'').trim(); en = (en||'').trim();
+  if(hi && en) return escapeHtml(hi) + ' <span style="font-weight:400;">(' + escapeHtml(en.toUpperCase()) + ')</span>';
+  if(hi) return escapeHtml(hi);
+  if(en) return escapeHtml(en.toUpperCase());
+  return '-';
+}
+
+function buildRecordBlock(r){
+  const photoHtml = r.photo
+    ? '<img class="stu-photo" src="'+r.photo+'">'
+    : '<div class="stu-photo-ph">Photo</div>';
+  const nameEnPart = (r.nameEn||'').trim() ? ' <span style="font-weight:400;">(' + escapeHtml(r.nameEn.trim().toUpperCase()) + ')</span>' : '';
+  return `
+  <div class="stu-card">
+    <div class="stu-srbar">S.R. No. : ${escapeHtml(r.sr||'-')}</div>
+    <div class="stu-body">
+      ${photoHtml}
+      <div class="stu-details">
+        <div class="stu-row"><span class="stu-namehi">${escapeHtml(r.nameHi||'-')}</span>${nameEnPart}</div>
+        <div class="stu-row"><b>Subject:</b> ${buildSubjectsText(r.subjects)}</div>
+        <div class="stu-row"><b>Gender:</b> ${escapeHtml(r.gender||'-')} &nbsp; <b>Medium:</b> ${escapeHtml(r.medium||'-')} &nbsp; <b>Cast:</b> ${escapeHtml(r.cast||'-')}</div>
+        <div class="stu-row"><b>Father:</b> ${buildNameCell(r.fatherHi, r.fatherEn)}</div>
+        <div class="stu-row"><b>Mother:</b> ${buildNameCell(r.motherHi, r.motherEn)}</div>
+        <div class="stu-row"><b>Address:</b> ${escapeHtml(r.address||'-')}</div>
+        <div class="stu-row"><b>HS Roll/Yr:</b> ${escapeHtml(r.hsroll||'-')} &nbsp; <b>PEN:</b> ${escapeHtml(r.pen||'-')}</div>
+        <div class="stu-row"><b>Aadhar:</b> ${escapeHtml(r.aadhar||'-')} &nbsp; <b>Mobile:</b> ${escapeHtml(r.mobile||'-')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function savePrintHeader(){
+  localStorage.setItem('shivComputer_regHeaderText', document.getElementById('printHeaderInput').value);
+}
+function loadPrintHeader(){
+  const saved = localStorage.getItem('shivComputer_regHeaderText') || '';
+  document.getElementById('printHeaderInput').value = saved;
+}
+
+function printRecords(onlySelected){
+  let toPrint = records;
+  if(onlySelected){
+    toPrint = records.filter(r=>selectedIds.has(r.id));
+    if(toPrint.length===0){ toast('⚠️ कृपया प्रिंट के लिए कम से कम एक रिकॉर्ड चुनें'); return; }
+  } else if(records.length===0){
+    toast('⚠️ कोई रिकॉर्ड नहीं मिला'); return;
+  }
+  const headerText = document.getElementById('printHeaderInput').value.trim();
+  const labelSuffix = onlySelected ? ' (Selected)' : '';
+  const headerHtml = headerText
+    ? '<div class="print-header-title">'+escapeHtml(headerText)+'</div><div class="print-header-sub">Student Registration Form'+labelSuffix+' &nbsp;|&nbsp; Total Students: '+toPrint.length+'</div>'
+    : '<div class="print-header-sub">Student Registration Form'+labelSuffix+' &nbsp;|&nbsp; Total Students: '+toPrint.length+'</div>';
+  // Single continuous grid — the browser paginates it automatically at row
+  // boundaries (each .stu-card has page-break-inside:avoid), which packs the
+  // maximum number of complete student records onto every printed page
+  // instead of forcing a fixed count per page.
+  let html = headerHtml + '<div class="print-grid">';
+  toPrint.forEach(r => { html += buildRecordBlock(r); });
+  html += '</div>';
+  document.getElementById('printArea').innerHTML = html;
+  setTimeout(()=>window.print(), 150);
+}
+
+/* ===== Backup / Restore ===== */
+function backupData(){
+  const blob = new Blob([JSON.stringify(records, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  a.href = url;
+  a.download = 'ShivComputer_Registration_Backup_' + stamp + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 Backup Downloaded');
+}
+
+function restoreBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('Invalid format');
+      if(records.length>0){
+        const merge = await showConfirm('मौजूदा रिकॉर्ड्स के साथ नए रिकॉर्ड्स जोड़ें? (Cancel = सभी बदल दें)');
+        if(!merge){
+          records = imported;
+        } else {
+          const existingIds = new Set(records.map(r=>r.id));
+          imported.forEach(r=>{ if(!existingIds.has(r.id)) records.push(r); });
+        }
+      } else {
+        records = imported;
+      }
+      persist();
+      renderList();
+      switchTab('list');
+      toast('✅ Restore Successful — ' + imported.length + ' records loaded');
+    } catch(err){
+      toast('❌ Invalid Backup File');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ===== English -> Hindi phonetic transliteration (lightweight, offline) ===== */
+const VOWELS = [
+  ['aa','आ','ा'],['ee','ई','ी'],['ii','ई','ी'],['oo','ऊ','ू'],
+  ['ai','ऐ','ै'],['au','औ','ौ'],
+  ['a','अ',''],['i','इ','ि'],['u','उ','ु'],['e','ए','े'],['o','ओ','ो']
+];
+const CONSONANTS = [
+  ['ksh','क्ष'],['gya','ज्ञ'],['gy','ज्ञ'],['shr','श्र'],['chh','छ'],
+  ['sh','श'],['ch','च'],['kh','ख'],['gh','घ'],['th','थ'],['dh','ध'],
+  ['ph','फ'],['bh','भ'],['ng','ङ'],['ny','ञ'],['jh','झ'],
+  ['k','क'],['g','ग'],['c','क'],['j','ज'],['t','त'],['d','द'],['n','न'],
+  ['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],
+  ['v','व'],['w','व'],['s','स'],['h','ह'],['f','फ़'],['z','ज़'],['x','क्ष'],['q','क़']
+];
+
+function matchAt(str, i, table){
+  for(const row of table){
+    const latin = row[0];
+    if(str.substr(i, latin.length) === latin) return {latin, dev:row[1], matra:row[2]};
+  }
+  return null;
+}
+
+function transliterateWord(word){
+  const w = word.toLowerCase();
+  const len = w.length;
+  let i = 0, out = '', atWordStart = true;
+  while(i < len){
+    const cons = matchAt(w, i, CONSONANTS);
+    if(cons){
+      i += cons.latin.length;
+      const vow = matchAt(w, i, VOWELS);
+      if(vow){
+        out += cons.dev + vow.matra;
+        i += vow.latin.length;
+      } else if(i < len){
+        // followed directly by another consonant -> conjunct (halant)
+        out += cons.dev + '्';
+      } else {
+        out += cons.dev; // end of word, inherent 'a'
+      }
+      atWordStart = false;
+      continue;
+    }
+    const vow = matchAt(w, i, VOWELS);
+    if(vow){
+      out += atWordStart ? vow.dev : vow.dev; // standalone vowel
+      i += vow.latin.length;
+      atWordStart = false;
+      continue;
+    }
+    // unknown character (number, punctuation) - keep as is
+    out += w[i];
+    i += 1;
+    atWordStart = false;
+  }
+  return out;
+}
+
+function transliterateToHindi(text){
+  if(!text) return '';
+  return text.split(/(\s+)/).map(tok => /^\s+$/.test(tok) ? tok : (tok ? transliterateWord(tok) : tok)).join('');
+}
+
+function isAutoHindiOn(){
+  const el = document.getElementById('autoHindiToggle');
+  return el ? el.checked : true;
+}
+
+/* Mirror mode: English field -> Hindi field, auto-fills unless the Hindi field
+   was manually edited by the user (in which case we stop overwriting it) */
+const lastAuto = { f_nameHi:'', f_fatherHi:'', f_motherHi:'' };
+function wireAutoHindi(enIdOrIds, hiId){
+  const enId = enIdOrIds;
+  document.getElementById(enId).addEventListener('input', function(e){
+    if(!isAutoHindiOn()) return;
+    const hiField = document.getElementById(hiId);
+    // only auto-fill if the hindi field still matches what we last generated
+    // (i.e. untouched by the user) or is empty
+    if(hiField.value === lastAuto[hiId] || hiField.value.trim()===''){
+      const generated = transliterateToHindi(e.target.value);
+      hiField.value = generated;
+      lastAuto[hiId] = generated;
+    }
+  });
+}
+wireAutoHindi('f_nameEn', 'f_nameHi');
+wireAutoHindi('f_fatherEn', 'f_fatherHi');
+wireAutoHindi('f_motherEn', 'f_motherHi');
+
+/* Aadhar auto-format */
+document.getElementById('f_aadhar').addEventListener('input', function(e){
+  let v = e.target.value.replace(/\D/g,'').slice(0,12);
+  e.target.value = v.replace(/(\d{4})(?=\d)/g,'$1 ');
+});
+document.getElementById('f_mobile').addEventListener('input', function(e){
+  e.target.value = e.target.value.replace(/\D/g,'').slice(0,10);
+});
+
+renderList();
+loadPrintHeader();
+setAutoSr();
+</script>
+</body>
+</html>
