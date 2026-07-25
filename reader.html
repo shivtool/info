@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiv Computer — Book Reader</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --bg-deep:#0c0a08;
+  --bg-panel:#171310;
+  --leather:#2b1c12;
+  --leather-2:#3a2416;
+  --gold:#c9a24b;
+  --gold-bright:#e8c877;
+  --parchment:#f3e6c8;
+  --parchment-dim:#d8c9a3;
+  --ink:#241a10;
+  --shadow:rgba(0,0,0,.55);
+  --font-display:'Cinzel', 'Rajdhani', serif;
+  --font-body:'Rajdhani', 'Poppins', sans-serif;
+}
+@font-face{font-family:'Cinzel';src:local('Cinzel');}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(ellipse at 50% -10%, #2a1f14 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 110%, #1a130c 0%, transparent 55%),
+    var(--bg-deep);
+  color:var(--parchment);
+  font-family:var(--font-body);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+::selection{background:var(--gold);color:#1a1208;}
+
+/* ---------- Top bar ---------- */
+#topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  background:linear-gradient(180deg,#1c150e,#120d08);
+  border-bottom:1px solid #40301c;
+  box-shadow:0 4px 18px var(--shadow);
+  z-index:50;
+  flex-wrap:wrap;
+}
+#topbar .brand{
+  font-family:var(--font-display);
+  letter-spacing:2px;
+  color:var(--gold-bright);
+  font-size:18px;
+  font-weight:700;
+  white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+#topbar .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 8px var(--gold-bright);}
+.btn{
+  background:linear-gradient(180deg,#3a2b18,#241a0f);
+  border:1px solid #5c4526;
+  color:var(--parchment-dim);
+  padding:8px 14px;
+  border-radius:8px;
+  font-family:var(--font-body);
+  font-weight:600;
+  letter-spacing:.5px;
+  cursor:pointer;
+  font-size:13px;
+  transition:.18s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn:hover{border-color:var(--gold-bright);color:var(--gold-bright);box-shadow:0 0 12px rgba(201,162,75,.25);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn.icon{padding:8px 10px;}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+#searchBox{
+  flex:1;min-width:140px;max-width:280px;
+  background:#120d08;border:1px solid #4a3620;color:var(--parchment);
+  padding:8px 12px;border-radius:8px;font-size:13px;font-family:var(--font-body);
+  outline:none;
+}
+#searchBox:focus{border-color:var(--gold-bright);}
+#pageIndicator{
+  color:var(--gold-bright);font-size:13px;font-weight:600;white-space:nowrap;min-width:90px;text-align:center;
+}
+.spacer{flex:1;}
+#fileInput{display:none;}
+
+/* ---------- Landing / open screen ---------- */
+#landing{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;text-align:center;
+}
+#landing h1{
+  font-family:var(--font-display);font-size:34px;color:var(--gold-bright);letter-spacing:3px;
+  text-shadow:0 0 24px rgba(201,162,75,.35);
+}
+#landing p{color:var(--parchment-dim);max-width:460px;line-height:1.6;font-size:15px;}
+#landingActions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.continueCard{
+  background:linear-gradient(160deg,#241a10,#150f09);
+  border:1px solid #5c4526;border-radius:14px;padding:18px 22px;
+  display:flex;align-items:center;gap:14px;max-width:420px;
+  box-shadow:0 10px 30px var(--shadow);
+}
+.continueCard .icon{font-size:30px;}
+.continueCard .info{text-align:left;flex:1;}
+.continueCard .info .fname{color:var(--gold-bright);font-weight:700;font-size:14px;word-break:break-all;}
+.continueCard .info .fmeta{color:var(--parchment-dim);font-size:12px;margin-top:2px;}
+
+/* ---------- Loading overlay ---------- */
+#loading{
+  position:fixed;inset:0;background:rgba(8,6,4,.92);display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:200;
+}
+#loading.show{display:flex;}
+.spinner{
+  width:54px;height:54px;border-radius:50%;
+  border:3px solid #3a2b18;border-top-color:var(--gold-bright);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loadingText{color:var(--parchment-dim);font-size:14px;letter-spacing:.5px;}
+#loadingBarWrap{width:260px;height:6px;background:#2a2015;border-radius:4px;overflow:hidden;}
+#loadingBar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));transition:width .2s;}
+
+/* ---------- Book stage ---------- */
+#stageWrap{
+  flex:1;position:relative;display:none;
+  align-items:center;justify-content:center;
+  perspective:2600px;
+  padding:18px;
+  overflow:hidden;
+}
+#stageWrap.show{display:flex;}
+#bookShell{
+  position:relative;
+  background:linear-gradient(160deg,var(--leather-2),var(--leather));
+  border-radius:8px;
+  box-shadow:0 30px 70px var(--shadow), inset 0 0 40px rgba(0,0,0,.5);
+  padding:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#book{
+  position:relative;
+  background:#0f0b07;
+  box-shadow:0 0 0 2px #5c4526, 0 20px 50px rgba(0,0,0,.6);
+  border-radius:2px;
+  overflow:visible;
+  transition:width .5s ease, height .5s ease;
+}
+#pageBack, #pageFront{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background:var(--parchment);
+  border-radius:2px;
+  overflow:hidden;
+  box-shadow:inset 0 0 40px rgba(90,60,20,.15);
+}
+#pageBack{z-index:1;}
+#pageFront{
+  z-index:2;
+  transform-style:preserve-3d;
+  transform-origin:left center;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+#pageFront.origin-right{transform-origin:right center;}
+#pageFront canvas, #pageBack canvas{
+  display:block;margin:0 auto;max-width:100%;max-height:100%;
+}
+.shadeOverlay{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg, rgba(0,0,0,.65), rgba(0,0,0,.05) 55%, rgba(255,255,255,.35));
+  opacity:0;pointer-events:none;
+}
+#pageFront.origin-right .shadeOverlay{
+  background:linear-gradient(270deg, rgba(0,0,0,.65), rgba(0,0,0,.05) 55%, rgba(255,255,255,.35));
+}
+.foldShadow{
+  position:absolute;top:0;bottom:0;left:0;width:100%;
+  background:linear-gradient(90deg, rgba(20,12,4,.45), transparent 45%);
+  opacity:0;pointer-events:none;
+}
+#book.dir-back .foldShadow{background:linear-gradient(270deg, rgba(20,12,4,.45), transparent 45%);}
+#bookShell{ box-shadow:0 30px 70px var(--shadow), inset 0 0 40px rgba(0,0,0,.5); }
+.clickZone{
+  position:absolute;top:0;bottom:0;width:50%;cursor:pointer;z-index:5;
+}
+.clickZone.left{left:0;}
+.clickZone.right{right:0;}
+.clickZone:hover{background:rgba(201,162,75,.03);}
+
+/* nav arrows */
+.navArrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(20,15,9,.7);border:1px solid #5c4526;color:var(--gold-bright);
+  font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;
+  transition:.2s;
+}
+.navArrow:hover{background:rgba(40,30,17,.9);box-shadow:0 0 14px rgba(201,162,75,.3);}
+.navArrow.left{left:-60px;}
+.navArrow.right{right:-60px;}
+.navArrow:disabled{opacity:.25;cursor:not-allowed;}
+
+/* ---------- Bottom bar ---------- */
+#bottombar{
+  display:none;align-items:center;gap:14px;padding:10px 20px;
+  background:linear-gradient(0deg,#1c150e,#120d08);
+  border-top:1px solid #40301c;
+}
+#bottombar.show{display:flex;}
+#pageSlider{flex:1;accent-color:var(--gold-bright);}
+#jumpInput{
+  width:64px;background:#120d08;border:1px solid #4a3620;color:var(--parchment);
+  padding:6px 8px;border-radius:6px;font-size:13px;text-align:center;
+}
+
+/* ---------- Search panel ---------- */
+#searchPanel{
+  position:fixed;top:0;right:-360px;width:340px;height:100%;
+  background:linear-gradient(160deg,#1c150e,#100b06);
+  border-left:1px solid #5c4526;box-shadow:-10px 0 30px var(--shadow);
+  z-index:100;transition:right .3s;display:flex;flex-direction:column;
+}
+#searchPanel.open{right:0;}
+#searchPanel .sp-head{
+  padding:16px 18px;border-bottom:1px solid #40301c;display:flex;align-items:center;justify-content:space-between;
+}
+#searchPanel .sp-head h3{color:var(--gold-bright);font-family:var(--font-display);font-size:16px;letter-spacing:1px;}
+#searchResults{flex:1;overflow-y:auto;padding:10px 14px;}
+.resultItem{
+  padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:8px;
+  background:rgba(255,255,255,.02);border:1px solid #33261650;
+  transition:.15s;
+}
+.resultItem:hover{background:rgba(201,162,75,.08);border-color:var(--gold-bright);}
+.resultItem .rp{color:var(--gold-bright);font-size:12px;font-weight:700;margin-bottom:4px;}
+.resultItem .rs{color:var(--parchment-dim);font-size:12.5px;line-height:1.4;}
+.resultItem mark{background:var(--gold);color:#1a1208;padding:0 2px;border-radius:2px;}
+#searchStatus{padding:8px 18px;color:var(--parchment-dim);font-size:12px;border-bottom:1px solid #2a2015;}
+.closeX{cursor:pointer;color:var(--parchment-dim);font-size:18px;background:none;border:none;}
+.closeX:hover{color:var(--gold-bright);}
+
+/* ---------- TOC / Bookmarks panel ---------- */
+#tocPanel{
+  position:fixed;top:0;left:-320px;width:300px;height:100%;
+  background:linear-gradient(160deg,#1c150e,#100b06);
+  border-right:1px solid #5c4526;box-shadow:10px 0 30px var(--shadow);
+  z-index:100;transition:left .3s;display:flex;flex-direction:column;
+}
+#tocPanel.open{left:0;}
+#tocPanel .sp-head{padding:16px 18px;border-bottom:1px solid #40301c;display:flex;align-items:center;justify-content:space-between;}
+#tocPanel .sp-head h3{color:var(--gold-bright);font-family:var(--font-display);font-size:16px;letter-spacing:1px;}
+#tocList,#bmList{padding:10px 14px;overflow-y:auto;}
+.tocItem{padding:8px 10px;border-radius:6px;cursor:pointer;color:var(--parchment-dim);font-size:13px;margin-bottom:4px;}
+.tocItem:hover{background:rgba(201,162,75,.08);color:var(--gold-bright);}
+#tocPanel .tabs{display:flex;border-bottom:1px solid #2a2015;}
+#tocPanel .tabs button{flex:1;background:none;border:none;color:var(--parchment-dim);padding:10px;cursor:pointer;font-size:12.5px;font-weight:600;letter-spacing:.5px;}
+#tocPanel .tabs button.active{color:var(--gold-bright);border-bottom:2px solid var(--gold-bright);}
+.bmItem{padding:8px 10px;border-radius:6px;cursor:pointer;color:var(--parchment-dim);font-size:13px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
+.bmItem:hover{background:rgba(201,162,75,.08);color:var(--gold-bright);}
+.bmItem .rm{color:#8a6a3a;font-size:12px;}
+.bmItem .rm:hover{color:#e0805a;}
+#emptyMsg{color:#6b5a3f;font-size:12.5px;padding:14px;text-align:center;}
+
+/* overlay when panel open */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:90;display:none;}
+#overlay.show{display:block;}
+
+@media (max-width:720px){
+  .navArrow.left{left:6px;}
+  .navArrow.right{right:6px;}
+  #topbar .brand span.txt{display:none;}
+  #searchBox{max-width:120px;}
+  #searchPanel,#tocPanel{width:88%;}
+}
+</style>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept="application/pdf">
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span class="txt">Shiv Computer — Book Reader</span></div>
+  <button class="btn icon" id="btnOpen" title="PDF Kholein">📂 <span class="txt">Open</span></button>
+  <button class="btn icon" id="btnFolder" title="Folder ki saari PDF dekhein">🗂️ <span class="txt">Folder</span></button>
+  <button class="btn icon" id="btnToc" title="Contents / Bookmarks" disabled>📑</button>
+  <input id="searchBox" placeholder="Book me khojein...">
+  <button class="btn icon" id="btnSearch" title="Search" disabled>🔍</button>
+  <button class="btn icon" id="btnMark" title="Bookmark is page" disabled>🔖</button>
+  <span class="spacer"></span>
+  <span id="pageIndicator">— / —</span>
+  <button class="btn icon" id="btnZoomOut" title="Zoom Out" disabled>−</button>
+  <button class="btn icon" id="btnZoomIn" title="Zoom In" disabled>+</button>
+  <button class="btn icon" id="btnFs" title="Fullscreen" disabled>⛶</button>
+  <button class="btn icon" id="btnSound" title="Sound On/Off">🔊</button>
+</div>
+
+<div id="landing">
+  <h1>📖 आपकी डिजिटल पुस्तक</h1>
+  <p>900 पन्नों की PDF को असली किताब की तरह पलटें — पेज-फ्लिप एनिमेशन, आवाज़, खोज और जहाँ छोड़ा था वहीं से दोबारा शुरू करने की सुविधा के साथ।</p>
+  <div id="landingActions">
+    <button class="btn" id="btnOpenBig" style="padding:14px 28px;font-size:15px;">📂 PDF खोलें</button>
+  </div>
+  <div id="continueWrap"></div>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="loadingText">PDF लोड हो रही है...</div>
+  <div id="loadingBarWrap"><div id="loadingBar"></div></div>
+</div>
+
+<div id="stageWrap">
+  <div id="bookShell">
+    <button class="navArrow left" id="navLeft">‹</button>
+    <div id="book">
+      <div id="pageBack"><canvas id="canvasBack"></canvas><div class="foldShadow" id="foldShadow"></div></div>
+      <div id="pageFront"><canvas id="canvasFront"></canvas><div class="shadeOverlay" id="shadeOverlay"></div></div>
+      <div class="clickZone left" id="zoneLeft"></div>
+      <div class="clickZone right" id="zoneRight"></div>
+    </div>
+    <button class="navArrow right" id="navRight">›</button>
+  </div>
+</div>
+
+<div id="bottombar">
+  <span style="color:var(--parchment-dim);font-size:12px;">1</span>
+  <input type="range" id="pageSlider" min="1" max="1" value="1">
+  <span style="color:var(--parchment-dim);font-size:12px;" id="totalPagesLabel">—</span>
+  <input type="number" id="jumpInput" placeholder="पेज">
+  <button class="btn" id="btnJump">जाएँ</button>
+</div>
+
+<div id="overlay"></div>
+
+<div id="searchPanel">
+  <div class="sp-head"><h3>🔍 खोज परिणाम</h3><button class="closeX" id="closeSearch">✕</button></div>
+  <div id="searchStatus">कोई खोज नहीं</div>
+  <div id="searchResults"></div>
+</div>
+
+<div id="tocPanel">
+  <div class="sp-head"><h3>📑 सूची</h3><button class="closeX" id="closeToc">✕</button></div>
+  <div class="tabs">
+    <button class="active" id="tabToc">विषय-सूची</button>
+    <button id="tabBm">बुकमार्क</button>
+    <button id="tabFolder">फ़ोल्डर</button>
+  </div>
+  <div id="tocList"></div>
+  <div id="bmList" style="display:none;"></div>
+  <div id="folderPane" style="display:none;padding:14px;overflow-y:auto;">
+    <button class="btn" id="btnPickFolder" style="width:100%;justify-content:center;margin-bottom:10px;">📁 Folder Chunein</button>
+    <div id="folderHint" style="color:#8a7550;font-size:12px;line-height:1.5;margin-bottom:10px;">Us folder ko chunein jahan aapki PDF files rakhi hain (ye HTML file jis folder me hai, wahi folder chunein). Ek baar chunne ke baad browser yaad rakhega.</div>
+    <div id="folderFiles"></div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ---------------- IndexedDB helper (stores the actual PDF blob so we can resume without re-selecting the file) ---------------- */
+const DB_NAME = 'bookReaderDB', STORE = 'files';
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = ()=> r.result.createObjectStore(STORE);
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  });
+}
+async function idbSet(key, val){
+  const db = await idbOpen();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).put(val, key);
+    tx.oncomplete = ()=>res(); tx.onerror = ()=>rej(tx.error);
+  });
+}
+async function idbGet(key){
+  const db = await idbOpen();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readonly');
+    const rq = tx.objectStore(STORE).get(key);
+    rq.onsuccess = ()=>res(rq.result); rq.onerror = ()=>rej(rq.error);
+  });
+}
+
+/* ---------------- App state ---------------- */
+let pdfDoc = null, totalPages = 0, zoom = 1.0, soundOn = true;
+let views = [];          // [{type:'single'|'spread', pages:[n] or [n,n+1]}, ...]
+let currentViewIndex = 0;
+let fileKey = null; // identity: name+size
+let textIndex = {}; // pageNum -> text (lazy)
+let indexBuiltUpTo = 0;
+let isFlipping = false;
+let outline = [];
+
+/* Build the book's page layout: page 1 alone (cover), last page alone (back cover),
+   everything in between shown as real two-page spreads — just like an actual open book. */
+function buildViews(N){
+  const v = [];
+  if(N<=0) return v;
+  v.push({type:'single', pages:[1]});
+  if(N>=2){
+    let p = 2;
+    while(p <= N-1){
+      if(p === N-1){ v.push({type:'single', pages:[p]}); p++; }
+      else { v.push({type:'spread', pages:[p,p+1]}); p+=2; }
+    }
+    v.push({type:'single', pages:[N]});
+  }
+  return v;
+}
+function pageToViewIndex(p){
+  for(let i=0;i<views.length;i++){ if(views[i].pages.includes(p)) return i; }
+  return 0;
+}
+function currentPages(){ return views[currentViewIndex] ? views[currentViewIndex].pages : [1]; }
+
+const el = id => document.getElementById(id);
+const landing = el('landing'), stageWrap = el('stageWrap'), bottombar = el('bottombar');
+const loading = el('loading'), loadingText = el('loadingText'), loadingBar = el('loadingBar');
+const canvasFront = el('canvasFront'), canvasBack = el('canvasBack');
+const pageFront = el('pageFront'), pageBack = el('pageBack'), bookEl = el('book');
+const shadeOverlay = el('shadeOverlay'), foldShadow = el('foldShadow');
+const pageIndicator = el('pageIndicator');
+
+function showLoading(msg){ loadingText.textContent = msg; loading.classList.add('show'); loadingBar.style.width='0%'; }
+function setLoadingPct(p){ loadingBar.style.width = Math.min(100,p)+'%'; }
+function hideLoading(){ loading.classList.remove('show'); }
+
+/* ---------------- Sound (synthesised page-turn swoosh, no external file needed) ---------------- */
+let actx;
+function playFlipSound(){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const t0 = actx.currentTime;
+    const noiseBuf = actx.createBuffer(1, actx.sampleRate*0.35, actx.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    for(let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1) * (1 - i/data.length); }
+    const noise = actx.createBufferSource(); noise.buffer = noiseBuf;
+    const bp = actx.createBiquadFilter(); bp.type='bandpass';
+    bp.frequency.setValueAtTime(1800, t0);
+    bp.frequency.exponentialRampToValueAtTime(600, t0+0.32);
+    const gain = actx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.35, t0+0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.35);
+    noise.connect(bp); bp.connect(gain); gain.connect(actx.destination);
+    noise.start(t0); noise.stop(t0+0.36);
+  }catch(e){}
+}
+el('btnSound').onclick = ()=>{
+  soundOn = !soundOn;
+  el('btnSound').textContent = soundOn ? '🔊' : '🔇';
+};
+
+/* ---------------- Local storage (per-book progress, zoom, bookmarks) ---------------- */
+function lsKey(k){ return 'bookReader::'+fileKey+'::'+k; }
+function saveProgress(){
+  if(!fileKey) return;
+  localStorage.setItem(lsKey('lastPage'), String(currentPages()[0]));
+  localStorage.setItem(lsKey('zoom'), String(zoom));
+}
+function loadProgress(){
+  const lp = localStorage.getItem(lsKey('lastPage'));
+  const z = localStorage.getItem(lsKey('zoom'));
+  if(z) zoom = parseFloat(z);
+  return lp ? parseInt(lp,10) : 1;
+}
+function getBookmarks(){
+  try{ return JSON.parse(localStorage.getItem(lsKey('bookmarks'))||'[]'); }catch(e){ return []; }
+}
+function saveBookmarks(list){ localStorage.setItem(lsKey('bookmarks'), JSON.stringify(list)); }
+
+/* ---------------- Opening a file ---------------- */
+el('btnOpen').onclick = ()=> el('fileInput').click();
+el('btnOpenBig').onclick = ()=> el('fileInput').click();
+el('fileInput').onchange = (e)=>{
+  const f = e.target.files[0];
+  if(f) openNewFile(f);
+};
+
+async function openNewFile(file){
+  showLoading('PDF लोड हो रही है...');
+  fileKey = file.name + '_' + file.size;
+  const buf = await file.arrayBuffer();
+  // Save a copy to IndexedDB for future "continue reading" (store as Blob)
+  idbSet('book_'+fileKey, new Blob([buf], {type:'application/pdf'})).catch(()=>{});
+  idbSet('lastOpened', {key:fileKey, name:file.name, size:file.size}).catch(()=>{});
+  await loadPdfFromArrayBuffer(buf.slice(0));
+}
+
+async function openFromIndexedDB(){
+  showLoading('पिछली किताब खोली जा रही है...');
+  const last = await idbGet('lastOpened');
+  if(!last){ hideLoading(); return; }
+  const blob = await idbGet('book_'+last.key);
+  if(!blob){ hideLoading(); return; }
+  fileKey = last.key;
+  const buf = await blob.arrayBuffer();
+  await loadPdfFromArrayBuffer(buf);
+}
+
+async function loadPdfFromArrayBuffer(buf){
+  try{
+    const loadingTask = pdfjsLib.getDocument({data: buf});
+    loadingTask.onProgress = (p)=>{ if(p.total) setLoadingPct(p.loaded/p.total*100); };
+    pdfDoc = await loadingTask.promise;
+    totalPages = pdfDoc.numPages;
+    views = buildViews(totalPages);
+    let startPage = loadProgress();
+    if(startPage < 1 || startPage > totalPages) startPage = 1;
+    currentViewIndex = pageToViewIndex(startPage);
+    try{ outline = (await pdfDoc.getOutline()) || []; }catch(e){ outline = []; }
+    buildTocUI();
+    textIndex = {}; indexBuiltUpTo = 0;
+
+    landing.style.display = 'none';
+    stageWrap.classList.add('show');
+    bottombar.classList.add('show');
+    ['btnToc','btnSearch','btnMark','btnZoomOut','btnZoomIn','btnFs'].forEach(id=> el(id).disabled=false);
+
+    el('pageSlider').max = totalPages;
+    el('totalPagesLabel').textContent = totalPages;
+
+    await renderCurrent();
+    hideLoading();
+    // build search index lazily in background
+    setTimeout(buildIndexIdle, 800);
+  }catch(err){
+    hideLoading();
+    alert('PDF लोड नहीं हो पाई: ' + err.message);
+  }
+}
+
+/* ---------------- Rendering pages onto canvas (single cover/back page, or a real two-page spread) ---------------- */
+async function renderPageOffscreen(pageNum, scale){
+  const page = await pdfDoc.getPage(pageNum);
+  const viewport = page.getViewport({scale});
+  const off = document.createElement('canvas');
+  off.width = Math.round(viewport.width);
+  off.height = Math.round(viewport.height);
+  await page.render({canvasContext: off.getContext('2d'), viewport}).promise;
+  return off;
+}
+async function scaleForView(view){
+  const bookH = Math.min(window.innerHeight*0.78, 900);
+  const page = await pdfDoc.getPage(view.pages[0]);
+  const vp = page.getViewport({scale:1});
+  return (bookH / vp.height) * zoom;
+}
+
+async function renderViewToCanvas(viewIdx, canvas){
+  const view = views[viewIdx];
+  if(!view) return;
+  const scale = await scaleForView(view);
+  const ctx = canvas.getContext('2d');
+  if(view.type === 'single'){
+    const off = await renderPageOffscreen(view.pages[0], scale);
+    canvas.width = off.width; canvas.height = off.height;
+    ctx.drawImage(off, 0, 0);
+  } else {
+    const gap = 4;
+    const [offL, offR] = await Promise.all([
+      renderPageOffscreen(view.pages[0], scale),
+      renderPageOffscreen(view.pages[1], scale)
+    ]);
+    const h = Math.max(offL.height, offR.height);
+    canvas.width = offL.width + offR.width + gap;
+    canvas.height = h;
+    ctx.fillStyle = '#f3e6c8';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(offL, 0, (h-offL.height)/2);
+    ctx.drawImage(offR, offL.width+gap, (h-offR.height)/2);
+    // soft, realistic gutter shadow where the two pages meet (baked into the image itself)
+    const cx = offL.width + gap/2;
+    const grad = ctx.createLinearGradient(cx-28,0,cx+28,0);
+    grad.addColorStop(0,'rgba(40,25,10,0)');
+    grad.addColorStop(0.5,'rgba(40,25,10,0.20)');
+    grad.addColorStop(1,'rgba(40,25,10,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(cx-28,0,56,canvas.height);
+  }
+}
+
+async function sizeBookForView(viewIdx){
+  const view = views[viewIdx];
+  if(!view) return;
+  const scale = await scaleForView(view);
+  if(view.type === 'single'){
+    const page = await pdfDoc.getPage(view.pages[0]);
+    const vp = page.getViewport({scale});
+    bookEl.style.width = Math.round(vp.width)+'px';
+    bookEl.style.height = Math.round(vp.height)+'px';
+  } else {
+    const [p1,p2] = await Promise.all([pdfDoc.getPage(view.pages[0]), pdfDoc.getPage(view.pages[1])]);
+    const vp1 = p1.getViewport({scale}), vp2 = p2.getViewport({scale});
+    bookEl.style.width = Math.round(vp1.width+vp2.width+4)+'px';
+    bookEl.style.height = Math.round(Math.max(vp1.height, vp2.height))+'px';
+  }
+}
+
+function updateIndicator(){
+  const pages = currentPages();
+  pageIndicator.textContent = (pages.length===2 ? pages[0]+'–'+pages[1] : String(pages[0])) + ' / ' + totalPages;
+  el('pageSlider').value = pages[0];
+}
+
+async function renderCurrent(){
+  await sizeBookForView(currentViewIndex);
+  updatePerspective();
+  await renderViewToCanvas(currentViewIndex, canvasFront);
+  updateIndicator();
+  saveProgress();
+}
+
+/* ---------------- Page flip (JS-driven, real paper-turn feel: eased rotation + dynamic light/shadow) ---------------- */
+function pageTurnEase(t){
+  // fast lift-off, brief hover near the spine, gentle settle — like an actual turned leaf
+  return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+}
+function updatePerspective(){
+  const w = bookEl.offsetWidth || 600;
+  stageWrap.style.perspective = Math.max(1400, Math.round(w*2.3))+'px';
+}
+
+async function flipToView(newIdx, direction){
+  if(isFlipping || newIdx<0 || newIdx>=views.length || newIdx===currentViewIndex) return;
+  isFlipping = true;
+  playFlipSound();
+
+  await renderViewToCanvas(newIdx, canvasBack); // spread revealed underneath
+  const forward = direction === 'forward';
+  bookEl.classList.toggle('dir-back', !forward);
+  pageFront.classList.toggle('origin-right', !forward);
+  pageFront.classList.add('flip-active');
+  shadeOverlay.style.opacity = 0;
+  foldShadow.style.opacity = 0;
+
+  const duration = 900;
+  const endAngle = forward ? -179 : 179;
+  const startTime = performance.now();
+  let resized = false;
+
+  await new Promise(resolve=>{
+    function frame(now){
+      const t = Math.min(1, (now-startTime)/duration);
+      const eased = pageTurnEase(t);
+      const angle = endAngle * eased;
+      pageFront.style.transform = `rotateY(${angle}deg)`;
+
+      // light raking across the page as it lifts (brightest flat, darkest edge-on near the spine)
+      const rad = Math.abs(angle) * Math.PI/180;
+      shadeOverlay.style.opacity = Math.min(0.85, Math.abs(Math.sin(rad)) * 0.9);
+
+      // soft contact shadow the lifting leaf casts onto the page being revealed, fading as it settles
+      foldShadow.style.opacity = Math.max(0, 0.5 * (1 - eased));
+
+      if(!resized && t > 0.42){ resized = true; sizeBookForView(newIdx); updatePerspective(); }
+      if(t < 1){ requestAnimationFrame(frame); } else { resolve(); }
+    }
+    requestAnimationFrame(frame);
+  });
+
+  currentViewIndex = newIdx;
+  await sizeBookForView(currentViewIndex);
+  await renderViewToCanvas(currentViewIndex, canvasFront);
+  updatePerspective();
+  pageFront.style.transform = 'rotateY(0deg)';
+  shadeOverlay.style.opacity = 0;
+  foldShadow.style.opacity = 0;
+  pageFront.classList.remove('flip-active');
+
+  updateIndicator();
+  saveProgress();
+  isFlipping = false;
+}
+function nextPage(){ flipToView(currentViewIndex+1, 'forward'); }
+function prevPage(){ flipToView(currentViewIndex-1, 'back'); }
+function jumpToPage(p){
+  const idx = pageToViewIndex(p);
+  flipToView(idx, idx>currentViewIndex ? 'forward' : 'back');
+}
+
+el('zoneRight').onclick = nextPage;
+el('zoneLeft').onclick = prevPage;
+el('navRight').onclick = nextPage;
+el('navLeft').onclick = prevPage;
+document.addEventListener('keydown', e=>{
+  if(!stageWrap.classList.contains('show')) return;
+  if(e.key==='ArrowRight') nextPage();
+  if(e.key==='ArrowLeft') prevPage();
+});
+el('pageSlider').oninput = (e)=>{ pageIndicator.textContent = e.target.value+' / '+totalPages; };
+el('pageSlider').onchange = (e)=> jumpToPage(parseInt(e.target.value,10));
+el('btnJump').onclick = ()=>{
+  const p = parseInt(el('jumpInput').value,10);
+  if(p) jumpToPage(Math.max(1,Math.min(totalPages,p)));
+};
+el('jumpInput').addEventListener('keydown', e=>{ if(e.key==='Enter') el('btnJump').click(); });
+
+/* ---------------- Zoom / Fullscreen ---------------- */
+el('btnZoomIn').onclick = async ()=>{ zoom = Math.min(2.2, zoom+0.15); await renderCurrent(); };
+el('btnZoomOut').onclick = async ()=>{ zoom = Math.max(0.5, zoom-0.15); await renderCurrent(); };
+el('btnFs').onclick = ()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+};
+window.addEventListener('resize', ()=>{ if(pdfDoc) renderCurrent(); });
+
+/* ---------------- Bookmarks ---------------- */
+el('btnMark').onclick = ()=>{
+  const list = getBookmarks();
+  const p = currentPages()[0];
+  if(list.some(b=>b.page===p)){
+    saveBookmarks(list.filter(b=>b.page!==p));
+  } else {
+    list.push({page:p, ts:Date.now()});
+    saveBookmarks(list);
+  }
+  renderBookmarksUI();
+  el('btnMark').textContent = getBookmarks().some(b=>b.page===currentPages()[0]) ? '🔖✓' : '🔖';
+};
+
+function renderBookmarksUI(){
+  const list = getBookmarks().sort((a,b)=>a.page-b.page);
+  const box = el('bmList');
+  if(!list.length){ box.innerHTML = '<div id="emptyMsg">अभी कोई बुकमार्क नहीं</div>'; return; }
+  box.innerHTML = '';
+  list.forEach(b=>{
+    const d = document.createElement('div');
+    d.className='bmItem';
+    d.innerHTML = `<span>पेज ${b.page}</span><span class="rm" data-p="${b.page}">✕</span>`;
+    d.querySelector('span:first-child').onclick = ()=>{ jumpToPage(b.page); toggleToc(false); };
+    d.querySelector('.rm').onclick = (ev)=>{ ev.stopPropagation(); saveBookmarks(getBookmarks().filter(x=>x.page!==b.page)); renderBookmarksUI(); };
+    box.appendChild(d);
+  });
+}
+
+/* ---------------- TOC ---------------- */
+function buildTocUI(){
+  const box = el('tocList');
+  if(!outline || !outline.length){ box.innerHTML = '<div id="emptyMsg">इस PDF में विषय-सूची उपलब्ध नहीं है</div>'; return; }
+  box.innerHTML = '';
+  const walk = (items, depth)=>{
+    items.forEach(async it=>{
+      const d = document.createElement('div');
+      d.className='tocItem';
+      d.style.paddingLeft = (10+depth*14)+'px';
+      d.textContent = it.title;
+      d.onclick = async ()=>{
+        try{
+          let dest = it.dest;
+          if(typeof dest === 'string') dest = await pdfDoc.getDestination(dest);
+          if(dest){
+            const pageIndex = await pdfDoc.getPageIndex(dest[0]);
+            jumpToPage(pageIndex+1);
+            toggleToc(false);
+          }
+        }catch(e){}
+      };
+      box.appendChild(d);
+      if(it.items && it.items.length) walk(it.items, depth+1);
+    });
+  };
+  walk(outline, 0);
+}
+
+/* ---------------- Search (lazy full-text index) ---------------- */
+async function buildIndexIdle(){
+  if(!pdfDoc) return;
+  const chunk = 8;
+  while(indexBuiltUpTo < totalPages){
+    const end = Math.min(totalPages, indexBuiltUpTo+chunk);
+    for(let p=indexBuiltUpTo+1; p<=end; p++){
+      try{
+        const page = await pdfDoc.getPage(p);
+        const tc = await page.getTextContent();
+        textIndex[p] = tc.items.map(i=>i.str).join(' ');
+      }catch(e){ textIndex[p]=''; }
+    }
+    indexBuiltUpTo = end;
+    el('searchStatus').textContent = `अनुक्रमण: ${indexBuiltUpTo}/${totalPages} पेज तैयार`;
+    await new Promise(r=> ('requestIdleCallback' in window) ? requestIdleCallback(r) : setTimeout(r,0));
+  }
+  el('searchStatus').textContent = `पूरी किताब खोजने के लिए तैयार (${totalPages} पेज)`;
+}
+
+function runSearch(query){
+  query = query.trim();
+  const box = el('searchResults');
+  if(!query){ box.innerHTML=''; el('searchStatus').textContent='कोई खोज नहीं'; return; }
+  const q = query.toLowerCase();
+  const results = [];
+  for(let p=1;p<=totalPages;p++){
+    const txt = textIndex[p];
+    if(!txt) continue;
+    const low = txt.toLowerCase();
+    let idx = low.indexOf(q);
+    if(idx !== -1){
+      const start = Math.max(0, idx-40);
+      const snippet = txt.substring(start, idx+q.length+60);
+      results.push({page:p, snippet:(start>0?'…':'')+snippet+'…'});
+    }
+    if(results.length>=200) break;
+  }
+  el('searchStatus').textContent = results.length ? `${results.length} परिणाम मिले (अनुक्रमित पेज: ${indexBuiltUpTo}/${totalPages})` : `कोई परिणाम नहीं (अनुक्रमित पेज: ${indexBuiltUpTo}/${totalPages})`;
+  box.innerHTML = '';
+  results.forEach(r=>{
+    const d = document.createElement('div');
+    d.className='resultItem';
+    const hl = r.snippet.replace(new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'ig'), m=>`<mark>${m}</mark>`);
+    d.innerHTML = `<div class="rp">पेज ${r.page}</div><div class="rs">${hl}</div>`;
+    d.onclick = ()=>{ jumpToPage(r.page); };
+    box.appendChild(d);
+  });
+}
+
+el('btnSearch').onclick = ()=> toggleSearch(true);
+el('closeSearch').onclick = ()=> toggleSearch(false);
+el('searchBox').addEventListener('keydown', e=>{ if(e.key==='Enter'){ toggleSearch(true); runSearch(el('searchBox').value); } });
+function toggleSearch(open){
+  el('searchPanel').classList.toggle('open', open);
+  el('overlay').classList.toggle('show', open);
+  if(open) runSearch(el('searchBox').value);
+}
+
+/* ---------------- TOC panel open/close + tabs ---------------- */
+el('btnToc').onclick = ()=> toggleToc(true);
+el('closeToc').onclick = ()=> toggleToc(false);
+function toggleToc(open){
+  el('tocPanel').classList.toggle('open', open);
+  el('overlay').classList.toggle('show', open);
+}
+el('overlay').onclick = ()=>{ toggleToc(false); toggleSearch(false); };
+function activateTab(which){
+  el('tabToc').classList.toggle('active', which==='toc');
+  el('tabBm').classList.toggle('active', which==='bm');
+  el('tabFolder').classList.toggle('active', which==='folder');
+  el('tocList').style.display = which==='toc' ? '' : 'none';
+  el('bmList').style.display = which==='bm' ? '' : 'none';
+  el('folderPane').style.display = which==='folder' ? '' : 'none';
+}
+el('tabToc').onclick = ()=> activateTab('toc');
+el('tabBm').onclick = ()=>{ activateTab('bm'); renderBookmarksUI(); };
+el('tabFolder').onclick = ()=>{ activateTab('folder'); tryAutoListFolder(); };
+el('btnFolder').onclick = ()=>{ toggleToc(true); activateTab('folder'); tryAutoListFolder(); };
+
+/* ---------------- Folder browsing (File System Access API) ---------------- */
+const folderSupported = 'showDirectoryPicker' in window;
+async function idbSetHandle(handle){ try{ await idbSet('folderHandle', handle); }catch(e){} }
+async function idbGetHandle(){ try{ return await idbGet('folderHandle'); }catch(e){ return null; } }
+
+async function listPdfsInFolder(dirHandle){
+  const box = el('folderFiles');
+  box.innerHTML = '<div style="color:var(--parchment-dim);font-size:12.5px;">खोजा जा रहा है...</div>';
+  const files = [];
+  try{
+    for await (const entry of dirHandle.values()){
+      if(entry.kind==='file' && entry.name.toLowerCase().endsWith('.pdf')){
+        files.push(entry);
+      }
+    }
+  }catch(e){}
+  if(!files.length){ box.innerHTML = '<div id="emptyMsg">इस फ़ोल्डर में कोई PDF नहीं मिली</div>'; return; }
+  files.sort((a,b)=> a.name.localeCompare(b.name));
+  box.innerHTML = '';
+  files.forEach(fh=>{
+    const d = document.createElement('div');
+    d.className='tocItem';
+    d.textContent = '📄 '+fh.name;
+    d.onclick = async ()=>{
+      showLoading('खोली जा रही है: '+fh.name);
+      try{
+        const file = await fh.getFile();
+        await openNewFile(file);
+        toggleToc(false);
+      }catch(e){ hideLoading(); alert('फ़ाइल नहीं खुल पाई'); }
+    };
+    box.appendChild(d);
+  });
+}
+
+el('btnPickFolder').onclick = async ()=>{
+  if(!folderSupported){
+    alert('Yeh feature is browser me support nahi hai. Kripya Chrome/Edge (desktop) istemal karein.');
+    return;
+  }
+  try{
+    const dirHandle = await window.showDirectoryPicker();
+    await idbSetHandle(dirHandle);
+    await listPdfsInFolder(dirHandle);
+  }catch(e){ /* user cancelled */ }
+};
+
+async function tryAutoListFolder(){
+  if(!folderSupported){
+    el('folderHint').textContent = 'Yeh feature sirf Chrome/Edge (desktop) browser me kaam karta hai.';
+    return;
+  }
+  const handle = await idbGetHandle();
+  if(!handle){ el('folderFiles').innerHTML=''; return; }
+  try{
+    const perm = await handle.queryPermission({mode:'read'});
+    if(perm === 'granted'){
+      await listPdfsInFolder(handle);
+    } else {
+      el('folderFiles').innerHTML = '<div id="emptyMsg">Pichla folder yaad hai — dobara access dene ke liye "Folder Chunein" dabayein</div>';
+    }
+  }catch(e){}
+}
+
+/* ---------------- On load: auto-open — resume last session, or on first-ever visit load the bundled default PDF ---------------- */
+const DEFAULT_PDF_NAME = 'Cyber Security and Forensic Analysis.pdf';
+
+async function tryAutoOpen(){
+  showLoading('किताब लोड हो रही है...');
+  // 1) Returning visitor — resume exactly where they left off (default book or whatever they opened last)
+  try{
+    const last = await idbGet('lastOpened');
+    if(last){
+      const blob = await idbGet('book_'+last.key);
+      if(blob){
+        fileKey = last.key;
+        const buf = await blob.arrayBuffer();
+        await loadPdfFromArrayBuffer(buf);
+        return true;
+      }
+    }
+  }catch(e){}
+
+  // 2) First-ever visit — automatically load the default PDF bundled in this repo
+  try{
+    const resp = await fetch(encodeURI(DEFAULT_PDF_NAME));
+    if(!resp.ok) throw new Error('default pdf not found next to this html file');
+    const buf = await resp.arrayBuffer();
+    fileKey = DEFAULT_PDF_NAME + '_' + buf.byteLength;
+    idbSet('book_'+fileKey, new Blob([buf], {type:'application/pdf'})).catch(()=>{});
+    idbSet('lastOpened', {key:fileKey, name:DEFAULT_PDF_NAME, size:buf.byteLength}).catch(()=>{});
+    await loadPdfFromArrayBuffer(buf.slice(0));
+    return true;
+  }catch(e){
+    hideLoading();
+    return false;
+  }
+}
+
+(async function init(){
+  const opened = await tryAutoOpen();
+  if(!opened){
+    // Default PDF isn't next to the HTML file (or fetch failed) — fall back to manual open
+    const p = document.querySelector('#landing p');
+    if(p) p.textContent = `"${DEFAULT_PDF_NAME}" इस फ़ोल्डर में नहीं मिली, इसलिए कृपया नीचे से PDF खोलें।`;
+  }
+})();
+</script>
+</body>
+</html>
