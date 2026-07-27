@@ -96,7 +96,7 @@
   .brand h1{margin:0;font-size:22px;font-weight:700;letter-spacing:0.5px;color:var(--gold-soft);}
   .brand p{margin:0;font-size:12px;color:var(--text-dim);}
 
-  .header-right{display:flex;align-items:center;gap:14px;flex-shrink:0;}
+  .header-right{display:flex;align-items:center;gap:14px;flex-shrink:0;flex-wrap:wrap;}
   .theme-picker{display:flex;align-items:center;gap:8px;}
   .theme-picker span.lbl{font-size:11px;color:var(--text-dim);white-space:nowrap;}
   .theme-dot{
@@ -113,20 +113,56 @@
   .theme-dot[data-t="crimson"]{background:linear-gradient(135deg,#d94f5c,#7a1f28);}
   .theme-dot[data-t="ivory"]{background:linear-gradient(135deg,#f4f1ea,#b8860b);}
 
+  .layout-picker{display:flex;align-items:center;gap:8px;}
+  .layout-picker span.lbl{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+  .layout-opt{
+    width:34px;height:24px;border-radius:6px;cursor:pointer;
+    border:2px solid rgba(255,255,255,0.15);
+    display:grid; gap:2px; padding:3px;
+    transition:all .15s ease;
+    background:rgba(255,255,255,0.03);
+    flex-shrink:0;
+  }
+  .layout-opt:hover{border-color:rgba(var(--accent-rgb),0.6);}
+  .layout-opt.active{border-color:var(--gold); box-shadow:0 0 0 2px var(--bg-0), 0 0 0 4px var(--gold);}
+  .layout-opt span{background:rgba(var(--accent-rgb),0.6); border-radius:2px;}
+  .layout-opt[data-l="default"]{grid-template-columns:1fr 2fr 1fr; grid-template-rows:1fr;}
+  .layout-opt[data-l="stagetop"]{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
+  .layout-opt[data-l="sidebar"]{grid-template-columns:1fr 2fr; grid-template-rows:1fr 1fr;}
+
   .layout{
     flex:1;
     min-height:0;
     display:grid;
     grid-template-columns:260px 1fr 300px;
+    grid-template-rows:1fr;
+    grid-template-areas:"left stage right";
     gap:16px;
     padding:16px;
     max-width:1600px;
     width:100%;
     margin:0 auto;
     overflow:hidden;
+    transition:grid-template-columns .2s ease, grid-template-rows .2s ease;
   }
+  .panel-left{grid-area:left;}
+  .stage-wrap{grid-area:stage;}
+  .panel-right{grid-area:right;}
+
+  /* ---- Application layout variants ---- */
+  html[data-app-layout="stagetop"] .layout{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1.6fr 1fr;
+    grid-template-areas:"stage stage" "left right";
+  }
+  html[data-app-layout="sidebar"] .layout{
+    grid-template-columns:300px 1fr;
+    grid-template-rows:1fr 1fr;
+    grid-template-areas:"left stage" "right stage";
+  }
+
   @media (max-width:1100px){
-    .layout{grid-template-columns:1fr; overflow-y:auto;}
+    .layout{grid-template-columns:1fr !important; grid-template-rows:auto auto auto !important; grid-template-areas:"left" "stage" "right" !important; overflow-y:auto;}
     body{overflow:auto; height:auto; min-height:100vh;}
   }
 
@@ -233,6 +269,21 @@
   .sep{width:1px;height:24px;background:var(--panel-border);}
   #zoomPct{font-size:12px;color:var(--gold-soft);min-width:46px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:600;}
 
+  .toolbar-compact{
+    padding:0; margin:0;
+    background:transparent; border:none; box-shadow:none;
+    gap:8px;
+    flex-wrap:wrap;
+    overflow:visible;
+  }
+  .toolbar-compact .grp{gap:6px; flex-wrap:wrap;}
+  .toolbar-compact button{
+    padding:0 9px; height:24px; line-height:22px;
+    font-size:11px; border-radius:6px;
+  }
+  .toolbar-compact .sep{height:18px;}
+  .toolbar-compact #zoomPct{font-size:11px;min-width:34px;}
+
   #stageOuter{
     position:relative;
     background:repeating-conic-gradient(var(--checker-a) 0% 25%, var(--checker-b) 0% 50%) 50% / 22px 22px;
@@ -325,24 +376,25 @@
       <div class="theme-dot" data-t="crimson" title="Crimson"></div>
       <div class="theme-dot" data-t="ivory" title="Ivory (Light)"></div>
     </div>
-    <div id="modeBadge" class="hint" style="text-align:right;"></div>
-  </div>
-</header>
-
-<div class="layout">
-
-  <!-- LEFT PANEL -->
-  <div class="panel" style="display:flex;flex-direction:column;">
-    <h3>📁 Folder</h3>
-    <button class="block primary" id="btnPickFolder">Folder Select Karein</button>
-    <button class="block ghost" id="btnPickFiles">...ya Images Chunein (fallback)</button>
-    <div class="counter" id="folderCounter">Koi folder select nahi hui</div>
-    <div id="fileList"></div>
-  </div>
-
-  <!-- CENTER PANEL -->
-  <div class="stage-wrap">
-    <div class="toolbar">
+    <div class="layout-picker">
+      <span class="lbl">🧩 Layout</span>
+      <div class="layout-opt" data-l="default" title="Classic (3 Column)">
+        <span style="grid-column:1;grid-row:1;"></span>
+        <span style="grid-column:2;grid-row:1;"></span>
+        <span style="grid-column:3;grid-row:1;"></span>
+      </div>
+      <div class="layout-opt" data-l="stagetop" title="Zen (Bada Work Area Upar)">
+        <span style="grid-column:1/3;grid-row:1;"></span>
+        <span style="grid-column:1;grid-row:2;"></span>
+        <span style="grid-column:2;grid-row:2;"></span>
+      </div>
+      <div class="layout-opt" data-l="sidebar" title="Sidebar (Sabhi Menu Ek Taraf)">
+        <span style="grid-column:1;grid-row:1;"></span>
+        <span style="grid-column:1;grid-row:2;"></span>
+        <span style="grid-column:2;grid-row:1/3;"></span>
+      </div>
+    </div>
+    <div class="toolbar toolbar-compact">
       <div class="grp" id="aspectGrp">
         <button data-ar="free" class="on">Free</button>
         <button data-ar="1:1">1:1</button>
@@ -364,7 +416,23 @@
         <button id="btnZoomFit" title="Fit to screen">⛶ Fit</button>
       </div>
     </div>
+    <div id="modeBadge" class="hint" style="text-align:right;"></div>
+  </div>
+</header>
 
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="panel panel-left" style="display:flex;flex-direction:column;">
+    <h3>📁 Folder</h3>
+    <button class="block primary" id="btnPickFolder">Folder Select Karein</button>
+    <button class="block ghost" id="btnPickFiles">...ya Images Chunein (fallback)</button>
+    <div class="counter" id="folderCounter">Koi folder select nahi hui</div>
+    <div id="fileList"></div>
+  </div>
+
+  <!-- CENTER PANEL -->
+  <div class="stage-wrap">
     <div id="stageOuter" title="Zoom karke image ko drag karke khiskayein (pan)">
       <div id="placeholder">
         <span class="big">🖼️</span>
@@ -390,7 +458,7 @@
   </div>
 
   <!-- RIGHT PANEL -->
-  <div class="panel">
+  <div class="panel panel-right">
     <h3>⚙️ Crop &amp; Save Settings</h3>
 
     <label class="field">Target Size (ek baar select karein, sabhi images par lagu hoga)</label>
@@ -463,7 +531,7 @@
 
   const supportsFS = 'showDirectoryPicker' in window;
   modeBadge.textContent = supportsFS
-    ? 'Mode: Full (Auto-Save enabled) — Chrome/Edge'
+    ? ''
     : 'Mode: Limited (is browser mein Auto-Save available nahi, Save As istemal karein)';
   if(!supportsFS){ autoSaveToggle.checked = false; autoSaveToggle.disabled = true; }
 
@@ -479,6 +547,18 @@
   let savedTheme = 'gold';
   try{ savedTheme = localStorage.getItem('shivCropTheme') || 'gold'; }catch(e){}
   applyTheme(savedTheme);
+
+  // ---------- Application layout switcher ----------
+  const layoutOpts = document.querySelectorAll('.layout-opt');
+  function applyAppLayout(l){
+    document.documentElement.setAttribute('data-app-layout', l);
+    layoutOpts.forEach(o => o.classList.toggle('active', o.dataset.l === l));
+    try{ localStorage.setItem('shivCropAppLayout', l); }catch(e){}
+  }
+  layoutOpts.forEach(o => o.addEventListener('click', () => applyAppLayout(o.dataset.l)));
+  let savedAppLayout = 'default';
+  try{ savedAppLayout = localStorage.getItem('shivCropAppLayout') || 'default'; }catch(e){}
+  applyAppLayout(savedAppLayout);
 
   let images = [];        // {name, handle(optional), file, url}
   let currentIndex = -1;
