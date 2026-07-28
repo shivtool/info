@@ -294,7 +294,6 @@ input[type=file]{display:none;}
   .form-grid{grid-template-columns:1fr;}
 }
 </style>
-  <script src="security.js"></script>
 </head>
 <body>
 
@@ -340,10 +339,18 @@ input[type=file]{display:none;}
           <label>Student Name (ENGLISH) — यहाँ टाइप करें</label>
           <input type="text" id="f_nameEn" placeholder="Type in English e.g. Shiv Kumar">
         </div>
+        <div class="field">
+          <label>वर्ग (Stream) — चुनते ही विषय ऑटो-फिल होंगे</label>
+          <select id="f_stream" onchange="applyStream()">
+            <option value="">-- चुनें --</option>
+            <option value="PCB">विज्ञान वर्ग (PCB)</option>
+            <option value="PCM">विज्ञान वर्ग (PCM)</option>
+          </select>
+        </div>
         <div class="field" style="grid-column:1/-1;">
           <label>Subjects (विषय) — टाइप कर के Enter दबाएँ या + पर क्लिक करें</label>
           <div style="display:flex;gap:8px;">
-            <input type="text" id="f_subjectInput" placeholder="e.g. Physics" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubject();}">
+            <input type="text" id="f_subjectInput" placeholder="e.g. Physics" onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();addSubject();}">
             <button type="button" class="btn-sm btn-gold" onclick="addSubject()" style="flex-shrink:0;">+ Add</button>
           </div>
           <div id="subjectTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
@@ -361,7 +368,7 @@ input[type=file]{display:none;}
           <label>Medium</label>
           <select id="f_medium">
             <option value="">-- चुनें --</option>
-            <option>Hindi</option>
+            <option selected>Hindi</option>
             <option>English</option>
           </select>
         </div>
@@ -562,6 +569,38 @@ function clearPhoto(){
 
 let currentSubjects = [];
 
+// Stream-wise subject presets
+const STREAM_COMMON = ['102- सामान्य हिंदी','117 - अंग्रेजी','151 - भौतिक विज्ञान','152 - रसायन विज्ञान'];
+const STREAM_SUBJECTS = {
+  PCB: STREAM_COMMON.concat(['153- जीव विज्ञान']),
+  PCM: STREAM_COMMON.concat(['131 - गणित'])
+};
+
+// FAST FEEDING: Enter key anywhere in the entry form saves the record
+// and jumps straight to the next blank entry (except inside Subjects
+// input, where Enter adds a subject tag instead — handled separately above).
+(function setupFastEntryEnterKey(){
+  const entryTab = document.getElementById('tab-entry');
+  entryTab.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const el = e.target;
+    if(el.id === 'f_subjectInput') return; // own handler already runs
+    const tag = el.tagName;
+    if(tag === 'BUTTON') return; // let button clicks behave normally
+    if(tag === 'INPUT' && el.type === 'file') return;
+    e.preventDefault();
+    saveRecord();
+  });
+})();
+
+function applyStream(){
+  const stream = document.getElementById('f_stream').value;
+  if(!stream || !STREAM_SUBJECTS[stream]) return;
+  currentSubjects = STREAM_SUBJECTS[stream].slice();
+  renderSubjectTags();
+  toast('✅ ' + stream + ' के विषय ऑटो-फिल हो गए');
+}
+
 function addSubject(){
   const input = document.getElementById('f_subjectInput');
   const val = input.value.trim();
@@ -599,6 +638,7 @@ function collectForm(){
     sr: document.getElementById('f_sr').value.trim(),
     nameHi: document.getElementById('f_nameHi').value.trim(),
     nameEn: document.getElementById('f_nameEn').value.trim(),
+    stream: document.getElementById('f_stream').value,
     subjects: currentSubjects.slice(),
     gender: document.getElementById('f_gender').value,
     medium: document.getElementById('f_medium').value,
@@ -622,6 +662,7 @@ function saveRecord(){
     toast('⚠️ कृपया छात्र का नाम भरें');
     return;
   }
+  const wasEditing = !!editingId;
   if(editingId){
     const idx = records.findIndex(r=>r.id===editingId);
     if(idx>-1){ data.id = editingId; records[idx] = data; }
@@ -630,23 +671,46 @@ function saveRecord(){
     data.id = 'r_' + Date.now();
     if(!data.sr) data.sr = nextSrNumber();
     records.push(data);
-    toast('✅ Record Saved');
+    toast('✅ Record Saved — अगली एंट्री के लिए तैयार');
   }
   persist();
-  clearForm();
-  switchTab('list');
+  if(wasEditing){
+    // Editing finished — full clear and go back to list
+    clearForm();
+    switchTab('list');
+  } else {
+    // Fast feeding mode: stay on entry tab, keep Stream/Medium sticky, ready for next student
+    quickResetForNextEntry();
+  }
 }
 
 function persist(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
 
+// Fast entry: clears only the student-specific fields, KEEPS Stream/Subjects/Medium/Cast
+// sticky so operator doesn't have to reselect them for every record.
+function quickResetForNextEntry(){
+  ['f_nameHi','f_nameEn','f_fatherHi','f_fatherEn','f_motherHi','f_motherEn','f_address','f_hsroll','f_aadhar','f_pen','f_mobile','f_subjectInput']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_gender').value='';
+  clearPhoto();
+  editingId = null;
+  lastAuto.f_nameHi=''; lastAuto.f_fatherHi=''; lastAuto.f_motherHi='';
+  document.getElementById('formTitle').textContent = 'Student Registration Entry';
+  document.getElementById('cancelEditBtn').style.display='none';
+  setAutoSr();
+  const nameEn = document.getElementById('f_nameEn');
+  nameEn.focus();
+}
+
 function clearForm(){
   ['f_nameHi','f_nameEn','f_fatherHi','f_fatherEn','f_motherHi','f_motherEn','f_address','f_hsroll','f_aadhar','f_pen','f_mobile','f_subjectInput']
     .forEach(id=>document.getElementById(id).value='');
   document.getElementById('f_gender').value='';
-  document.getElementById('f_medium').value='';
+  document.getElementById('f_medium').value='Hindi';
   document.getElementById('f_cast').value='';
+  document.getElementById('f_stream').value='';
   currentSubjects = [];
   renderSubjectTags();
   clearPhoto();
@@ -657,7 +721,7 @@ function clearForm(){
   setAutoSr();
 }
 
-function cancelEdit(){ clearForm(); }
+function cancelEdit(){ clearForm(); switchTab('list'); }
 
 function editRecord(id){
   const r = records.find(x=>x.id===id);
@@ -665,6 +729,7 @@ function editRecord(id){
   document.getElementById('f_sr').value = r.sr||'';
   document.getElementById('f_nameHi').value = r.nameHi||'';
   document.getElementById('f_nameEn').value = r.nameEn||'';
+  document.getElementById('f_stream').value = r.stream||'';
   currentSubjects = (r.subjects||[]).slice();
   renderSubjectTags();
   document.getElementById('f_gender').value = r.gender||'';
