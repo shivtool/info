@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOOPCAM — Local Loop Recorder</title>
+<style>
+  :root{
+    --bg:#0a0d0b;
+    --panel:#121815;
+    --panel-2:#161d19;
+    --line: #223028;
+    --text:#e7ece9;
+    --muted:#7c8b84;
+    --amber:#ffb000;
+    --amber-dim: #7a5600;
+    --red:#e5484d;
+    --green:#3ecf72;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at 20% -10%, #14201a 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+    min-height:100vh;
+  }
+  @font-face{ font-family:'Archivo'; src:local('Arial'); }
+  .mono{ font-family:'IBM Plex Mono','SFMono-Regular',Consolas,monospace; }
+
+  header{
+    padding:22px clamp(16px,4vw,42px) 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .dot{
+    width:11px;height:11px;border-radius:50%;
+    background:var(--muted);
+    box-shadow:0 0 0 3px rgba(124,139,132,0.12);
+  }
+  .brand .dot.live{ background:var(--red); box-shadow:0 0 0 4px rgba(229,72,77,0.18); animation:pulse 1.4s infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.45 } }
+  .brand h1{
+    font-size:15px; letter-spacing:.22em; font-weight:800; margin:0;
+    text-transform:uppercase; color:var(--text);
+  }
+  .brand small{ display:block; color:var(--muted); font-size:11px; letter-spacing:.08em; margin-top:2px;}
+  .clock{ font-size:12px; color:var(--muted); letter-spacing:.05em; }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap:22px;
+    padding: 24px clamp(16px,4vw,42px) 40px;
+    max-width:1360px;
+    margin:0 auto;
+  }
+  @media (max-width: 920px){ .layout{ grid-template-columns: 1fr; } }
+
+  .panel{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px;
+  }
+  .panel h2{
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 14px; font-weight:700;
+  }
+
+  /* ---- Monitor / preview ---- */
+  .monitor{
+    position:relative;
+    background:#000;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid #1c2620;
+    aspect-ratio:16/9;
+  }
+  .monitor video{ width:100%; height:100%; object-fit:cover; display:block; background:#000;}
+  .monitor .scan{
+    position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.028) 0px, rgba(255,255,255,0.028) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .hud{
+    position:absolute; top:10px; left:12px; right:12px;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em;
+    pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,.9);
+  }
+  .hud .rec{ display:flex; align-items:center; gap:6px; color:var(--red); font-weight:700; }
+  .hud .rec .rdot{ width:8px;height:8px;border-radius:50%; background:var(--red); animation:pulse 1s infinite;}
+  .hud .off{ color: rgba(255,255,255,.4); font-weight:700; }
+  .hud .timer{ color:#fff; }
+  .placeholder{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:8px; color:var(--muted); text-align:center; padding:20px;
+  }
+  .placeholder svg{ width:38px;height:38px; opacity:.5; }
+  .placeholder span{ font-size:12px; max-width:280px; }
+
+  .transport{
+    display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap;
+  }
+  button{
+    font-family:inherit; cursor:pointer; border-radius:7px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); padding:10px 16px; font-size:12.5px;
+    letter-spacing:.04em; font-weight:600; transition: all .15s ease;
+  }
+  button:hover{ border-color:#2e3f36; background:#1a221d; }
+  button:active{ transform: scale(.98); }
+  button.primary{ background:var(--amber); border-color:var(--amber); color:#221800; }
+  button.primary:hover{ background:#ffc233; }
+  button.stop{ background:var(--red); border-color:var(--red); color:#2a0203;}
+  button.stop:hover{ background:#f06066; }
+  button:disabled{ opacity:.4; cursor:not-allowed; }
+  button.ghost{ background:transparent; }
+  select, input[type=number], input[type=password]{
+    font-family:'IBM Plex Mono',monospace; background:#0d1310; color:var(--text);
+    border:1px solid var(--line); border-radius:6px; padding:9px 10px; font-size:12.5px;
+    width:100%;
+  }
+  label.field{ display:block; margin-bottom:14px; }
+  label.field .lbl{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:11.5px; color:var(--muted); margin-bottom:6px; letter-spacing:.03em;
+  }
+  label.field .lbl b{ color:var(--amber); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .hint{ font-size:10.5px; color:var(--muted); margin-top:5px; line-height:1.4; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  /* ---- Loop gauge (signature element) ---- */
+  .gauge-wrap{ display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+  .gauge{ width:92px; height:92px; flex-shrink:0; }
+  .gauge-text{ font-family:'IBM Plex Mono',monospace; }
+  .gauge-text .big{ font-size:20px; color:var(--amber); font-weight:700; }
+  .gauge-text .small{ font-size:10.5px; color:var(--muted); margin-top:3px; }
+
+  /* ---- Recordings list ---- */
+  .recordings{ margin-top:22px; }
+  .storage-bar{
+    height:6px; border-radius:4px; background:#0d1310; overflow:hidden; margin:10px 0 4px;
+    border:1px solid var(--line);
+  }
+  .storage-bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--amber-dim),var(--amber)); width:0%; transition: width .3s;}
+  .storage-meta{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+
+  .clip-list{ display:flex; flex-direction:column; gap:8px; margin-top:14px; max-height:420px; overflow-y:auto; padding-right:4px; }
+  .clip-list::-webkit-scrollbar{ width:6px; }
+  .clip-list::-webkit-scrollbar-thumb{ background:#233129; border-radius:4px; }
+  .clip{
+    display:flex; align-items:center; gap:12px;
+    background:#0d1310; border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+  }
+  .clip .idx{ font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:11px; width:26px; text-align:center; flex-shrink:0;}
+  .clip .meta{ flex:1; min-width:0; }
+  .clip .meta .t{ font-size:12.5px; font-weight:600; }
+  .clip .meta .s{ font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:2px;}
+  .clip .acts{ display:flex; gap:6px; flex-shrink:0; }
+  .clip .acts button{ padding:6px 9px; font-size:11px; }
+  .empty-clips{ color:var(--muted); font-size:12px; text-align:center; padding:26px 10px; border:1px dashed var(--line); border-radius:8px; }
+
+  .player-modal{
+    position:fixed; inset:0; background:rgba(0,0,0,.75); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .player-modal.open{ display:flex; }
+  .player-box{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; max-width:720px; width:100%; }
+  .player-box video{ width:100%; border-radius:6px; background:#000; max-height:70vh; }
+  .player-box .pf{ display:flex; justify-content:space-between; margin-top:10px; align-items:center; }
+  .player-box .pf .t{ font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+
+  .lock-badge{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-family:'IBM Plex Mono',monospace; }
+  .lock-badge.locked{ color:var(--amber); }
+  .lock-badge.unlocked{ color:var(--green); }
+  .lock-badge .b-dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .security-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .security-row .who{ font-size:13px; font-weight:700; }
+  .security-row .who small{ display:block; font-weight:400; color:var(--muted); font-size:10.5px; margin-top:2px; }
+  .sec-actions{ display:flex; gap:8px; }
+  .sec-actions button{ flex:1; }
+
+  .auth-modal{
+    position:fixed; inset:0; background:rgba(0,0,0,.78); display:none;
+    align-items:center; justify-content:center; z-index:90; padding:20px;
+  }
+  .auth-modal.open{ display:flex; }
+  .auth-box{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:22px; max-width:340px; width:100%; }
+  .auth-box h3{ margin:0 0 6px; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .auth-box p.sub{ color:var(--muted); font-size:12px; margin:0 0 16px; line-height:1.5; }
+  .auth-box .field{ margin-bottom:12px; }
+  .auth-box .field label{ display:block; font-size:11px; color:var(--muted); margin-bottom:5px; }
+  .auth-box .err{ color:var(--red); font-size:11.5px; min-height:16px; margin:-2px 0 10px; }
+  .auth-box .btnrow{ display:flex; gap:8px; justify-content:flex-end; margin-top:6px; }
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#151d18; border:1px solid var(--line); padding:11px 18px; border-radius:8px;
+    font-size:12.5px; opacity:0; transition:all .25s ease; pointer-events:none; z-index:80;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .footnote{ color:var(--muted); font-size:11px; text-align:center; padding:0 20px 30px; line-height:1.6;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="dot" id="statusDot"></span>
+    <div>
+      <h1>LOOPCAM</h1>
+      <small>Local loop recorder · no server, no upload</small>
+    </div>
+  </div>
+  <div class="clock mono" id="clock">--:--:--</div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT: preview + transport -->
+  <div class="panel">
+    <h2>Live Preview</h2>
+    <div class="monitor" id="monitor">
+      <video id="preview" autoplay muted playsinline></video>
+      <div class="scan"></div>
+      <div class="placeholder" id="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <span>Camera is off. Start the camera to see a live preview and begin recording.</span>
+      </div>
+      <div class="hud">
+        <div id="hudRec" class="off">● STANDBY</div>
+        <div class="timer mono" id="hudTimer"></div>
+      </div>
+    </div>
+
+    <div class="transport">
+      <button class="primary" id="btnCamera">Start Camera</button>
+      <button class="stop" id="btnRecord" disabled>● Start Recording</button>
+      <button class="ghost" id="btnSnapshot" disabled>Snapshot</button>
+      <button class="ghost" id="btnSwitchCam" disabled>Switch Camera</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: settings + gauge -->
+  <div class="panel">
+    <h2>Loop Buffer</h2>
+    <div class="gauge-wrap">
+      <svg class="gauge" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#1c2620" stroke-width="8"/>
+        <circle id="gaugeRing" cx="50" cy="50" r="42" fill="none" stroke="#ffb000" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"
+          transform="rotate(-90 50 50)"/>
+      </svg>
+      <div class="gauge-text">
+        <div class="big" id="gaugeBig">0%</div>
+        <div class="small" id="gaugeSmall">0 / 30 min buffered</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:6px;">Recorder Settings</h2>
+    <label class="field">
+      <div class="lbl">Overwrite after (loop window) <b id="overwriteVal">30 min</b></div>
+      <input type="number" id="overwriteMinutes" min="1" max="1440" value="30" step="1">
+      <div class="hint">Oldest footage is automatically deleted once the total saved length passes this many minutes — keeps storage use flat and low, like a security DVR.</div>
+    </label>
+
+    <div class="row2">
+      <label class="field">
+        <div class="lbl">Resolution</div>
+        <select id="resolution">
+          <option value="320x240">320×240 (lowest space)</option>
+          <option value="640x480" selected>640×480 (recommended)</option>
+          <option value="1280x720">1280×720 (HD)</option>
+        </select>
+      </label>
+      <label class="field">
+        <div class="lbl">Quality</div>
+        <select id="bitrate">
+          <option value="150000">Very low (150 kbps)</option>
+          <option value="300000" selected>Low (300 kbps)</option>
+          <option value="800000">Medium (800 kbps)</option>
+          <option value="2000000">High (2 Mbps)</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <div class="lbl">Clip length</div>
+      <select id="segmentLength">
+        <option value="30">30 seconds</option>
+        <option value="60" selected>1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
+      <div class="hint">Recording is saved in clips of this length. Shorter clips = finer-grained overwrite, slightly more overhead.</div>
+    </label>
+
+    <h2 style="margin-top:6px;">Security</h2>
+    <div class="security-row">
+      <div class="who">vikalp <small id="lockNote">checking password…</small></div>
+      <span class="lock-badge locked" id="lockBadge"><span class="b-dot"></span><span id="lockBadgeText">Locked</span></span>
+    </div>
+    <div class="sec-actions">
+      <button class="primary" id="btnSetupUser" style="display:none;">Add User vikalp</button>
+      <button class="ghost" id="btnChangePassword">Change Password</button>
+      <button class="ghost" id="btnLockNow">Lock Now</button>
+    </div>
+    <div class="hint" style="margin-top:8px;">Saving or deleting a clip asks for vikalp's password. This runs entirely in your browser — anyone with access to dev tools could bypass it, so treat it as a casual deterrent, not real security.</div>
+
+    <div class="recordings">
+      <h2 style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Saved Recordings <span class="hint" id="clipCount" style="text-transform:none;letter-spacing:0;"></span></span>
+        <button class="ghost" id="btnClearAll" style="padding:5px 10px; font-size:10.5px;">Clear All</button>
+      </h2>
+      <div class="storage-bar"><i id="storageBarFill"></i></div>
+      <div class="storage-meta">
+        <span id="storageUsed">0 MB used</span>
+        <span id="storageQuota">estimating quota…</span>
+      </div>
+      <div class="clip-list" id="clipList">
+        <div class="empty-clips">No recordings yet. Start the camera and hit record.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">
+  All video is recorded and stored entirely in this browser's local storage (IndexedDB) — nothing is uploaded or streamed over the network.<br>
+  "Live streaming" refers to the live camera preview shown above while recording, not a network broadcast.
+</div>
+
+<div class="player-modal" id="playerModal">
+  <div class="player-box">
+    <video id="playerVideo" controls autoplay></video>
+    <div class="pf">
+      <span class="t mono" id="playerMeta"></span>
+      <div>
+        <button class="ghost" id="playerDownload">Download</button>
+        <button class="ghost" id="playerClose">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-modal" id="authModal">
+  <div class="auth-box">
+    <h3 id="authTitle">🔒 Enter password</h3>
+    <p class="sub" id="authSubtitle">Confirm it's vikalp to continue.</p>
+    <div class="field" id="authCurrentWrap" style="display:none;">
+      <label>Current password</label>
+      <input type="password" id="authCurrent" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label id="authNewLabel">Password</label>
+      <input type="password" id="authNew" autocomplete="current-password">
+    </div>
+    <div class="field" id="authConfirmWrap" style="display:none;">
+      <label id="authConfirmLabel">Confirm password</label>
+      <input type="password" id="authConfirm" autocomplete="new-password">
+    </div>
+    <div class="err" id="authError"></div>
+    <div class="btnrow">
+      <button class="ghost" id="authCancel">Cancel</button>
+      <button class="primary" id="authSubmit">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- State ----------
+  let db = null;
+  let stream = null;
+  let currentRecorder = null;
+  let isRecording = false;
+  let segmentTimer = null;
+  let recordStartedAt = null;
+  let facingMode = "user";
+  let currentClipStart = null;
+
+  const els = {
+    preview: document.getElementById('preview'),
+    placeholder: document.getElementById('placeholder'),
+    statusDot: document.getElementById('statusDot'),
+    clock: document.getElementById('clock'),
+    hudRec: document.getElementById('hudRec'),
+    hudTimer: document.getElementById('hudTimer'),
+    btnCamera: document.getElementById('btnCamera'),
+    btnRecord: document.getElementById('btnRecord'),
+    btnSnapshot: document.getElementById('btnSnapshot'),
+    btnSwitchCam: document.getElementById('btnSwitchCam'),
+    overwriteMinutes: document.getElementById('overwriteMinutes'),
+    overwriteVal: document.getElementById('overwriteVal'),
+    resolution: document.getElementById('resolution'),
+    bitrate: document.getElementById('bitrate'),
+    segmentLength: document.getElementById('segmentLength'),
+    gaugeRing: document.getElementById('gaugeRing'),
+    gaugeBig: document.getElementById('gaugeBig'),
+    gaugeSmall: document.getElementById('gaugeSmall'),
+    clipList: document.getElementById('clipList'),
+    clipCount: document.getElementById('clipCount'),
+    storageBarFill: document.getElementById('storageBarFill'),
+    storageUsed: document.getElementById('storageUsed'),
+    storageQuota: document.getElementById('storageQuota'),
+    playerModal: document.getElementById('playerModal'),
+    playerVideo: document.getElementById('playerVideo'),
+    playerMeta: document.getElementById('playerMeta'),
+    playerDownload: document.getElementById('playerDownload'),
+    playerClose: document.getElementById('playerClose'),
+    toast: document.getElementById('toast'),
+
+    lockNote: document.getElementById('lockNote'),
+    lockBadge: document.getElementById('lockBadge'),
+    lockBadgeText: document.getElementById('lockBadgeText'),
+    btnChangePassword: document.getElementById('btnChangePassword'),
+    btnLockNow: document.getElementById('btnLockNow'),
+    btnSetupUser: document.getElementById('btnSetupUser'),
+    btnClearAll: document.getElementById('btnClearAll'),
+
+    authModal: document.getElementById('authModal'),
+    authTitle: document.getElementById('authTitle'),
+    authSubtitle: document.getElementById('authSubtitle'),
+    authCurrentWrap: document.getElementById('authCurrentWrap'),
+    authCurrent: document.getElementById('authCurrent'),
+    authNew: document.getElementById('authNew'),
+    authNewLabel: document.getElementById('authNewLabel'),
+    authConfirmWrap: document.getElementById('authConfirmWrap'),
+    authConfirm: document.getElementById('authConfirm'),
+    authConfirmLabel: document.getElementById('authConfirmLabel'),
+    authError: document.getElementById('authError'),
+    authSubmit: document.getElementById('authSubmit'),
+    authCancel: document.getElementById('authCancel'),
+  };
+
+  // ---------- Utils ----------
+  function toast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> els.toast.classList.remove('show'), 2600);
+  }
+  function fmtBytes(bytes){
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  }
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleString([], {month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  }
+  function fmtClock(){
+    const d = new Date();
+    els.clock.textContent = d.toLocaleTimeString([], {hour12:false});
+  }
+  setInterval(fmtClock, 1000); fmtClock();
+
+  function pad(n){ return n.toString().padStart(2,'0'); }
+  function fmtDuration(sec){
+    sec = Math.max(0, Math.floor(sec));
+    const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+    return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+  }
+
+  // ---------- IndexedDB ----------
+  function initDB(){
+    return new Promise((resolve, reject)=>{
+      const req = indexedDB.open('LoopCamDB', 1);
+      req.onupgradeneeded = (e)=>{
+        const database = e.target.result;
+        if(!database.objectStoreNames.contains('segments')){
+          const store = database.createObjectStore('segments', { keyPath:'id', autoIncrement:true });
+          store.createIndex('timestamp', 'timestamp', { unique:false });
+        }
+      };
+      req.onsuccess = (e)=>{ db = e.target.result; resolve(db); };
+      req.onerror = (e)=> reject(e);
+    });
+  }
+  function dbAdd(record){
+    return new Promise((resolve, reject)=>{
+      const tx = db.transaction('segments','readwrite');
+      const req = tx.objectStore('segments').add(record);
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = (e)=> reject(e);
+    });
+  }
+  function dbGetAll(){
+    return new Promise((resolve, reject)=>{
+      const tx = db.transaction('segments','readonly');
+      const req = tx.objectStore('segments').getAll();
+      req.onsuccess = ()=> resolve(req.result.sort((a,b)=>a.timestamp-b.timestamp));
+      req.onerror = (e)=> reject(e);
+    });
+  }
+  function dbDelete(id){
+    return new Promise((resolve, reject)=>{
+      const tx = db.transaction('segments','readwrite');
+      const req = tx.objectStore('segments').delete(id);
+      req.onsuccess = ()=> resolve();
+      req.onerror = (e)=> reject(e);
+    });
+  }
+  function dbClear(){
+    return new Promise((resolve, reject)=>{
+      const tx = db.transaction('segments','readwrite');
+      const req = tx.objectStore('segments').clear();
+      req.onsuccess = ()=> resolve();
+      req.onerror = (e)=> reject(e);
+    });
+  }
+
+  // ---------- Security: password for save/delete (account: vikalp) ----------
+  const AUTH_ACCOUNT = 'vikalp';
+  const AUTH_SESSION_MS = 5 * 60 * 1000; // stays unlocked 5 min after a correct entry
+  let authUnlockedUntil = 0;
+  let authMode = 'verify';
+  let authPending = null;
+
+  async function sha256Hex(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  function randomSalt(){
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  function hasPasswordSet(){ return !!localStorage.getItem('loopcam_pwhash'); }
+  async function setPassword(pw){
+    const salt = randomSalt();
+    const hash = await sha256Hex(pw + salt);
+    localStorage.setItem('loopcam_pwsalt', salt);
+    localStorage.setItem('loopcam_pwhash', hash);
+  }
+  async function verifyPassword(pw){
+    const salt = localStorage.getItem('loopcam_pwsalt') || '';
+    const hash = await sha256Hex(pw + salt);
+    return hash === localStorage.getItem('loopcam_pwhash');
+  }
+  function isUnlocked(){ return Date.now() < authUnlockedUntil; }
+  function unlockSession(){ authUnlockedUntil = Date.now() + AUTH_SESSION_MS; updateLockUI(); }
+  function lockSession(){ authUnlockedUntil = 0; updateLockUI(); }
+  function updateLockUI(){
+    if(!hasPasswordSet()){
+      els.lockNote.textContent = 'no password set yet';
+      els.lockBadge.className = 'lock-badge locked';
+      els.lockBadgeText.textContent = 'Not set up';
+      els.btnSetupUser.style.display = 'inline-block';
+      els.btnChangePassword.style.display = 'none';
+      els.btnLockNow.style.display = 'none';
+      return;
+    }
+    els.btnSetupUser.style.display = 'none';
+    els.btnChangePassword.style.display = 'inline-block';
+    els.btnLockNow.style.display = 'inline-block';
+    els.lockNote.textContent = 'password protected';
+    if(isUnlocked()){
+      els.lockBadge.className = 'lock-badge unlocked';
+      els.lockBadgeText.textContent = 'Unlocked';
+    } else {
+      els.lockBadge.className = 'lock-badge locked';
+      els.lockBadgeText.textContent = 'Locked';
+    }
+  }
+  setInterval(updateLockUI, 2000);
+
+  // Gate a sensitive action (save/delete) behind the password.
+  function requireAuth(action){
+    if(!hasPasswordSet()){
+      openAuthModal('setup', action);
+      return;
+    }
+    if(isUnlocked()){ action(); return; }
+    openAuthModal('verify', action);
+  }
+
+  function openAuthModal(mode, onSuccess){
+    authMode = mode;
+    authPending = onSuccess || null;
+    els.authError.textContent = '';
+    els.authCurrent.value = '';
+    els.authNew.value = '';
+    els.authConfirm.value = '';
+
+    if(mode === 'setup'){
+      els.authTitle.textContent = '🔒 Create a password';
+      els.authSubtitle.textContent = `Set a password for ${AUTH_ACCOUNT} — you'll need it to save or delete recordings.`;
+      els.authCurrentWrap.style.display = 'none';
+      els.authNewLabel.textContent = 'New password';
+      els.authConfirmWrap.style.display = 'block';
+      els.authConfirmLabel.textContent = 'Confirm password';
+    } else if(mode === 'verify'){
+      els.authTitle.textContent = '🔒 Enter password';
+      els.authSubtitle.textContent = `Confirm it's ${AUTH_ACCOUNT} to continue.`;
+      els.authCurrentWrap.style.display = 'none';
+      els.authNewLabel.textContent = 'Password';
+      els.authConfirmWrap.style.display = 'none';
+    } else if(mode === 'change'){
+      els.authTitle.textContent = '🔒 Change password';
+      els.authSubtitle.textContent = `Enter ${AUTH_ACCOUNT}'s current password, then choose a new one.`;
+      els.authCurrentWrap.style.display = 'block';
+      els.authNewLabel.textContent = 'New password';
+      els.authConfirmWrap.style.display = 'block';
+      els.authConfirmLabel.textContent = 'Confirm new password';
+    }
+    els.authModal.classList.add('open');
+    setTimeout(()=> (mode === 'change' ? els.authCurrent : els.authNew).focus(), 50);
+  }
+  function closeAuthModal(){
+    els.authModal.classList.remove('open');
+    authPending = null;
+  }
+  function showAuthError(msg){ els.authError.textContent = msg; }
+
+  async function handleAuthSubmit(){
+    const mode = authMode;
+    if(mode === 'setup'){
+      const p1 = els.authNew.value, p2 = els.authConfirm.value;
+      if(p1.length < 4){ showAuthError('Password must be at least 4 characters.'); return; }
+      if(p1 !== p2){ showAuthError('Passwords do not match.'); return; }
+      await setPassword(p1);
+      unlockSession();
+      const pending = authPending;
+      closeAuthModal();
+      toast(`Password created for ${AUTH_ACCOUNT}.`);
+      if(pending) pending();
+    } else if(mode === 'verify'){
+      const p1 = els.authNew.value;
+      const ok = await verifyPassword(p1);
+      if(!ok){ showAuthError('Incorrect password.'); return; }
+      unlockSession();
+      const pending = authPending;
+      closeAuthModal();
+      if(pending) pending();
+    } else if(mode === 'change'){
+      const cur = els.authCurrent.value, p1 = els.authNew.value, p2 = els.authConfirm.value;
+      const ok = await verifyPassword(cur);
+      if(!ok){ showAuthError('Current password is incorrect.'); return; }
+      if(p1.length < 4){ showAuthError('New password must be at least 4 characters.'); return; }
+      if(p1 !== p2){ showAuthError('New passwords do not match.'); return; }
+      await setPassword(p1);
+      unlockSession();
+      closeAuthModal();
+      toast('Password updated.');
+    }
+  }
+
+  // ---------- Camera ----------
+  async function startCamera(){
+    if(stream){ return; }
+    const [w,h] = els.resolution.value.split('x').map(Number);
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width:{ideal:w}, height:{ideal:h}, facingMode },
+        audio: true
+      });
+    }catch(err){
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+      }catch(err2){
+        toast('Camera/microphone access was denied or unavailable.');
+        return;
+      }
+    }
+    els.preview.srcObject = stream;
+    els.placeholder.style.display = 'none';
+    els.btnRecord.disabled = false;
+    els.btnSnapshot.disabled = false;
+    els.btnSwitchCam.disabled = false;
+    els.btnCamera.textContent = 'Stop Camera';
+    els.statusDot.classList.remove('live');
+    toast('Camera started.');
+  }
+  function stopCamera(){
+    if(isRecording) stopRecording();
+    if(stream){
+      stream.getTracks().forEach(t=>t.stop());
+      stream = null;
+    }
+    els.preview.srcObject = null;
+    els.placeholder.style.display = 'flex';
+    els.btnRecord.disabled = true;
+    els.btnSnapshot.disabled = true;
+    els.btnSwitchCam.disabled = true;
+    els.btnCamera.textContent = 'Start Camera';
+  }
+
+  function pickMimeType(){
+    const candidates = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm;codecs=vp8',
+      'video/webm'
+    ];
+    for(const c of candidates){
+      if(window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c;
+    }
+    return '';
+  }
+
+  // ---------- Recording loop (chunked, overwrite-safe) ----------
+  function recordOneSegment(){
+    if(!stream || !isRecording) return;
+    const mimeType = pickMimeType();
+    const opts = {};
+    if(mimeType) opts.mimeType = mimeType;
+    opts.videoBitsPerSecond = Number(els.bitrate.value);
+    opts.audioBitsPerSecond = 32000;
+
+    let chunks = [];
+    let recorder;
+    try{
+      recorder = new MediaRecorder(stream, opts);
+    }catch(e){
+      toast('Recording is not supported in this browser.');
+      isRecording = false;
+      updateRecordUI();
+      return;
+    }
+    currentRecorder = recorder;
+    currentClipStart = Date.now();
+
+    recorder.ondataavailable = (e)=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+    recorder.onstop = async ()=>{
+      const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
+      const durationSec = (Date.now() - currentClipStart)/1000;
+      if(blob.size > 0){
+        await dbAdd({
+          timestamp: currentClipStart,
+          duration: durationSec,
+          size: blob.size,
+          mime: blob.type,
+          blob
+        });
+        await enforceOverwriteLimit();
+        await refreshRecordingsList();
+      }
+      if(isRecording){
+        recordOneSegment(); // chain the next clip seamlessly
+      }
+    };
+
+    recorder.start();
+    const segLenMs = Number(els.segmentLength.value) * 1000;
+    segmentTimer = setTimeout(()=>{
+      if(recorder.state !== 'inactive') recorder.stop();
+    }, segLenMs);
+  }
+
+  function startRecording(){
+    if(!stream) return;
+    isRecording = true;
+    recordStartedAt = Date.now();
+    updateRecordUI();
+    recordOneSegment();
+    toast('Recording started — loop window ' + els.overwriteMinutes.value + ' min.');
+  }
+  function stopRecording(){
+    isRecording = false;
+    clearTimeout(segmentTimer);
+    if(currentRecorder && currentRecorder.state !== 'inactive'){
+      currentRecorder.stop();
+    }
+    updateRecordUI();
+    toast('Recording stopped. Clips are saved locally.');
+  }
+  function updateRecordUI(){
+    if(isRecording){
+      els.btnRecord.textContent = '■ Stop Recording';
+      els.hudRec.innerHTML = '<span class="rdot"></span> REC';
+      els.hudRec.className = 'rec';
+      els.statusDot.classList.add('live');
+    } else {
+      els.btnRecord.textContent = '● Start Recording';
+      els.hudRec.textContent = '● STANDBY';
+      els.hudRec.className = 'off';
+      els.statusDot.classList.remove('live');
+      els.hudTimer.textContent = '';
+    }
+  }
+  setInterval(()=>{
+    if(isRecording && recordStartedAt){
+      els.hudTimer.textContent = fmtDuration((Date.now()-recordStartedAt)/1000);
+    }
+  }, 500);
+
+  // ---------- Overwrite (loop) logic ----------
+  async function enforceOverwriteLimit(){
+    const limitSec = Number(els.overwriteMinutes.value) * 60;
+    let all = await dbGetAll();
+    let total = all.reduce((s,r)=> s + r.duration, 0);
+    while(total > limitSec && all.length > 1){
+      const oldest = all[0];
+      await dbDelete(oldest.id);
+      total -= oldest.duration;
+      all.shift();
+    }
+  }
+
+  // ---------- Storage estimate ----------
+  async function updateStorageInfo(all){
+    const totalSize = all.reduce((s,r)=> s + r.size, 0);
+    els.storageUsed.textContent = fmtBytes(totalSize) + ' used';
+    els.clipCount.textContent = `(${all.length} clip${all.length===1?'':'s'})`;
+
+    let quota = null;
+    if(navigator.storage && navigator.storage.estimate){
+      try{
+        const est = await navigator.storage.estimate();
+        quota = est.quota;
+        const pct = quota ? Math.min(100, (totalSize/quota*100)) : 0;
+        els.storageBarFill.style.width = pct.toFixed(2) + '%';
+        els.storageQuota.textContent = `of ~${fmtBytes(quota)} available`;
+      }catch(e){
+        els.storageQuota.textContent = '';
+      }
+    }
+
+    // gauge = buffer fullness relative to overwrite window
+    const limitSec = Number(els.overwriteMinutes.value) * 60;
+    const bufferedSec = all.reduce((s,r)=> s+r.duration, 0);
+    const pctBuf = limitSec>0 ? Math.min(100, (bufferedSec/limitSec*100)) : 0;
+    const circumference = 264;
+    const offset = circumference - (pctBuf/100)*circumference;
+    els.gaugeRing.style.strokeDashoffset = offset.toFixed(1);
+    els.gaugeBig.textContent = Math.round(pctBuf) + '%';
+    els.gaugeSmall.textContent = `${Math.round(bufferedSec/60)} / ${els.overwriteMinutes.value} min buffered`;
+  }
+
+  // ---------- Recordings list UI ----------
+  async function refreshRecordingsList(){
+    const all = await dbGetAll();
+    updateStorageInfo(all);
+
+    if(all.length === 0){
+      els.clipList.innerHTML = '<div class="empty-clips">No recordings yet. Start the camera and hit record.</div>';
+      return;
+    }
+    const ordered = [...all].reverse(); // newest first
+    els.clipList.innerHTML = '';
+    ordered.forEach((rec, i)=>{
+      const row = document.createElement('div');
+      row.className = 'clip';
+      row.innerHTML = `
+        <div class="idx mono">${String(ordered.length-i).padStart(2,'0')}</div>
+        <div class="meta">
+          <div class="t">${fmtTime(rec.timestamp)}</div>
+          <div class="s">${fmtDuration(rec.duration)} · ${fmtBytes(rec.size)}</div>
+        </div>
+        <div class="acts">
+          <button data-act="play">Play</button>
+          <button data-act="save">Save</button>
+          <button data-act="del">Delete</button>
+        </div>
+      `;
+      row.querySelector('[data-act="play"]').onclick = ()=> playClip(rec);
+      row.querySelector('[data-act="save"]').onclick = ()=> requireAuth(()=> downloadClip(rec));
+      row.querySelector('[data-act="del"]').onclick = ()=> requireAuth(async ()=>{
+        await dbDelete(rec.id);
+        refreshRecordingsList();
+        toast('Clip deleted.');
+      });
+      els.clipList.appendChild(row);
+    });
+  }
+
+  function playClip(rec){
+    const url = URL.createObjectURL(rec.blob);
+    els.playerVideo.src = url;
+    els.playerMeta.textContent = `${fmtTime(rec.timestamp)} · ${fmtDuration(rec.duration)} · ${fmtBytes(rec.size)}`;
+    els.playerModal.classList.add('open');
+    els.playerDownload.onclick = ()=> requireAuth(()=> downloadClip(rec));
+    els.playerVideo._activeUrl = url;
+  }
+  function closePlayer(){
+    els.playerModal.classList.remove('open');
+    els.playerVideo.pause();
+    if(els.playerVideo._activeUrl) URL.revokeObjectURL(els.playerVideo._activeUrl);
+    els.playerVideo.src = '';
+  }
+  function downloadClip(rec){
+    const url = URL.createObjectURL(rec.blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `loopcam_${new Date(rec.timestamp).toISOString().replace(/[:.]/g,'-')}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  }
+
+  function takeSnapshot(){
+    if(!stream) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = els.preview.videoWidth || 640;
+    canvas.height = els.preview.videoHeight || 480;
+    canvas.getContext('2d').drawImage(els.preview, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob)=>{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `loopcam_snapshot_${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+      toast('Snapshot saved.');
+    }, 'image/png');
+  }
+
+  // ---------- Events ----------
+  els.btnCamera.onclick = ()=> stream ? stopCamera() : startCamera();
+  els.btnRecord.onclick = ()=> isRecording ? stopRecording() : startRecording();
+  els.btnSnapshot.onclick = takeSnapshot;
+  els.btnSwitchCam.onclick = async ()=>{
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    const wasRecording = isRecording;
+    if(wasRecording) stopRecording();
+    stopCamera();
+    await startCamera();
+    if(wasRecording) startRecording();
+  };
+
+  els.overwriteMinutes.addEventListener('input', async ()=>{
+    let v = Math.max(1, Math.min(1440, Number(els.overwriteMinutes.value)||30));
+    els.overwriteVal.textContent = v + ' min';
+    await enforceOverwriteLimit();
+    refreshRecordingsList();
+    localStorage.setItem('loopcam_overwrite', v);
+  });
+
+  els.playerClose.onclick = closePlayer;
+  els.playerModal.addEventListener('click', (e)=>{ if(e.target === els.playerModal) closePlayer(); });
+
+  els.btnSetupUser.onclick = ()=> openAuthModal('setup', null);
+  els.btnChangePassword.onclick = ()=>{
+    if(!hasPasswordSet()){ openAuthModal('setup', null); }
+    else openAuthModal('change', null);
+  };
+  els.btnLockNow.onclick = ()=>{
+    lockSession();
+    toast('Session locked.');
+  };
+  els.btnClearAll.onclick = ()=> requireAuth(async ()=>{
+    const all = await dbGetAll();
+    if(all.length === 0){ toast('Nothing to clear.'); return; }
+    if(!confirm(`Delete all ${all.length} saved clip(s)? This cannot be undone.`)) return;
+    await dbClear();
+    refreshRecordingsList();
+    toast('All recordings cleared.');
+  });
+
+  els.authSubmit.onclick = handleAuthSubmit;
+  els.authCancel.onclick = closeAuthModal;
+  els.authModal.addEventListener('click', (e)=>{ if(e.target === els.authModal) closeAuthModal(); });
+  els.authModal.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ e.preventDefault(); handleAuthSubmit(); }
+    if(e.key === 'Escape'){ closeAuthModal(); }
+  });
+
+  // Persist simple settings (not video) across reloads
+  function loadSettings(){
+    const ov = localStorage.getItem('loopcam_overwrite');
+    if(ov){ els.overwriteMinutes.value = ov; els.overwriteVal.textContent = ov + ' min'; }
+    const res = localStorage.getItem('loopcam_resolution');
+    if(res) els.resolution.value = res;
+    const br = localStorage.getItem('loopcam_bitrate');
+    if(br) els.bitrate.value = br;
+    const sl = localStorage.getItem('loopcam_segment');
+    if(sl) els.segmentLength.value = sl;
+  }
+  els.resolution.addEventListener('change', ()=> localStorage.setItem('loopcam_resolution', els.resolution.value));
+  els.bitrate.addEventListener('change', ()=> localStorage.setItem('loopcam_bitrate', els.bitrate.value));
+  els.segmentLength.addEventListener('change', ()=> localStorage.setItem('loopcam_segment', els.segmentLength.value));
+
+  // ---------- Init ----------
+  (async function init(){
+    loadSettings();
+    if(!navigator.mediaDevices || !window.MediaRecorder || !window.indexedDB){
+      toast('This browser does not fully support camera recording or local storage.');
+    }
+    await initDB();
+    await refreshRecordingsList();
+    updateLockUI();
+  })();
+
+  window.addEventListener('beforeunload', ()=>{
+    if(stream) stream.getTracks().forEach(t=>t.stop());
+  });
+
+})();
+</script>
+</body>
+</html>
