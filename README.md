@@ -3,7 +3,7 @@ SOME IMPORTENT LINKS FOR PERSONALUSE
 # Shiv Computer - Practical Computer Education
 
 🚀 Welcome to the official repository of **Shiv Computer**.  
-This site is hosted at: [https://8090155304.github.io/info/](https://8090155304.github.io/info/)
+This site is hosted at: [https://8090155304.github.io/info/](https://shivtool.github.io/info/)
 
 ---
 
