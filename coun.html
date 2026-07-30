@@ -3,52 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter</title>
+    <title>Object Counter | ऑब्जेक्ट काउंटर</title>
     <link rel="icon" type="image/png" href="SHIV.png">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
-    
+
     <style>
-        /* Mobile-First CSS */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            margin: 0; 
-            padding: 0; 
-            background-color: #f8f9fa;
-            color: #343a40;
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-bg: #f4f6fb;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 14px;
+            --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
         }
-        .container { 
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: var(--gray-bg);
+            color: var(--text-main);
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 22px 16px;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25);
+        }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .top-bar p {
+            margin: 6px 0 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .container {
             width: 100%;
-            max-width: 750px; 
-            margin: 0 auto; 
-            padding: 20px 10px; 
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px 14px 40px;
         }
-        h2 { 
-            color: #007bff; 
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
             margin-bottom: 20px;
-            font-size: 1.5rem;
         }
+
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 640px; 
-            margin: 0 auto 20px auto;
-            padding-top: 75%; 
-            border-radius: 8px;
+            max-width: 640px;
+            margin: 0 auto 18px auto;
+            padding-top: 75%;
+            border-radius: 12px;
             overflow: hidden;
+            background: #000;
         }
-        #videoFeed { 
+
+        #videoFeed {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%; 
+            width: 100%;
             height: 100%;
-            border: 3px solid #007bff; 
-            object-fit: cover; 
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            object-fit: cover;
             transform: scaleX(-1);
         }
+
         #resultCanvas {
             position: absolute;
             top: 0;
@@ -56,87 +101,224 @@
             width: 100%;
             height: 100%;
             z-index: 10;
+            pointer-events: none;
         }
+
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 20;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(220, 38, 38, 0.9);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .cycle-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .step-pill {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #eef0f4;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+
+        .step-pill.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .step-pill.done {
+            background: var(--success);
+            color: #fff;
+        }
+
         .controls {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 20px;
+            gap: 10px;
         }
-        .controls button { 
-            padding: 12px 15px; 
-            margin: 8px; 
-            font-size: 1rem; 
-            font-weight: bold;
-            cursor: pointer; 
-            border: none; 
-            border-radius: 6px; 
-            transition: background-color 0.3s, opacity 0.3s;
-            flex-grow: 1; 
-            min-width: 140px;
+
+        .controls button {
+            padding: 13px 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+            flex-grow: 1;
+            min-width: 150px;
+            color: #fff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
         }
+
+        .controls button:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
         .controls button:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
+            box-shadow: none;
         }
-        #captureTargetBtn { background-color: #28a745; color: white; }
-        #startCountBtn { background-color: #ffc107; color: #333; }
-        #printHistoryBtn { background-color: #6c757d; color: white; }
-        
-        #output { 
-            margin-top: 20px; 
-            padding: 15px;
-            border-radius: 6px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-size: 1.1em; 
-            min-height: 50px;
+
+        #toggleAutoBtn { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        #printHistoryBtn { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        #clearHistoryBtn { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        #output {
+            margin-top: 6px;
+            padding: 16px;
+            border-radius: 10px;
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            font-size: 1.05em;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        #output p {
+            margin: 4px 0;
+            line-height: 1.4;
+        }
+
+        .count-live {
+            font-size: 1.7rem !important;
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #cbd5e1;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         /* --- History Styles --- */
         #historySection {
-            margin-top: 30px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 8px;
             text-align: left;
         }
+
+        #historySection h3 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #historyCount {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #eef0f4;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
         #historyList {
             list-style: none;
             padding: 0;
-            max-height: 200px;
+            max-height: 260px;
             overflow-y: auto;
-            border-top: 1px solid #ced4da;
+            border-top: 1px solid var(--border);
             margin-top: 10px;
         }
+
         #historyList li {
-            padding: 8px 0;
-            border-bottom: 1px dashed #ced4da;
-            font-size: 0.95rem;
+            padding: 10px 6px;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.92rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
-        #historyList li:last-child {
-            border-bottom: none;
+
+        #historyList li.just-added {
+            animation: highlight 1.6s ease;
         }
-        
+
+        @keyframes highlight {
+            0% { background: #dcfce7; }
+            100% { background: transparent; }
+        }
+
+        #historyList li:last-child { border-bottom: none; }
+
+        #historyList .h-obj {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        #historyList .h-count {
+            font-weight: 700;
+            color: var(--success);
+            white-space: nowrap;
+        }
+
+        .empty-note {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        footer {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 10px 0 24px;
+        }
+
         /* 🚨 प्रिंट फिक्स: प्रिंट करने पर सिर्फ़ हिस्ट्री सेक्शन दिखना चाहिए */
         @media print {
-            /* प्रिंट के दौरान पूरे कंटेनर को छुपाएँ */
-            .container {
-                display: none;
-            }
-            /* एक नया कंटेनर जो सिर्फ प्रिंट के लिए उपयोग होगा */
-            body::after {
-                content: '';
+            .top-bar, footer { display: none; }
+            .container > .card:not(#historySection) { display: none; }
+
+            #historySection {
                 display: block;
                 width: 100%;
-                height: 100%;
-                /* यहाँ हिस्ट्री सेक्शन का कंटेंट जाएगा */
-            }
-            
-            /* हिस्ट्री सेक्शन को प्रिंट के लिए तैयार करें */
-            #historySection {
-                display: block; /* वापस दृश्यमान करें */
-                width: 90%;
-                margin: 20px auto;
+                margin: 0 auto;
                 padding: 0;
                 box-shadow: none;
                 background: white;
@@ -148,12 +330,13 @@
                 color: #000;
                 font-size: 1.4rem;
             }
-            /* प्रिंट बटन और क्लियर बटन को छुपाएँ */
-            #historySection button {
+            #historySection button,
+            #historySection .controls,
+            #historyCount {
                 display: none;
             }
             #historyList {
-                max-height: none; /* पूरी हिस्ट्री दिखाएं */
+                max-height: none;
                 overflow-y: visible;
                 text-align: left;
                 border: 1px solid #333;
@@ -167,56 +350,92 @@
     <script src="security.js"></script>
 </head>
 <body>
+    <div class="top-bar">
+        <h1>📷 Object Counter</h1>
+        <p>AI आधारित पूर्णतः स्वचालित ऑब्जेक्ट गिनती टूल</p>
+    </div>
+
     <div class="container">
-        <h2>Object Counter</h2>
-        
-        <div class="video-container">
-            <video id="videoFeed" playsinline autoplay muted></video>
-            <canvas id="resultCanvas"></canvas>
-        </div>
-        
-        <div class="controls">
-            <button id="captureTargetBtn" disabled>🎯 स्टेप 1: टारगेट सेट करें</button>
-            <button id="startCountBtn" disabled>🔢 स्टेप 2: गिनती शुरू करें</button>
+        <div class="card">
+            <div class="cycle-indicator">
+                <span class="step-pill" id="pill1">🔍 टारगेट खोजा जा रहा है</span>
+                <span class="step-pill" id="pill2">🔢 गिनती हो रही है</span>
+                <span class="step-pill" id="pill3">💾 सेव हुआ</span>
+            </div>
+
+            <div class="video-container">
+                <video id="videoFeed" playsinline autoplay muted></video>
+                <canvas id="resultCanvas"></canvas>
+                <span class="live-badge" id="liveBadge" style="display:none;"><span class="live-dot"></span> LIVE</span>
+            </div>
+
+            <div class="controls">
+                <button id="toggleAutoBtn" disabled>⏸️ रोकें</button>
+            </div>
+
+            <div id="output">
+                <p><span class="spinner"></span>स्थिति: लोड हो रहा है... (इंटरनेट ज़रूरी है)</p>
+            </div>
         </div>
 
-        <div id="output">
-            <p>स्थिति: लोड हो रहा है... (इंटरनेट ज़रूरी है)</p>
+        <div id="historySection" class="card">
+            <h3>📊 गिनती इतिहास <span id="historyCount">0 रिकॉर्ड</span></h3>
+            <div class="controls">
+                <button id="printHistoryBtn">🖨️ इतिहास प्रिंट/PDF करें</button>
+                <button id="clearHistoryBtn">🗑️ इतिहास हटाएँ</button>
+            </div>
+            <ul id="historyList"></ul>
         </div>
-    </div>
-    
-    <div id="historySection">
-        <h3>📊 गिनती इतिहास (Local Storage)</h3>
-        <div class="controls">
-            <button id="printHistoryBtn">🖨️ इतिहास प्रिंट/PDF करें</button>
-            <button id="clearHistoryBtn" style="background-color: #dc3545; color: white;">🗑️ इतिहास हटाएँ</button>
-        </div>
-        <ul id="historyList">
-            </ul>
-    </div>
 
+        <footer>यह टूल पूरी तरह स्वचालित है — कैमरे के सामने आने वाले ऑब्जेक्ट अपने-आप पहचाने, गिने और सेव होते रहते हैं।</footer>
+    </div>
 
     <script>
         const video = document.getElementById('videoFeed');
         const resultCanvas = document.getElementById('resultCanvas');
         const resultCtx = resultCanvas.getContext('2d');
-        const captureTargetBtn = document.getElementById('captureTargetBtn');
-        const startCountBtn = document.getElementById('startCountBtn');
+        const toggleAutoBtn = document.getElementById('toggleAutoBtn');
         const printHistoryBtn = document.getElementById('printHistoryBtn');
         const clearHistoryBtn = document.getElementById('clearHistoryBtn');
         const output = document.getElementById('output');
         const historyList = document.getElementById('historyList');
+        const historyCountEl = document.getElementById('historyCount');
+        const liveBadge = document.getElementById('liveBadge');
+        const pill1 = document.getElementById('pill1');
+        const pill2 = document.getElementById('pill2');
+        const pill3 = document.getElementById('pill3');
+
+        const COUNT_DURATION_MS = 5000;      // हर गिनती चक्र की अवधि
+        const RETRY_DELAY_MS = 1200;         // कोई ऑब्जेक्ट न मिलने पर पुनः प्रयास से पहले प्रतीक्षा
+        const SAVED_MESSAGE_MS = 1200;       // "सेव हुआ" संदेश दिखाने की अवधि
 
         let model = null;
         let targetObject = null;
         let isCounting = false;
+        let autoRunning = false;   // पूरा ऑटो-चक्र चालू/बंद
+        let cycleToken = 0;        // पुराने setTimeouts को रद्द करने के लिए
         let animationFrameId = null;
+        let latestCount = 0;
+
+        // --- स्टेप इंडिकेटर अपडेट करना ---
+        function setStep(step) {
+            [pill1, pill2, pill3].forEach(p => p.classList.remove('active', 'done'));
+            if (step === 1) pill1.classList.add('active');
+            if (step === 2) { pill1.classList.add('done'); pill2.classList.add('active'); }
+            if (step === 3) { pill1.classList.add('done'); pill2.classList.add('done'); pill3.classList.add('active'); }
+        }
 
         // --- History Management ---
         const HISTORY_KEY = 'object_count_history';
 
         function loadHistory() {
-            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            } catch (e) {
+                console.error('History parse error:', e);
+                history = [];
+            }
             displayHistory(history);
             return history;
         }
@@ -239,22 +458,37 @@
             history.unshift(newEntry); // सबसे नया रिकॉर्ड सबसे पहले
 
             localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            displayHistory(history);
+            displayHistory(history, true);
         }
 
-        function displayHistory(history) {
-            historyList.innerHTML = ''; // सूची साफ करें
+        function displayHistory(history, highlightFirst) {
+            historyList.innerHTML = '';
+            historyCountEl.textContent = `${history.length} रिकॉर्ड`;
+
             if (history.length === 0) {
-                historyList.innerHTML = '<li>कोई रिकॉर्ड नहीं मिला।</li>';
+                historyList.innerHTML = '<li class="empty-note">कोई रिकॉर्ड नहीं मिला।</li>';
                 return;
             }
-            history.forEach(item => {
+            history.forEach((item, idx) => {
                 const li = document.createElement('li');
-                li.textContent = `[${item.timestamp}] - ${item.objectName}: ${item.count} गिने गए।`;
+                if (highlightFirst && idx === 0) li.classList.add('just-added');
+                const left = document.createElement('span');
+                left.innerHTML = `<span class="h-obj">${escapeHtml(item.objectName)}</span><br><small>${escapeHtml(item.timestamp)}</small>`;
+                const right = document.createElement('span');
+                right.className = 'h-count';
+                right.textContent = `${item.count} गिने गए`;
+                li.appendChild(left);
+                li.appendChild(right);
                 historyList.appendChild(li);
             });
         }
-        
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // --- Event Listeners for History ---
         printHistoryBtn.addEventListener('click', () => {
             window.print();
@@ -267,137 +501,189 @@
             }
         });
 
+        // --- Pause / Resume ऑटो-चक्र ---
+        toggleAutoBtn.addEventListener('click', () => {
+            if (autoRunning) {
+                stopAutoCycle();
+            } else {
+                startAutoCycle();
+            }
+        });
 
         // --- 1. मॉडल लोड करें ---
         async function loadModel() {
-            output.innerHTML = '<p>⏳लोड हो रहा है... (इंटरनेट से)</p>';
-            loadHistory(); 
+            output.innerHTML = '<p><span class="spinner"></span>मॉडल लोड हो रहा है... (इंटरनेट से)</p>';
+            loadHistory();
 
             try {
                 model = await cocoSsd.load();
-                output.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ लोड हो गया। कृपया कैमरा की अनुमति प्रदान करें ।</p>';
+                output.innerHTML = '<p style="color: var(--success); font-weight: bold;">✅ मॉडल लोड हो गया। कृपया कैमरा की अनुमति दें।</p>';
                 startCamera();
             } catch (err) {
-                output.innerHTML = `<p style="color: red; font-weight: bold;">❌ मॉडल लोडिंग विफल। कृपया इंटरनेट जाँचें।</p>`;
-                console.error("Model loading error:", err);
+                output.innerHTML = `<p style="color: var(--danger); font-weight: bold;">❌ मॉडल लोडिंग विफल। कृपया इंटरनेट कनेक्शन जाँचें और पेज रीफ़्रेश करें।</p>`;
+                console.error('Model loading error:', err);
             }
         }
 
         // --- 2. कैमरा एक्सेस शुरू करना ---
         async function startCamera() {
             try {
-                const constraints = { video: { facingMode: "environment" } }; 
+                const constraints = { video: { facingMode: 'environment' } };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
-                
+
                 video.onloadedmetadata = () => {
                     video.play();
-                    
+
                     const videoWidth = video.videoWidth;
                     const videoHeight = video.videoHeight;
-                    
+
                     resultCanvas.width = videoWidth;
                     resultCanvas.height = videoHeight;
 
                     const container = document.querySelector('.video-container');
                     container.style.paddingTop = `${(videoHeight / videoWidth) * 100}%`;
 
-                    captureTargetBtn.disabled = false;
-                    output.innerHTML = '<p style="color: #007bff; font-weight: bold;">✅ कैमरा चालू। टारगेट सेट करें।</p>';
+                    toggleAutoBtn.disabled = false;
+                    output.innerHTML = '<p style="color: var(--primary-dark); font-weight: bold;">✅ कैमरा चालू है। स्वतः गिनती शुरू हो रही है...</p>';
+
+                    // 🚀 कैमरा तैयार होते ही अपने-आप शुरू करें, किसी बटन की ज़रूरत नहीं
+                    startAutoCycle();
                 };
             } catch (err) {
-                output.innerHTML = `<p style="color: red; font-weight: bold;">❌ कैमरा अनुमति विफल।</p>`;
-                console.error("Camera access error:", err);
+                output.innerHTML = `<p style="color: var(--danger); font-weight: bold;">❌ कैमरा अनुमति विफल। कृपया ब्राउज़र सेटिंग्स में कैमरा एक्सेस दें।</p>`;
+                console.error('Camera access error:', err);
             }
         }
 
-        // --- 3. टारगेट ऑब्जेक्ट सेट करना (पहला स्कैन) ---
-        captureTargetBtn.addEventListener('click', async () => {
-            if (!model || !video.srcObject) return;
+        // --- ऑटो-चक्र शुरू/बंद करना ---
+        function startAutoCycle() {
+            if (autoRunning) return;
+            autoRunning = true;
+            cycleToken++;
+            toggleAutoBtn.textContent = '⏸️ रोकें';
+            liveBadge.style.display = 'flex';
+            runCycle(cycleToken);
+        }
 
-            output.innerHTML = '<p>🎯 टारगेट ऑब्जेक्ट को पहचान रहा है...</p>';
+        function stopAutoCycle() {
+            autoRunning = false;
+            isCounting = false;
+            cancelAnimationFrame(animationFrameId);
+            cycleToken++; // चल रहे किसी भी लंबित चक्र को रद्द करें
+            toggleAutoBtn.textContent = '▶️ फिर से शुरू करें';
+            liveBadge.style.display = 'none';
+            output.innerHTML = '<p style="color: var(--text-muted); font-weight: bold;">⏸️ रोक दिया गया। "फिर से शुरू करें" दबाएँ।</p>';
+        }
 
-            const predictions = await model.detect(video);
+        // --- पूरा स्वचालित चक्र: टारगेट खोजो → गिनो → सेव करो → दोहराओ ---
+        async function runCycle(token) {
+            if (!autoRunning || token !== cycleToken) return;
+
+            // चरण 1: टारगेट खोजना
+            setStep(1);
+            output.innerHTML = '<p><span class="spinner"></span>टारगेट ऑब्जेक्ट को स्वतः पहचाना जा रहा है...</p>';
+
+            let predictions = [];
+            try {
+                predictions = await model.detect(video);
+            } catch (err) {
+                console.error('Detection error:', err);
+            }
+
+            if (!autoRunning || token !== cycleToken) return;
 
             if (predictions.length === 0) {
-                output.innerHTML = '<p style="color: orange;">⚠️ कोई ऑब्जेक्ट नहीं मिला। फिर से प्रयास करें।</p>';
+                output.innerHTML = '<p style="color: var(--warning); font-weight: bold;">⚠️ कोई ऑब्जेक्ट नहीं मिला। कैमरे के सामने कोई वस्तु लाएँ...</p>';
+                setTimeout(() => runCycle(token), RETRY_DELAY_MS);
                 return;
             }
 
             const bestPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-            targetObject = bestPrediction.class; 
-            
-            output.innerHTML = `<p style="color: blue; font-weight: bold;">🎯 **टारगेट सेट हो गया:** **${targetObject.toUpperCase()}**। अब गिनती शुरू करें।</p>`;
-            
-            captureTargetBtn.disabled = true;
-            startCountBtn.disabled = false;
-        });
+            targetObject = bestPrediction.class;
 
-        // --- 4. गिनती शुरू करना (दूसरा स्कैन) ---
-        startCountBtn.addEventListener('click', () => {
-            if (!targetObject) return;
-
+            // चरण 2: गिनती शुरू
+            setStep(2);
             isCounting = true;
-            output.innerHTML = `<p>🔢 गिनती शुरू। **${targetObject.toUpperCase()}** को ट्रैक किया जा रहा है...</p>`;
-            captureTargetBtn.disabled = true;
-            startCountBtn.disabled = true;
-            
-            detectFrame();
-            
-            // 5 सेकंड बाद गिनती बंद करें और सेव करें
-            setTimeout(() => {
-                isCounting = false;
-                cancelAnimationFrame(animationFrameId);
-                
-                // अंतिम गणना को output से निकालें
-                const outputText = output.textContent;
-                const match = outputText.match(/\d+/);
-                const finalCount = match ? parseInt(match[0]) : 0;
-                
-                saveCount(targetObject, finalCount);
-                
-                output.innerHTML += `<p style="color: purple;">💾 गिनती सहेजी गई। नया स्कैन करने के लिए पेज रीफ़्रेश करें।</p>`;
-            }, 5000); // 5 सेकंड तक गिनती करें
-        });
+            latestCount = 0;
+            detectFrame(token);
 
-        // --- 5. कंटीन्यूअस डिटेक्शन और काउंटिंग लॉजिक ---
-        async function detectFrame() {
-            if (!isCounting || !model) {
+            setTimeout(() => {
+                if (token !== cycleToken) return; // इस बीच रोका या रीसेट किया जा चुका है
+                finishCounting(token);
+            }, COUNT_DURATION_MS);
+        }
+
+        // --- गिनती खत्म होने पर सेव और अगला चक्र स्वतः शुरू ---
+        function finishCounting(token) {
+            isCounting = false;
+            cancelAnimationFrame(animationFrameId);
+
+            const finishedObject = targetObject;
+            const finalCount = latestCount;
+
+            saveCount(finishedObject, finalCount);
+            setStep(3);
+
+            output.innerHTML = `<p style="color: #7c3aed; font-weight: bold;">💾 सहेजा गया: ${finishedObject.toUpperCase()} — ${finalCount} गिने गए। अगला चक्र शुरू हो रहा है...</p>`;
+
+            resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+
+            // अगला चक्र स्वतः शुरू करें — किसी बटन की ज़रूरत नहीं
+            setTimeout(() => {
+                if (token !== cycleToken || !autoRunning) return;
+                runCycle(token);
+            }, SAVED_MESSAGE_MS);
+        }
+
+        // --- 3. कंटीन्यूअस डिटेक्शन और लाइव काउंटिंग लॉजिक ---
+        async function detectFrame(token) {
+            if (!isCounting || !model || token !== cycleToken) {
                 cancelAnimationFrame(animationFrameId);
                 return;
             }
 
-            const predictions = await model.detect(video);
-            
+            let predictions = [];
+            try {
+                predictions = await model.detect(video);
+            } catch (err) {
+                console.error('Detection error:', err);
+            }
+
+            if (!isCounting || token !== cycleToken) return;
+
             resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
 
             let count = 0;
-            
             predictions.forEach(p => {
                 if (p.class === targetObject) {
                     count++;
-                    drawBoundingBox(p); 
+                    drawBoundingBox(p);
                 }
             });
 
-            output.innerHTML = `<p style="font-size: 1.5em; color: #28a745; font-weight: bold;">✅ **${targetObject.toUpperCase()} काउंट:** ${count}</p>`;
+            latestCount = count; // बग फिक्स: गिनती सीधे यहाँ से ट्रैक होती है
 
-            animationFrameId = requestAnimationFrame(detectFrame);
+            output.innerHTML = `<p class="count-live">${targetObject.toUpperCase()}: ${count}</p>`;
+
+            if (isCounting) {
+                animationFrameId = requestAnimationFrame(() => detectFrame(token));
+            }
         }
 
-        // --- 6. बाउंडिंग बॉक्स ड्रा करना ---
+        // --- 4. बाउंडिंग बॉक्स ड्रा करना ---
         function drawBoundingBox(prediction) {
             const [x, y, width, height] = prediction.bbox;
-            
+
             resultCtx.beginPath();
-            resultCtx.strokeStyle = 'red'; 
+            resultCtx.strokeStyle = '#ef4444';
             resultCtx.lineWidth = 3;
             resultCtx.rect(x, y, width, height);
             resultCtx.stroke();
-            
-            resultCtx.fillStyle = 'red';
-            resultCtx.font = '20px Arial';
-            resultCtx.fillText(prediction.class, x, y > 20 ? y - 5 : 20);
+
+            resultCtx.fillStyle = '#ef4444';
+            resultCtx.font = 'bold 18px Arial';
+            resultCtx.fillText(prediction.class, x, y > 20 ? y - 6 : 20);
         }
 
         // पेज लोड होने पर मॉडल लोड करें
