@@ -254,6 +254,22 @@
 
   /* --- CENTER: stage --- */
   .stage-wrap{display:flex;flex-direction:column;gap:12px;min-height:0;height:100%;}
+  .image-detail-bar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;
+    background:var(--panel); border:1px solid var(--panel-border);
+    border-radius:12px; padding:8px 14px;
+    font-size:12.5px; color:var(--text-dim); flex-shrink:0;
+  }
+  .image-detail-bar b{color:var(--gold-soft); font-weight:600;}
+  .image-detail-bar .idx-pill{
+    background:rgba(var(--accent-rgb),0.18); color:var(--gold-soft);
+    border:1px solid var(--panel-border); border-radius:999px;
+    padding:2px 10px; font-size:11.5px; font-weight:600;
+  }
+  .image-detail-bar .idb-name{
+    flex:1; min-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    color:var(--text);
+  }
   .toolbar{
     display:flex;flex-wrap:nowrap;gap:8px;align-items:center;
     background:var(--panel); border:1px solid var(--panel-border);
@@ -434,6 +450,7 @@
 
   <!-- CENTER PANEL -->
   <div class="stage-wrap">
+    <div id="imageDetailBar" class="image-detail-bar" style="display:none;"></div>
     <div id="stageOuter" title="Zoom karke image ko drag karke khiskayein (pan)">
       <div id="placeholder">
         <span class="big">🖼️</span>
@@ -529,6 +546,7 @@
   const dimLabel = document.getElementById('dimLabel');
   const fileListEl = document.getElementById('fileList');
   const folderCounter = document.getElementById('folderCounter');
+  const imageDetailBar = document.getElementById('imageDetailBar');
   const navCounter = document.getElementById('navCounter');
   const statusBox = document.getElementById('statusBox');
   const modeBadge = document.getElementById('modeBadge');
@@ -721,14 +739,17 @@
 
   function renderFileList(){
     fileListEl.innerHTML = '';
+    let activeEl = null;
     images.forEach((img, i) => {
       const div = document.createElement('div');
       div.className = 'file-item' + (i===currentIndex ? ' active' : '');
       div.innerHTML = `<span class="fname">${img.name}</span>${img.edited ? '<span class="tag">✓ saved</span>' : ''}`;
       div.onclick = () => loadImage(i);
       fileListEl.appendChild(div);
+      if(i === currentIndex) activeEl = div;
     });
     navCounter.textContent = (currentIndex+1) + ' / ' + images.length;
+    if(activeEl) activeEl.scrollIntoView({block:'nearest', behavior:'smooth'});
   }
 
   async function getFileForImage(entry){
@@ -758,6 +779,18 @@
     resetCropToDefault();
     renderFileList();
     setStatus('Image load ho gayi: <b>' + entry.name + '</b> (' + naturalW + '×' + naturalH + 'px, ' + fmtBytes(file.size) + ')');
+    updateImageDetailBar(entry, file);
+  }
+
+  function updateImageDetailBar(entry, file){
+    if(!imageDetailBar) return;
+    imageDetailBar.style.display = 'flex';
+    imageDetailBar.innerHTML =
+      '<span class="idx-pill">' + (currentIndex+1) + ' / ' + images.length + '</span>' +
+      '<span class="idb-name" title="' + entry.name + '"><b>' + entry.name + '</b></span>' +
+      '<span>' + naturalW + ' × ' + naturalH + ' px</span>' +
+      '<span>' + fmtBytes(file.size) + '</span>' +
+      (entry.edited ? '<span style="color:var(--ok);">✓ saved</span>' : '');
   }
 
   document.getElementById('btnPrev').addEventListener('click', () => loadImage(currentIndex-1));
@@ -1012,6 +1045,12 @@
       await writable.close();
       entry.edited = true;
       renderFileList();
+      if(imageDetailBar.style.display !== 'none'){
+        const savedTag = imageDetailBar.querySelector('.idb-name');
+        if(savedTag && !imageDetailBar.innerHTML.includes('✓ saved')){
+          imageDetailBar.insertAdjacentHTML('beforeend', '<span style="color:var(--ok);">✓ saved</span>');
+        }
+      }
       setStatus('Original file safaltapoorvak <b>overwrite / auto-save</b> ho gayi: ' + entry.name, 'ok');
     }catch(err){
       console.error('Auto-save error:', err);
