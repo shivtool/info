@@ -2,11 +2,34 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Music Player</title>
-<link rel="icon" type="image/png" href="SHIV.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Kabhi Sham Dhale — Music Player</title>
+<meta name="description" content="Shiv Computer ka fast, offline-ready glassmorphism music player — install karke app jaisa istemal karein.">
+
+<!-- PWA core -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="background-color" content="#0f172a">
+<meta name="color-scheme" content="dark">
+
+<!-- Icons -->
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="shortcut icon" href="icons/icon-192.png">
+
+<!-- iOS standalone app behaviour -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Music Player">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://raw.githubusercontent.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -194,6 +217,26 @@
     box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
   }
   .sync-btn:active { transform: scale(0.98); }
+
+  /* --------- PWA install button --------- */
+  .install-btn {
+    background: linear-gradient(135deg, var(--green), var(--gold));
+    color: #0f172a;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(52, 211, 153, 0.35);
+    transition: all 0.3s ease;
+    text-align: center;
+    width: 100%;
+  }
+  .install-btn:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(250, 204, 21, 0.55); }
+  .install-btn:active { transform: scale(0.98); }
+  .hidden { display: none !important; }
 
   /* --------- Visualizer / Stage --------- */
   .stage {
@@ -718,6 +761,8 @@
     </div>
   </div>
 
+  <button class="install-btn hidden" id="installBtn" title="App Install Karein">⬇️ App Install करें</button>
+
   <button class="sync-btn" id="syncBtn">📁 लोकल गानों का फोल्डर चुनें (Auto-Sync)</button>
   <input type="file" id="fileInput" webkitdirectory directory multiple style="display: none;">
 
@@ -1077,6 +1122,43 @@
 
   // ---------- Init ----------
   renderPlaylist();
+
+  // ---------- PWA: Service Worker registration (instant repeat loads) ----------
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('Service worker registration failed:', err);
+      });
+    });
+  }
+
+  // ---------- PWA: Install prompt ----------
+  const installBtn = document.getElementById('installBtn');
+  let deferredInstallPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    installBtn.classList.remove('hidden');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    installBtn.classList.add('hidden');
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+    statusMsg.innerText = 'ऐप इंस्टॉल हो गया 🎉';
+  });
+
+  // Already installed / running standalone → no need to show the install button
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    installBtn.classList.add('hidden');
+  }
 </script>
 
 </body>
