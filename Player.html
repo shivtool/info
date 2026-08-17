@@ -1,431 +1,1003 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Music Player</title>
-    <link rel="icon" type="image/png" href="SHIV.png">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Music Player</title>
+<link rel="icon" type="image/png" href="SHIV.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a, #1e1b4b, #31103f);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #f8fafc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            overflow-x: hidden;
-        }
+  :root{
+    --cyan:#38bdf8;
+    --indigo:#818cf8;
+    --pink:#f472b6;
+    --amber:#fbbf24;
+    --green:#34d399;
+    --red:#f87171;
+    --gold:#facc15;
+    --bg1:#0f172a;
+    --bg2:#1e1b4b;
+    --bg3:#31103f;
+  }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+  body {
+    font-family: 'Poppins', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    overflow-x: hidden;
+  }
 
-        .player-container {
-            width: 100%;
-            max-width: 420px;
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.2);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 
-        .header {
-            text-align: center;
-        }
+  .player-container {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 26px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.2);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
 
-        .header h1 {
-            font-size: 1.2rem;
-            color: #38bdf8;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        }
+  /* animated rotating rainbow border glow, only visible while lights are on */
+  .player-container::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 28px;
+    padding: 2px;
+    background: conic-gradient(from 0deg, var(--cyan), var(--indigo), var(--pink), var(--amber), var(--green), var(--cyan));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+    animation: rotate-border 5s linear infinite;
+  }
+  .player-container.lights-on::before { opacity: 0.55; }
+  .player-container.lights-on.is-playing::before { opacity: 0.9; }
+  @keyframes rotate-border {
+    to { transform: rotate(360deg); }
+  }
 
-        .header p {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 3px;
-        }
+  /* subtle glass shine highlight across the top */
+  .player-container::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -20%;
+    width: 60%;
+    height: 220%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.08), transparent);
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        .sync-btn {
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            color: #0f172a;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-            transition: all 0.3s ease;
-            text-align: center;
-        }
+  .player-container > * { position: relative; z-index: 1; }
 
-        .sync-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
-        }
+  /* --------- Header --------- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-        .visualizer-box {
-            width: 100%;
-            height: 110px;
-            background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(15,23,42,0.85) 80%);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            position: relative;
-            padding: 0 12px;
-        }
+  .header-text h1 {
+    font-family: 'Rajdhani', 'Poppins', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, var(--cyan), var(--indigo), var(--pink));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: title-shine 6s linear infinite;
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.35));
+  }
+  @keyframes title-shine {
+    to { background-position: 200% center; }
+  }
 
-        .pulsing-orb {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            border-radius: 50%;
-            box-shadow: 0 0 20px #38bdf8;
-            animation: pulse 2s infinite ease-in-out;
-            margin-bottom: 5px;
-        }
+  .header-text p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 12px rgba(56,189,248,0.5); }
-            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(56,189,248,0.9); }
-            100% { transform: scale(0.95); box-shadow: 0 0 12px rgba(56,189,248,0.5); }
-        }
+  .lights-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 6px 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: #cbd5e1;
+    transition: all 0.25s ease;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .lights-toggle:hover { border-color: var(--cyan); }
+  .lights-toggle .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #475569;
+    box-shadow: none;
+    transition: all 0.3s ease;
+  }
+  .lights-toggle.on .dot {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
+    animation: dotBlink 1.4s infinite ease-in-out;
+  }
+  @keyframes dotBlink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
 
-        .current-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
+  .sync-btn {
+    background: linear-gradient(135deg, var(--cyan), var(--indigo));
+    color: #0f172a;
+    border: none;
+    padding: 11px 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    transition: all 0.3s ease;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .sync-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -75%;
+    width: 50%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+  }
+  .sync-btn:hover::before { left: 125%; }
+  .sync-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+  }
+  .sync-btn:active { transform: scale(0.98); }
 
-        .status-msg {
-            font-size: 0.7rem;
-            color: #38bdf8;
-            margin-top: 3px;
-        }
+  /* --------- Visualizer / Stage --------- */
+  .stage {
+    width: 100%;
+    background: radial-gradient(circle at 50% 30%, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.9) 75%);
+    border-radius: 18px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    position: relative;
+    padding: 16px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
 
-        .controls-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+  /* floating musical notes drifting upward in the background, only when playing */
+  .float-notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .float-notes span {
+    position: absolute;
+    bottom: -10%;
+    font-size: 0.9rem;
+    opacity: 0;
+    color: var(--cyan);
+  }
+  .is-playing.lights-on .float-notes span {
+    animation: float-up 6s linear infinite;
+  }
+  .float-notes span:nth-child(1) { left: 8%;  color: var(--cyan);   animation-delay: 0s;   font-size: 0.8rem; }
+  .float-notes span:nth-child(2) { left: 28%; color: var(--pink);   animation-delay: 1.4s; font-size: 1rem; }
+  .float-notes span:nth-child(3) { left: 52%; color: var(--amber);  animation-delay: 2.6s; font-size: 0.75rem; }
+  .float-notes span:nth-child(4) { left: 70%; color: var(--indigo); animation-delay: 0.8s; font-size: 0.95rem; }
+  .float-notes span:nth-child(5) { left: 88%; color: var(--green);  animation-delay: 3.4s; font-size: 0.8rem; }
+  @keyframes float-up {
+    0%   { transform: translateY(0) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(-140px) rotate(25deg); opacity: 0; }
+  }
 
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
+  /* rainbow ambient glow strip along top, only alive when lights on */
+  .glow-strip {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cyan), var(--indigo), var(--pink), var(--amber), var(--green), var(--cyan));
+    background-size: 300% 100%;
+    opacity: 0.25;
+  }
+  .lights-on .glow-strip {
+    opacity: 1;
+    animation: strip-move 3s linear infinite;
+  }
+  @keyframes strip-move {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 300% 0%; }
+  }
 
-        .control-btn {
-            flex: 1;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #38bdf8;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
+  .disc-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
 
-        .control-btn:hover {
-            background: rgba(56, 189, 248, 0.3);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-        }
+  .disc {
+    width: 66px;
+    height: 66px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(circle at 50% 50%, #1e293b 0px, #1e293b 2px, #0f172a 3px, #0f172a 5px),
+      radial-gradient(circle at 35% 30%, #475569, #0f172a 75%);
+    border: 3px solid rgba(56,189,248,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 0 rgba(56,189,248,0);
+    transition: box-shadow 0.4s ease;
+    overflow: hidden;
+  }
+  .disc::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -60%;
+    width: 40%;
+    height: 140%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.25), transparent);
+    transform: rotate(25deg);
+  }
+  .disc::after {
+    content: '';
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 2px solid var(--cyan);
+    box-shadow: 0 0 6px rgba(56,189,248,0.6);
+    z-index: 1;
+  }
+  .disc .note {
+    position: absolute;
+    font-size: 1.05rem;
+    z-index: 1;
+    filter: drop-shadow(0 0 4px rgba(56,189,248,0.6));
+  }
+  .disc.spinning {
+    animation: spin 5s linear infinite;
+  }
+  .lights-on .disc.spinning {
+    box-shadow: 0 0 18px rgba(56,189,248,0.6), 0 0 36px rgba(129,140,248,0.35);
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 
-        audio {
-            width: 100%;
-            height: 40px;
-            border-radius: 8px;
-            outline: none;
-        }
+  .track-info {
+    flex: 1;
+    min-width: 0;
+  }
 
-        .playlist-wrapper {
-            max-height: 150px;
-            overflow-y: auto;
-            padding-right: 2px;
-        }
+  .current-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #f1f5f9;
+  }
 
-        .playlist-wrapper::-webkit-scrollbar {
-            width: 4px;
-        }
+  .current-artist {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-        .playlist-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(56, 189, 248, 0.3);
-            border-radius: 8px;
-        }
+  .status-msg {
+    font-size: 0.68rem;
+    color: var(--cyan);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .status-msg .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+  }
 
-        .playlist {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+  /* --------- Equalizer bars (colourful blinking lights) --------- */
+  .equalizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 34px;
+    width: 100%;
+    justify-content: center;
+    padding-top: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  .equalizer .bar {
+    width: 6px;
+    border-radius: 4px 4px 0 0;
+    height: 8px;
+    background: #475569;
+    transition: background 0.3s ease, opacity 0.3s ease;
+    opacity: 0.5;
+  }
+  .equalizer .bar:nth-child(1) { background: var(--cyan); }
+  .equalizer .bar:nth-child(2) { background: var(--indigo); }
+  .equalizer .bar:nth-child(3) { background: var(--pink); }
+  .equalizer .bar:nth-child(4) { background: var(--amber); }
+  .equalizer .bar:nth-child(5) { background: var(--green); }
+  .equalizer .bar:nth-child(6) { background: var(--indigo); }
+  .equalizer .bar:nth-child(7) { background: var(--cyan); }
 
-        .playlist-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 10px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.25s ease;
-        }
+  .lights-on .equalizer .bar { opacity: 1; }
 
-        .playlist-item:hover {
-            background: rgba(56, 189, 248, 0.1);
-            border-color: rgba(56, 189, 248, 0.4);
-        }
+  .lights-on.is-playing .equalizer .bar:nth-child(1) { animation: eq 0.62s ease-in-out infinite alternate; }
+  .lights-on.is-playing .equalizer .bar:nth-child(2) { animation: eq 0.48s ease-in-out infinite alternate; animation-delay: 0.1s; }
+  .lights-on.is-playing .equalizer .bar:nth-child(3) { animation: eq 0.71s ease-in-out infinite alternate; animation-delay: 0.05s; }
+  .lights-on.is-playing .equalizer .bar:nth-child(4) { animation: eq 0.55s ease-in-out infinite alternate; animation-delay: 0.2s; }
+  .lights-on.is-playing .equalizer .bar:nth-child(5) { animation: eq 0.65s ease-in-out infinite alternate; animation-delay: 0.12s; }
+  .lights-on.is-playing .equalizer .bar:nth-child(6) { animation: eq 0.5s ease-in-out infinite alternate; animation-delay: 0.22s; }
+  .lights-on.is-playing .equalizer .bar:nth-child(7) { animation: eq 0.6s ease-in-out infinite alternate; animation-delay: 0.08s; }
 
-        .playlist-item.active {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
-            border-color: #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-        }
+  @keyframes eq {
+    0% { height: 6px; }
+    100% { height: 32px; }
+  }
 
-        .track-name {
-            font-size: 0.8rem;
-            color: #e2e8f0;
-            max-width: 260px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+  /* --------- Progress bar / status bar (YouTube style) --------- */
+  .progress-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-        .playlist-item.active .track-name {
-            color: #38bdf8;
-            font-weight: 700;
-        }
-    </style>
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .progress-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--indigo));
+    border-radius: 4px;
+    position: relative;
+    transition: width 0.1s linear;
+  }
+  .lights-on .progress-fill {
+    background: linear-gradient(90deg, var(--cyan), var(--indigo), var(--pink));
+    box-shadow: 0 0 8px rgba(56,189,248,0.7);
+  }
+
+  .progress-thumb {
+    position: absolute;
+    top: 50%;
+    width: 13px;
+    height: 13px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(56,189,248,0.8);
+    transform: translate(-50%, -50%);
+    left: 0%;
+    pointer-events: none;
+  }
+  .is-playing .progress-thumb {
+    animation: thumb-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes thumb-pulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(56,189,248,0.8); }
+    50% { box-shadow: 0 0 12px rgba(129,140,248,1); }
+  }
+
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --------- Controls --------- */
+  .controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .main-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .side-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #e2e8f0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .side-btn:hover {
+    background: rgba(56,189,248,0.2);
+    border-color: var(--cyan);
+  }
+
+  .play-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--indigo));
+    border: none;
+    color: #0f172a;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(56,189,248,0.5);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .is-playing .play-btn {
+    box-shadow: 0 0 20px rgba(56,189,248,0.5), 0 0 0 6px rgba(56,189,248,0.12);
+  }
+  .play-btn:hover { transform: scale(1.08); }
+  .play-btn:active { transform: scale(0.94); }
+
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+  }
+
+  .volume-row span { font-size: 0.9rem; color: #94a3b8; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px rgba(56,189,248,0.8);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: none;
+    box-shadow: 0 0 8px rgba(56,189,248,0.8);
+    cursor: pointer;
+  }
+
+  /* --------- Playlist --------- */
+  .playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    padding: 0 2px;
+  }
+
+  .playlist-wrapper {
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  .playlist-wrapper::-webkit-scrollbar { width: 4px; }
+  .playlist-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 8px;
+  }
+
+  .playlist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .playlist-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 3px solid transparent;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+  }
+
+  .playlist-item:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.4);
+    border-left-color: var(--indigo);
+    transform: translateX(3px);
+  }
+
+  .playlist-item.active {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+    border-color: var(--cyan);
+    border-left-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+  }
+
+  .track-num {
+    font-size: 0.7rem;
+    color: #64748b;
+    width: 18px;
+    flex-shrink: 0;
+  }
+  .playlist-item.active .track-num { color: var(--cyan); }
+
+  .track-name {
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .playlist-item.active .track-name {
+    color: var(--cyan);
+    font-weight: 700;
+  }
+
+  .mini-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+    opacity: 0;
+  }
+  .playlist-item.active .mini-eq { opacity: 1; }
+  .mini-eq span {
+    width: 3px;
+    background: var(--cyan);
+    border-radius: 2px;
+    height: 4px;
+  }
+  .playlist-item.active.is-playing-item .mini-eq span:nth-child(1) { animation: eq 0.5s ease-in-out infinite alternate; }
+  .playlist-item.active.is-playing-item .mini-eq span:nth-child(2) { animation: eq 0.4s ease-in-out infinite alternate; animation-delay: 0.15s; }
+  .playlist-item.active.is-playing-item .mini-eq span:nth-child(3) { animation: eq 0.6s ease-in-out infinite alternate; animation-delay: 0.05s; }
+</style>
 </head>
 <body>
 
-<div class="player-container">
-    <div class="header">
-        <h1>🎵 Kabhi Sham Dhale</h1>
-        <p>Suno & Local Music Player</p>
+<div class="player-container" id="playerContainer">
+  <div class="header">
+    <div class="header-text">
+      <h1>🎵 Kabhi Sham Dhale</h1>
+      <p>Music Player</p>
+    </div>
+    <div class="lights-toggle on" id="lightsToggle">
+      <span class="dot"></span>
+      <span id="lightsLabel">Lights ON</span>
+    </div>
+  </div>
+
+  <button class="sync-btn" id="syncBtn">📁 लोकल गानों का फोल्डर चुनें (Auto-Sync)</button>
+  <input type="file" id="fileInput" webkitdirectory directory multiple style="display: none;">
+
+  <div class="stage" id="stage">
+    <div class="glow-strip"></div>
+    <div class="float-notes">
+      <span>♪</span><span>♫</span><span>♪</span><span>♬</span><span>♫</span>
     </div>
 
-    <!-- लोकल फोल्डर ऑटो-सिंक बटन -->
-    <button class="sync-btn" id="syncBtn">📁 लोकल गानों का फोल्डर चुनें (Auto-Sync)</button>
-    <input type="file" id="fileInput" webkitdirectory directory multiple style="display: none;">
-
-    <div class="visualizer-box">
-        <div class="pulsing-orb" id="orb"></div>
+    <div class="disc-row">
+      <div class="disc" id="disc"><span class="note">🎧</span></div>
+      <div class="track-info">
         <div class="current-title" id="displayTitle">गाना चुनें या फोल्डर सिंक करें</div>
-        <div class="status-msg" id="statusMsg">तैयार है</div>
+        <div class="current-artist" id="displayArtist">—</div>
+        <div class="status-msg"><span class="live-dot"></span><span id="statusMsg">तैयार है</span></div>
+      </div>
     </div>
 
-    <div class="controls-section">
-        <div class="btn-group">
-            <button class="control-btn" id="prevBtn">⏮ Previous</button>
-            <button class="control-btn" id="nextBtn">Next ⏭</button>
-        </div>
-        <audio id="audioPlayer" controls preload="auto"></audio>
+    <div class="equalizer" id="equalizer">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
     </div>
+  </div>
 
-    <div class="playlist-wrapper">
-        <ul class="playlist" id="playlist"></ul>
+  <div class="progress-section">
+    <div class="progress-track" id="progressTrack">
+      <div class="progress-bg">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-thumb" id="progressThumb"></div>
     </div>
+    <div class="time-row">
+      <span id="currentTime">0:00</span>
+      <span id="durationTime">0:00</span>
+    </div>
+  </div>
+
+  <div class="controls-section">
+    <div class="main-controls">
+      <button class="side-btn" id="prevBtn" title="Previous">⏮</button>
+      <button class="play-btn" id="playBtn" title="Play/Pause">▶</button>
+      <button class="side-btn" id="nextBtn" title="Next">⏭</button>
+    </div>
+    <div class="volume-row">
+      <span id="volIcon">🔊</span>
+      <input type="range" id="volumeSlider" min="0" max="100" value="100">
+    </div>
+  </div>
+
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <div class="playlist-header">
+    <span>Playlist</span>
+    <span id="playlistCount">0 गाने</span>
+  </div>
+  <div class="playlist-wrapper">
+    <ul class="playlist" id="playlist"></ul>
+  </div>
 </div>
 
 <script>
-    // डिफ़ॉल्ट रूप से Suno.com या आपके ऑनलाइन डायरेक्ट लिंक्स यहाँ रखे गए हैं (आप इनमें अपने लिंक जोड़ सकते हैं)
-    let tracks = [
-      {
-        "title": "001 Kabhi Sham Dhale to Mere Dil Men (Suno 1)",
-        "artist": "Suno.com",
-        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(1).mp3"
-      },
-      {
-        "title": "002 Kabhi Sham Dhale to Mere Dil Men (Suno 2)",
-        "artist": "Suno.com",
-        "url": "https://suno.com/s/bBq3tURdfAGi2yxd"
-      },
-      {
-        "title": "003 Kabhi Sham Dhale to Mere Dil Men (Suno 3)",
-        "artist": "Suno.com",
-        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(2).mp3"
-      },
-      {
-        "title": "004 Kabhi Sham Dhale to Mere Dil Men (Suno 4)",
-        "artist": "Suno.com",
-        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(3).mp3"
-      },
-      {
-        "title": "005 Kabhi Sham Dhale to Mere Dil Men (Suno 5)",
-        "artist": "Suno.com",
-        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE.mp3"
-        }
+  let tracks = [
+    {
+      "title": "001 Kabhi Sham Dhale to Mere Dil Men (Suno 1)",
+      "artist": "Suno.com",
+      "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(1).mp3"
+    },
+    {
+      "title": "002 Kabhi Sham Dhale to Mere Dil Men (Suno 2)",
+      "artist": "Suno.com",
+      "url": "https://suno.com/s/bBq3tURdfAGi2yxd"
+    },
+    {
+      "title": "003 Kabhi Sham Dhale to Mere Dil Men (Suno 3)",
+      "artist": "Suno.com",
+      "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(2).mp3"
+    },
+    {
+      "title": "004 Kabhi Sham Dhale to Mere Dil Men (Suno 4)",
+      "artist": "Suno.com",
+      "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(3).mp3"
+    },
+    {
+      "title": "005 Kabhi Sham Dhale to Mere Dil Men (Suno 5)",
+      "artist": "Suno.com",
+      "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE.mp3"
+    }
+  ];
 
-    ];
+  const audioPlayer   = document.getElementById('audioPlayer');
+  const playlistEl    = document.getElementById('playlist');
+  const playlistCount = document.getElementById('playlistCount');
+  const displayTitle  = document.getElementById('displayTitle');
+  const displayArtist = document.getElementById('displayArtist');
+  const statusMsg     = document.getElementById('statusMsg');
+  const disc          = document.getElementById('disc');
+  const stage         = document.getElementById('stage');
+  const syncBtn       = document.getElementById('syncBtn');
+  const fileInput     = document.getElementById('fileInput');
+  const prevBtn       = document.getElementById('prevBtn');
+  const nextBtn       = document.getElementById('nextBtn');
+  const playBtn       = document.getElementById('playBtn');
+  const progressTrack = document.getElementById('progressTrack');
+  const progressFill  = document.getElementById('progressFill');
+  const progressThumb = document.getElementById('progressThumb');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl    = document.getElementById('durationTime');
+  const volumeSlider  = document.getElementById('volumeSlider');
+  const volIcon       = document.getElementById('volIcon');
+  const lightsToggle  = document.getElementById('lightsToggle');
+  const lightsLabel   = document.getElementById('lightsLabel');
+  const playerContainer = document.getElementById('playerContainer');
 
-    const audioPlayer = document.getElementById('audioPlayer');
-    const playlistElement = document.getElementById('playlist');
-    const displayTitle = document.getElementById('displayTitle');
-    const statusMsg = document.getElementById('statusMsg');
-    const orb = document.getElementById('orb');
-    const syncBtn = document.getElementById('syncBtn');
-    const fileInput = document.getElementById('fileInput');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    let currentTrackIndex = 0;
+  let currentTrackIndex = 0;
+  let lightsOn = true;
+  let isSeeking = false;
 
-    // फोल्डर पिकर ट्रिगर करने के लिए
-    syncBtn.addEventListener('click', () => {
-        fileInput.click();
-    });
+  // ---------- Blinking colourful lights toggle ----------
+  lightsToggle.addEventListener('click', () => {
+    lightsOn = !lightsOn;
+    lightsToggle.classList.toggle('on', lightsOn);
+    playerContainer.classList.toggle('lights-on', lightsOn);
+    lightsLabel.innerText = lightsOn ? 'Lights ON' : 'Lights OFF';
+  });
+  // lights ON by default
+  playerContainer.classList.add('lights-on');
 
-    // लोकल फोल्डर से गानों को ऑटो-सिंक करना
-    fileInput.addEventListener('change', (event) => {
-        const files = event.target.files;
-        let localTracks = [];
+  // ---------- Folder picker ----------
+  syncBtn.addEventListener('click', () => fileInput.click());
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.wav')) {
-                localTracks.push({
-                    title: file.name,
-                    artist: "Local Storage",
-                    url: URL.createObjectURL(file)
-                });
-            }
-        }
+  fileInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    let localTracks = [];
 
-        if (localTracks.length > 0) {
-            tracks = localTracks; // नए लोकल गानों से लिस्ट अपडेट करें
-            statusMsg.innerText = `${tracks.length} गाने सिंक हो गए`;
-            renderPlaylist();
-            playTrack(0);
-        } else {
-            statusMsg.innerText = "कोई ऑडियो फाइल नहीं मिली!";
-        }
-    });
-
-    function renderPlaylist() {
-        playlistElement.innerHTML = '';
-        tracks.forEach((track, index) => {
-            const li = document.createElement('li');
-            li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
-            li.innerHTML = `<span class="track-name">${track.title}</span>`;
-
-            li.addEventListener('click', () => {
-                playTrack(index);
-            });
-            playlistElement.appendChild(li);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.wav')) {
+        localTracks.push({
+          title: file.name,
+          artist: "Local Storage",
+          url: URL.createObjectURL(file)
         });
+      }
     }
 
-    function playTrack(index) {
-        if (tracks.length === 0) return;
+    if (localTracks.length > 0) {
+      tracks = localTracks;
+      statusMsg.innerText = `${tracks.length} गाने सिंक हो गए`;
+      renderPlaylist();
+      playTrack(0);
+    } else {
+      statusMsg.innerText = "कोई ऑडियो फाइल नहीं मिली!";
+    }
+  });
 
-        currentTrackIndex = index;
-        const track = tracks[index];
-        
-        if (!track.url || track.url.trim() === "") {
-            displayTitle.innerText = track.title;
-            statusMsg.innerText = "कृपया Suno लिंक जोड़ें!";
-            return;
-        }
+  function renderPlaylist() {
+    playlistEl.innerHTML = '';
+    playlistCount.innerText = `${tracks.length} गाने`;
 
-        displayTitle.innerText = track.title;
-        statusMsg.innerText = "लोड हो रहा है...";
-        
-        audioPlayer.src = track.url;
-        audioPlayer.load();
-        
-        audioPlayer.play().then(() => {
-            statusMsg.innerText = "चल रहा है";
-            orb.style.animationDuration = '1s';
-        }).catch(err => {
-            console.error("Playback Error:", err);
-            statusMsg.innerText = "प्लेबैक त्रुटि";
-        });
+    tracks.forEach((track, index) => {
+      const li = document.createElement('li');
+      const isActive = index === currentTrackIndex;
+      li.className = `playlist-item ${isActive ? 'active' : ''} ${isActive && !audioPlayer.paused ? 'is-playing-item' : ''}`;
+      li.innerHTML = `
+        <span class="track-num">${String(index + 1).padStart(2, '0')}</span>
+        <span class="track-name">${track.title}</span>
+        <span class="mini-eq"><span></span><span></span><span></span></span>
+      `;
+      li.addEventListener('click', () => playTrack(index));
+      playlistEl.appendChild(li);
+    });
+  }
 
-        updateMediaSession(track);
-        renderPlaylist();
+  function playTrack(index) {
+    if (tracks.length === 0) return;
+
+    currentTrackIndex = index;
+    const track = tracks[index];
+
+    if (!track.url || track.url.trim() === "") {
+      displayTitle.innerText = track.title;
+      displayArtist.innerText = track.artist || '—';
+      statusMsg.innerText = "कृपया Suno लिंक जोड़ें!";
+      return;
     }
 
-    // Previous बटन
-    prevBtn.addEventListener('click', () => {
-        if (tracks.length === 0) return;
-        let newIndex = currentTrackIndex - 1;
-        if (newIndex < 0) {
-            newIndex = tracks.length - 1;
-        }
-        playTrack(newIndex);
+    displayTitle.innerText = track.title;
+    displayArtist.innerText = track.artist || '—';
+    statusMsg.innerText = "लोड हो रहा है...";
+
+    audioPlayer.src = track.url;
+    audioPlayer.load();
+
+    audioPlayer.play().then(() => {
+      statusMsg.innerText = "चल रहा है";
+    }).catch(err => {
+      console.error("Playback Error:", err);
+      statusMsg.innerText = "प्लेबैक त्रुटि";
     });
 
-    // Next बटन
-    nextBtn.addEventListener('click', () => {
-        if (tracks.length === 0) return;
-        let newIndex = currentTrackIndex + 1;
-        if (newIndex >= tracks.length) {
-            newIndex = 0;
-        }
-        playTrack(newIndex);
-    });
-
-    // Background Play / Lock Screen Control Support
-    function updateMediaSession(track) {
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: track.title,
-                artist: track.artist,
-                album: "Kabhi Sham Dhale"
-            });
-
-            navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); });
-            navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); });
-            navigator.mediaSession.setActionHandler('previoustrack', () => { prevBtn.click(); });
-            navigator.mediaSession.setActionHandler('nexttrack', () => { nextBtn.click(); });
-        }
-    }
-
-    // Auto Play Next Song जब गाना खत्म हो जाए
-    audioPlayer.addEventListener('ended', () => {
-        nextBtn.click();
-    });
-
-    audioPlayer.addEventListener('pause', () => {
-        orb.style.animationDuration = '3s';
-    });
-
-    audioPlayer.addEventListener('play', () => {
-        orb.style.animationDuration = '1s';
-    });
-
-    // शुरू में प्लेलिस्ट रेंडर करें
+    updateMediaSession(track);
     renderPlaylist();
+  }
+
+  // ---------- Prev / Next ----------
+  prevBtn.addEventListener('click', () => {
+    if (tracks.length === 0) return;
+    let newIndex = currentTrackIndex - 1;
+    if (newIndex < 0) newIndex = tracks.length - 1;
+    playTrack(newIndex);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (tracks.length === 0) return;
+    let newIndex = currentTrackIndex + 1;
+    if (newIndex >= tracks.length) newIndex = 0;
+    playTrack(newIndex);
+  });
+
+  // ---------- Play / Pause button ----------
+  playBtn.addEventListener('click', () => {
+    if (!audioPlayer.src) {
+      if (tracks.length > 0) playTrack(0);
+      return;
+    }
+    if (audioPlayer.paused) {
+      audioPlayer.play();
+    } else {
+      audioPlayer.pause();
+    }
+  });
+
+  audioPlayer.addEventListener('play', () => {
+    playBtn.innerText = '⏸';
+    disc.classList.add('spinning');
+    playerContainer.classList.add('is-playing');
+    statusMsg.innerText = "चल रहा है";
+    renderPlaylist();
+  });
+
+  audioPlayer.addEventListener('pause', () => {
+    playBtn.innerText = '▶';
+    disc.classList.remove('spinning');
+    playerContainer.classList.remove('is-playing');
+    statusMsg.innerText = "रुका हुआ";
+    renderPlaylist();
+  });
+
+  // ---------- Progress bar (YouTube style seek) ----------
+  function formatTime(sec) {
+    if (!isFinite(sec) || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  audioPlayer.addEventListener('loadedmetadata', () => {
+    durationEl.innerText = formatTime(audioPlayer.duration);
+  });
+
+  audioPlayer.addEventListener('timeupdate', () => {
+    if (isSeeking) return;
+    const pct = audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0;
+    progressFill.style.width = pct + '%';
+    progressThumb.style.left = pct + '%';
+    currentTimeEl.innerText = formatTime(audioPlayer.currentTime);
+    durationEl.innerText = formatTime(audioPlayer.duration);
+  });
+
+  function seekFromEvent(clientX) {
+    const rect = progressTrack.getBoundingClientRect();
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.min(1, Math.max(0, pct));
+    progressFill.style.width = (pct * 100) + '%';
+    progressThumb.style.left = (pct * 100) + '%';
+    if (audioPlayer.duration) {
+      audioPlayer.currentTime = pct * audioPlayer.duration;
+      currentTimeEl.innerText = formatTime(audioPlayer.currentTime);
+    }
+  }
+
+  progressTrack.addEventListener('mousedown', (e) => {
+    isSeeking = true;
+    seekFromEvent(e.clientX);
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isSeeking) seekFromEvent(e.clientX);
+  });
+  window.addEventListener('mouseup', () => { isSeeking = false; });
+
+  progressTrack.addEventListener('touchstart', (e) => {
+    isSeeking = true;
+    seekFromEvent(e.touches[0].clientX);
+  }, { passive: true });
+  progressTrack.addEventListener('touchmove', (e) => {
+    if (isSeeking) seekFromEvent(e.touches[0].clientX);
+  }, { passive: true });
+  progressTrack.addEventListener('touchend', () => { isSeeking = false; });
+
+  // ---------- Volume ----------
+  volumeSlider.addEventListener('input', () => {
+    const v = volumeSlider.value / 100;
+    audioPlayer.volume = v;
+    volIcon.innerText = v === 0 ? '🔇' : (v < 0.5 ? '🔉' : '🔊');
+  });
+
+  // ---------- Media Session (lock screen / background) ----------
+  function updateMediaSession(track) {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist,
+        album: "Kabhi Sham Dhale"
+      });
+      navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
+      navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
+      navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
+    }
+  }
+
+  // ---------- Auto next ----------
+  audioPlayer.addEventListener('ended', () => nextBtn.click());
+
+  // ---------- Init ----------
+  renderPlaylist();
 </script>
 
 </body>
