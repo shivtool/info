@@ -327,12 +327,58 @@
   }
 
   .current-title {
-    font-size: 0.9rem;
+    font-family: 'Rajdhani', 'Poppins', sans-serif;
+    font-size: 1rem;
     font-weight: 700;
+    letter-spacing: 0.3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #f1f5f9;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.35));
+  }
+
+  #titleText {
+    display: inline-block;
+  }
+  .current-title.shine #titleText {
+    background: linear-gradient(90deg, #f8fafc, var(--cyan), var(--pink), #f8fafc);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: title-flow 4s linear infinite;
+  }
+
+  @keyframes title-flow {
+    to { background-position: 300% center; }
+  }
+
+  /* each letter fades + rises into place, one after another, in its own bright colour */
+  .letter {
+    display: inline-block;
+    white-space: pre;
+    color: #f8fafc;
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+    animation: letter-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    text-shadow: 0 0 8px currentColor;
+  }
+  @keyframes letter-in {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .caret {
+    display: inline-block;
+    width: 2px;
+    margin-left: 2px;
+    color: var(--cyan);
+    -webkit-text-fill-color: var(--cyan);
+    animation: caret-blink 0.8s step-end infinite;
+  }
+  .caret.hidden { display: none; }
+  @keyframes caret-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   .current-artist {
@@ -684,7 +730,7 @@
     <div class="disc-row">
       <div class="disc" id="disc"><span class="note">🎧</span></div>
       <div class="track-info">
-        <div class="current-title" id="displayTitle">गाना चुनें या फोल्डर सिंक करें</div>
+        <div class="current-title" id="displayTitle"><span id="titleText">गाना चुनें या फोल्डर सिंक करें</span><span class="caret" id="titleCaret"></span></div>
         <div class="current-artist" id="displayArtist">—</div>
         <div class="status-msg"><span class="live-dot"></span><span id="statusMsg">तैयार है</span></div>
       </div>
@@ -765,6 +811,8 @@
   const playlistEl    = document.getElementById('playlist');
   const playlistCount = document.getElementById('playlistCount');
   const displayTitle  = document.getElementById('displayTitle');
+  const titleText     = document.getElementById('titleText');
+  const titleCaret    = document.getElementById('titleCaret');
   const displayArtist = document.getElementById('displayArtist');
   const statusMsg     = document.getElementById('statusMsg');
   const disc          = document.getElementById('disc');
@@ -788,6 +836,37 @@
   let currentTrackIndex = 0;
   let lightsOn = true;
   let isSeeking = false;
+  let shineTimer = null;
+
+  // ---------- Stylish letter-by-letter cascade effect for now-playing title ----------
+  const letterColors = ['#38bdf8', '#818cf8', '#f472b6', '#fbbf24', '#34d399'];
+
+  function typeTitle(text) {
+    if (shineTimer) clearTimeout(shineTimer);
+    displayTitle.classList.remove('shine');
+    titleCaret.classList.remove('hidden');
+    titleText.innerHTML = '';
+
+    const chars = Array.from(text);
+    // slower per-letter delay for short titles, faster (but still visible) for long ones
+    const perLetterDelay = Math.max(28, Math.min(55, 1400 / Math.max(chars.length, 1)));
+
+    chars.forEach((ch, idx) => {
+      const span = document.createElement('span');
+      span.className = 'letter';
+      span.textContent = (ch === ' ') ? '\u00A0' : ch;
+      span.style.animationDelay = (idx * perLetterDelay) + 'ms';
+      span.style.color = letterColors[idx % letterColors.length];
+      titleText.appendChild(span);
+    });
+
+    const totalTime = chars.length * perLetterDelay + 450;
+    shineTimer = setTimeout(() => {
+      // typing finished — settle into one smooth flowing gradient title
+      titleText.textContent = text;
+      displayTitle.classList.add('shine');
+    }, totalTime);
+  }
 
   // ---------- Blinking colourful lights toggle ----------
   lightsToggle.addEventListener('click', () => {
@@ -852,13 +931,13 @@
     const track = tracks[index];
 
     if (!track.url || track.url.trim() === "") {
-      displayTitle.innerText = track.title;
+      typeTitle(track.title);
       displayArtist.innerText = track.artist || '—';
       statusMsg.innerText = "कृपया Suno लिंक जोड़ें!";
       return;
     }
 
-    displayTitle.innerText = track.title;
+    typeTitle(track.title);
     displayArtist.innerText = track.artist || '—';
     statusMsg.innerText = "लोड हो रहा है...";
 
