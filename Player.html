@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Suno & Local Neon Music Player</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #31103f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .player-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            color: #38bdf8;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .sync-btn {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: #0f172a;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .sync-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+        }
+
+        .visualizer-box {
+            width: 100%;
+            height: 110px;
+            background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(15,23,42,0.85) 80%);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            position: relative;
+            padding: 0 12px;
+        }
+
+        .pulsing-orb {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 50%;
+            box-shadow: 0 0 20px #38bdf8;
+            animation: pulse 2s infinite ease-in-out;
+            margin-bottom: 5px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(56,189,248,0.9); }
+            100% { transform: scale(0.95); box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+        }
+
+        .current-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .status-msg {
+            font-size: 0.7rem;
+            color: #38bdf8;
+            margin-top: 3px;
+        }
+
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            flex: 1;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .playlist-wrapper {
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .playlist-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .playlist-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 8px;
+        }
+
+        .playlist {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .playlist-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+
+        .playlist-item:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .playlist-item.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .track-name {
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-item.active .track-name {
+            color: #38bdf8;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <div class="header">
+        <h1>🎵 Kabhi Sham Dhale</h1>
+        <p>Suno & Local Music Player</p>
+    </div>
+
+    <!-- लोकल फोल्डर ऑटो-सिंक बटन -->
+    <button class="sync-btn" id="syncBtn">📁 लोकल गानों का फोल्डर चुनें (Auto-Sync)</button>
+    <input type="file" id="fileInput" webkitdirectory directory multiple style="display: none;">
+
+    <div class="visualizer-box">
+        <div class="pulsing-orb" id="orb"></div>
+        <div class="current-title" id="displayTitle">गाना चुनें या फोल्डर सिंक करें</div>
+        <div class="status-msg" id="statusMsg">तैयार है</div>
+    </div>
+
+    <div class="controls-section">
+        <div class="btn-group">
+            <button class="control-btn" id="prevBtn">⏮ Previous</button>
+            <button class="control-btn" id="nextBtn">Next ⏭</button>
+        </div>
+        <audio id="audioPlayer" controls preload="auto"></audio>
+    </div>
+
+    <div class="playlist-wrapper">
+        <ul class="playlist" id="playlist"></ul>
+    </div>
+</div>
+
+<script>
+    // डिफ़ॉल्ट रूप से Suno.com या आपके ऑनलाइन डायरेक्ट लिंक्स यहाँ रखे गए हैं (आप इनमें अपने लिंक जोड़ सकते हैं)
+    let tracks = [
+      {
+        "title": "001 Kabhi Sham Dhale to Mere Dil Men (Suno 1)",
+        "artist": "Suno.com",
+        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(1).mp3"
+      },
+      {
+        "title": "002 Kabhi Sham Dhale to Mere Dil Men (Suno 2)",
+        "artist": "Suno.com",
+        "url": "https://suno.com/s/bBq3tURdfAGi2yxd"
+      },
+      {
+        "title": "003 Kabhi Sham Dhale to Mere Dil Men (Suno 3)",
+        "artist": "Suno.com",
+        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(2).mp3"
+      },
+      {
+        "title": "004 Kabhi Sham Dhale to Mere Dil Men (Suno 4)",
+        "artist": "Suno.com",
+        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE%20(3).mp3"
+      },
+      {
+        "title": "005 Kabhi Sham Dhale to Mere Dil Men (Suno 5)",
+        "artist": "Suno.com",
+        "url": "https://github.com/shivtool/music/raw/refs/heads/main/%E0%A4%95%E0%A4%AD%E0%A5%80%20%E0%A4%B6%E0%A4%BE%E0%A4%AE%20%E0%A4%A2%E0%A4%B2%E0%A5%87%20%E0%A4%A4%E0%A5%8B%20%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A5%87%20%E0%A4%A6%E0%A4%BF%E0%A4%B2%20%E0%A4%AE%E0%A5%87%E0%A4%82%20%E0%A4%86%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%BE.mp3"
+        }
+
+    ];
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playlistElement = document.getElementById('playlist');
+    const displayTitle = document.getElementById('displayTitle');
+    const statusMsg = document.getElementById('statusMsg');
+    const orb = document.getElementById('orb');
+    const syncBtn = document.getElementById('syncBtn');
+    const fileInput = document.getElementById('fileInput');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentTrackIndex = 0;
+
+    // फोल्डर पिकर ट्रिगर करने के लिए
+    syncBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // लोकल फोल्डर से गानों को ऑटो-सिंक करना
+    fileInput.addEventListener('change', (event) => {
+        const files = event.target.files;
+        let localTracks = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.wav')) {
+                localTracks.push({
+                    title: file.name,
+                    artist: "Local Storage",
+                    url: URL.createObjectURL(file)
+                });
+            }
+        }
+
+        if (localTracks.length > 0) {
+            tracks = localTracks; // नए लोकल गानों से लिस्ट अपडेट करें
+            statusMsg.innerText = `${tracks.length} गाने सिंक हो गए`;
+            renderPlaylist();
+            playTrack(0);
+        } else {
+            statusMsg.innerText = "कोई ऑडियो फाइल नहीं मिली!";
+        }
+    });
+
+    function renderPlaylist() {
+        playlistElement.innerHTML = '';
+        tracks.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+            li.innerHTML = `<span class="track-name">${track.title}</span>`;
+
+            li.addEventListener('click', () => {
+                playTrack(index);
+            });
+            playlistElement.appendChild(li);
+        });
+    }
+
+    function playTrack(index) {
+        if (tracks.length === 0) return;
+
+        currentTrackIndex = index;
+        const track = tracks[index];
+        
+        if (!track.url || track.url.trim() === "") {
+            displayTitle.innerText = track.title;
+            statusMsg.innerText = "कृपया Suno लिंक जोड़ें!";
+            return;
+        }
+
+        displayTitle.innerText = track.title;
+        statusMsg.innerText = "लोड हो रहा है...";
+        
+        audioPlayer.src = track.url;
+        audioPlayer.load();
+        
+        audioPlayer.play().then(() => {
+            statusMsg.innerText = "चल रहा है";
+            orb.style.animationDuration = '1s';
+        }).catch(err => {
+            console.error("Playback Error:", err);
+            statusMsg.innerText = "प्लेबैक त्रुटि";
+        });
+
+        updateMediaSession(track);
+        renderPlaylist();
+    }
+
+    // Previous बटन
+    prevBtn.addEventListener('click', () => {
+        if (tracks.length === 0) return;
+        let newIndex = currentTrackIndex - 1;
+        if (newIndex < 0) {
+            newIndex = tracks.length - 1;
+        }
+        playTrack(newIndex);
+    });
+
+    // Next बटन
+    nextBtn.addEventListener('click', () => {
+        if (tracks.length === 0) return;
+        let newIndex = currentTrackIndex + 1;
+        if (newIndex >= tracks.length) {
+            newIndex = 0;
+        }
+        playTrack(newIndex);
+    });
+
+    // Background Play / Lock Screen Control Support
+    function updateMediaSession(track) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.title,
+                artist: track.artist,
+                album: "Kabhi Sham Dhale"
+            });
+
+            navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); });
+            navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); });
+            navigator.mediaSession.setActionHandler('previoustrack', () => { prevBtn.click(); });
+            navigator.mediaSession.setActionHandler('nexttrack', () => { nextBtn.click(); });
+        }
+    }
+
+    // Auto Play Next Song जब गाना खत्म हो जाए
+    audioPlayer.addEventListener('ended', () => {
+        nextBtn.click();
+    });
+
+    audioPlayer.addEventListener('pause', () => {
+        orb.style.animationDuration = '3s';
+    });
+
+    audioPlayer.addEventListener('play', () => {
+        orb.style.animationDuration = '1s';
+    });
+
+    // शुरू में प्लेलिस्ट रेंडर करें
+    renderPlaylist();
+</script>
+
+</body>
+</html>
