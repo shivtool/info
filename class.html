@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fee Record Manager - SHIV COMPUTER</title>
+  <style>
+    :root {
+      --p1: #6a11cb;
+      --p2: #2575fc;
+      --g1: #11998e;
+      --g2: #38ef7d;
+      --o1: #f7971e;
+      --o2: #ffd200;
+      --r1: #ff416c;
+      --r2: #ff4b2b;
+      --dark: #1e1e2f;
+      --card: #ffffff;
+      --text: #22223b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.397) 0, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.027) 0, transparent 40%),
+        linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
+      background-size: 200% 200%, 200% 200%, 400% 400%;
+      animation: bgShift 22s ease infinite;
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    @keyframes bgShift {
+      0% {
+        background-position: 0% 0%, 0% 0%, 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 100%, 100% 0%, 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 0%, 0% 0%, 0% 50%;
+      }
+    }
+
+    .app-header {
+      text-align: center;
+      padding: 26px 10px 14px;
+      color: #fcf8f8;
+      text-shadow: 0 2px 10px rgba(245, 11, 108, 0.39);
+    }
+
+    .app-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: .5px;
+      font-weight: 800;
+      animation: floatY 3.5s ease-in-out infinite;
+    }
+
+    @keyframes floatY {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .app-header p {
+      margin: 6px 0 0;
+      font-size: .9rem;
+      opacity: .95;
+      letter-spacing: .3px;
+    }
+
+    nav.tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.068);
+      backdrop-filter: blur(2px);
+      border-bottom: 1px solid rgba(255, 255, 255, .25);
+      box-shadow: 0 4px 18px rgba(250, 1, 1, 0.226);
+    }
+
+    nav.tabs button {
+      border: none;
+      padding: 11px 20px;
+      border-radius: 26px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .9rem;
+      color: #fff;
+      letter-spacing: .2px;
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+      transition: .25s;
+    }
+
+    nav.tabs button:hover {
+      transform: translateY(-3px) scale(1.06);
+      box-shadow: 0 8px 30px rgba(252, 18, 1, 0.384);
+    }
+
+    nav.tabs button.active {
+      background: linear-gradient(135deg, var(--r1), var(--r2));
+      box-shadow: 0 8px 20px rgba(255, 65, 108, .55);
+      border: 2px solid rgba(2, 90, 6, 0.911);
+      box-shadow: 0 6px 18px rgba(243, 1, 203, 0.45);
+      transform: scale(1.05);
+      text-shadow: #0d0d0e 0px 0px 5px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .97);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 14px 36px rgba(248, 232, 1, 0.425);
+      animation: fadeUp .5s ease;
+      border: 1px solid rgba(255, 255, 255, .6);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: var(--p1);
+      padding-bottom: 10px;
+      font-size: 1.25rem;
+      border-bottom: 3px solid transparent;
+      border-image: linear-gradient(90deg, var(--p1), var(--p2), transparent) 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .pw-box {
+      background: linear-gradient(160deg, #f8f9ff, #eef1ff);
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid #e4e7fb;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
+    }
+
+    .pw-box h3 {
+      margin: 0 0 6px;
+      color: var(--p1);
+      font-size: 1rem;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    input[type=text],
+    input[type=number],
+    input[type=tel],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      font-size: 1rem;
+      transition: .2s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--p2);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 117, 252, .15);
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .pick-card {
+      padding: 16px 10px;
+      text-align: center;
+      border-radius: 14px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      background: #f5f5fb;
+      font-weight: 700;
+      color: #444;
+      transition: .2s;
+      user-select: none;
+    }
+
+    .pick-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .15);
+    }
+
+    .pick-card.selected {
+      border-color: var(--g2);
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      color: #fff;
+      transform: scale(1.04);
+      box-shadow: 0 8px 20px rgba(17, 153, 142, .4);
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 16px;
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      box-shadow: 0 6px 16px rgba(17, 153, 142, .35);
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .btn.orange {
+      background: linear-gradient(135deg, var(--o1), var(--o2));
+      box-shadow: 0 6px 16px rgba(247, 151, 30, .35);
+    }
+
+    .btn.red {
+      background: linear-gradient(135deg, var(--r1), var(--r2));
+      box-shadow: 0 6px 16px rgba(255, 65, 108, .35);
+    }
+
+    .btn.blue {
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 6px 16px rgba(37, 117, 252, .35);
+    }
+
+    .btn.small {
+      padding: 7px 16px;
+      font-size: .8rem;
+      margin-top: 0;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .stat {
+      border-radius: 16px;
+      padding: 20px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+      animation: fadeUp .6s ease;
+    }
+
+    .stat h3 {
+      margin: 0;
+      font-size: 1.9rem;
+    }
+
+    .stat p {
+      margin: 6px 0 0;
+      font-size: .85rem;
+      opacity: .95;
+    }
+
+    .stat.s1 {
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+    }
+
+    .stat.s2 {
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+    }
+
+    .stat.s3 {
+      background: linear-gradient(135deg, var(--o1), var(--o2));
+      color: #3a2900;
+    }
+
+    .stat.s4 {
+      background: linear-gradient(135deg, var(--r1), var(--r2));
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .student-card {
+      background: linear-gradient(160deg, #ffffff, #f6f7ff);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 22px rgba(31, 20, 80, .14);
+      animation: fadeUp .4s ease;
+      border-left: 6px solid var(--p2);
+      transition: .25s;
+    }
+
+    .student-card:hover {
+      box-shadow: 0 12px 28px rgba(31, 20, 80, .2);
+      transform: translateY(-2px);
+    }
+
+    .student-top {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .student-top .info b {
+      color: var(--p1);
+    }
+
+    .call-link {
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .85rem;
+    }
+
+    .months-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .month-box {
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #caf7c986;
+      font-weight: 700;
+      font-size: .85rem;
+      transition: .2s;
+      position: relative;
+      border: 2px solid #1c5f02;
+    }
+
+    .month-box:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
+    }
+
+    .month-box.paid {
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      color: #fff;
+      border-color: var(--g2);
+      box-shadow: 0 6px 14px rgba(17, 153, 142, .35);
+    }
+
+    .month-box .tick {
+      font-size: 1.2rem;
+      display: block;
+      animation: pop .3s ease;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(0);
+      }
+
+      70% {
+        transform: scale(1.3);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .backbal-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .backbal-row input {
+      width: 140px;
+    }
+
+    table.print-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table.print-table th,
+    table.print-table td {
+      border: 1px solid #333;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: .8rem;
+    }
+
+    table.print-table th {
+      background: #f0f0f0;
+    }
+
+    #printArea {
+      display: none;
+    }
+
+    .setup-note {
+      font-size: .8rem;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      padding: 30px;
+      font-style: italic;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        animation: none;
+      }
+
+      nav.tabs,
+      .app-header,
+      .container>.card,
+      .top-actions {
+        display: none !important;
+      }
+
+      #printArea {
+        display: block !important;
+      }
+
+      #printArea .sheet {
+        width: 100%;
+        padding: 10px;
+        page-break-after: always;
+      }
+
+      #printArea h1 {
+        text-align: center;
+        font-size: 1.3rem;
+        margin: 2px 0;
+        text-transform: uppercase;
+      }
+
+      #printArea h2 {
+        text-align: center;
+        font-size: 1rem;
+        margin: 2px 0;
+        font-weight: normal;
+      }
+
+      .print-meta {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: .85rem;
+        flex-wrap: wrap;
+      }
+
+      .print-meta div {
+        margin-bottom: 4px;
+      }
+
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+    }
+
+    @media (max-width:600px) {
+      .app-header h1 {
+        font-size: 1.2rem;
+      }
+
+      nav.tabs button {
+        padding: 8px 12px;
+        font-size: .8rem;
+      }
+    }
+  </style>
+  <script src="security.js"></script>
+</head>
+
+<body>
+
+  <div class="app-header">
+    <h1>📚 Fee Record Manager</h1>
+    <p>SHIV COMPUTER — Digital Fee Register</p>
+  </div>
+
+  <nav class="tabs" id="navTabs"></nav>
+
+  <div class="container" id="mainContainer"></div>
+
+  <div id="printArea"></div>
+
+  <script>
+    /* ============ SECURITY / HASH UTIL ============ */
+    const DEFAULT_PASSWORD = "9648";
+    function hashPwd(str) {
+      // cyrb53-based deterministic hash (client-side obfuscation, salted)
+      const s = "sdmfee_" + str;
+      let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+    }
+    function getPwdHash() {
+      let h = localStorage.getItem('sdm_pwd_hash');
+      if (!h) {h = hashPwd(DEFAULT_PASSWORD); localStorage.setItem('sdm_pwd_hash', h);}
+      return h;
+    }
+    function verifyPassword(entered) {
+      return hashPwd(entered) === getPwdHash();
+    }
+    function askAdminPassword(actionLabel) {
+      const pass = prompt('🔐 Admin Password डालें (' + actionLabel + '):');
+      if (pass === null) return false;
+      if (!verifyPassword(pass)) {alert('❌ गलत Password!'); return false;}
+      return true;
+    }
+
+    /* ============ DATA LAYER ============ */
+    const MONTHS = ["Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+    const SCHOOLS = [
+      "Shiv Computer",
+      "Shree Durge Maa Patel Vidya Mandir",
+      "Shree Durge Maa Baal Govind Inter College"
+    ];
+    const CLASSES = ["Nursery", "LKG", "UKG", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+
+    function loadConfig() {
+      try {return JSON.parse(localStorage.getItem('sdm_config')) || null;} catch (e) {return null;}
+    }
+    function saveConfig(cfg) {localStorage.setItem('sdm_config', JSON.stringify(cfg));}
+
+    function loadStudents() {
+      try {return JSON.parse(localStorage.getItem('sdm_students')) || [];} catch (e) {return [];}
+    }
+    function saveStudents(list) {localStorage.setItem('sdm_students', JSON.stringify(list));}
+
+    function emptyPayments() {
+      const p = {};
+      MONTHS.forEach(m => p[m] = {paid: false, date: null});
+      return p;
+    }
+
+    let CONFIG = loadConfig();
+    let STUDENTS = loadStudents();
+    let CURRENT_TAB = CONFIG ? 'dashboard' : 'setup';
+    let SETUP_PICK = {school: CONFIG ? CONFIG.school : null, cls: CONFIG ? CONFIG.className : null};
+
+    /* ============ NAV ============ */
+    function renderNav() {
+      const tabs = [
+        {id: 'dashboard', label: '🏠 Dashboard'},
+        {id: 'add', label: '➕ Add Student'},
+        {id: 'search', label: '🔍 Search / List'},
+        {id: 'print', label: '🖨️ Print Sheet'},
+        {id: 'setup', label: '⚙️ Settings'}
+      ];
+      const nav = document.getElementById('navTabs');
+      nav.innerHTML = tabs.map(t =>
+        `<button class="${CURRENT_TAB === t.id ? 'active' : ''}" onclick="goTab('${t.id}')">${t.label}</button>`
+      ).join('');
+    }
+    function goTab(id) {
+      if (!CONFIG && id !== 'setup') {alert('पहले School व Class सेट करें (Settings में)।'); id = 'setup';}
+      CURRENT_TAB = id;
+      renderNav();
+      renderMain();
+    }
+
+    /* ============ MAIN ROUTER ============ */
+    function renderMain() {
+      const c = document.getElementById('mainContainer');
+      if (CURRENT_TAB === 'setup') c.innerHTML = viewSetup();
+      else if (CURRENT_TAB === 'dashboard') c.innerHTML = viewDashboard();
+      else if (CURRENT_TAB === 'add') c.innerHTML = viewAdd();
+      else if (CURRENT_TAB === 'search') c.innerHTML = viewSearch();
+      else if (CURRENT_TAB === 'print') c.innerHTML = viewPrint();
+      if (CURRENT_TAB === 'setup') initSetupPicks();
+      if (CURRENT_TAB === 'search') doSearch();
+    }
+
+    /* ============ SETUP VIEW ============ */
+    function viewSetup() {
+      const cfg = CONFIG || {};
+      return `
+  <div class="card">
+    <h2>🏫 School चुनें</h2>
+    <div class="grid-cards" id="schoolPicks">
+      ${SCHOOLS.map(s => `<div class="pick-card" data-val="${s}" onclick="pickSchool('${s.replace(/'/g, "\\'")}')">${s}</div>`).join('')}
+    </div>
+
+    <h2 style="margin-top:26px;">🎓 Class चुनें</h2>
+    <div class="grid-cards" id="classPicks">
+      ${CLASSES.map(c => `<div class="pick-card" data-val="${c}" onclick="pickClass('${c}')">${c}</div>`).join('')}
+    </div>
+
+    <label>Class Teacher का नाम</label>
+    <input type="text" id="teacherInput" value="${cfg.teacher || ''}" placeholder="जैसे: Dr. Shiv Kumar या Mrs. Sharma">
+
+    <label>Fee Charge / Head</label>
+    <input type="text" id="feeChargeInput" value="${cfg.feeCharge || ''}" placeholder="जैसे: 500/माह या Tuition Fee">
+
+    <label>Session (Start Year - End Year)</label>
+    <div style="display:flex; gap:10px;">
+      <input type="number" id="sessionStart" value="${cfg.sessionStart || new Date().getFullYear()}" style="width:120px;">
+      <span style="align-self:center; font-weight:700;">to</span>
+      <input type="number" id="sessionEnd" value="${cfg.sessionEnd || (new Date().getFullYear() + 1)}" style="width:120px;">
+    </div>
+    <p class="setup-note">Total Student अपने आप Student Registration से गिना जाएगा।</p>
+
+    <button class="btn blue" onclick="saveSetup()">💾 Save Permanently</button>
+  </div>
+
+  ${CONFIG ? `
+  <div class="card">
+    <h2>🔐 Password Settings</h2>
+    <p class="setup-note">Fee Mark करने / Student Delete करने के लिए यह Password चाहिए होता है। Default Password <b>9648</b> है — आप इसे अपना खुद का सुरक्षित Password बना सकते हैं।</p>
+
+    <div class="pw-grid">
+      <div class="pw-box">
+        <h3>🔑 Password बदलें</h3>
+        <label>Current Password</label>
+        <input type="password" id="pwOld" placeholder="मौजूदा Password">
+        <label>New Password</label>
+        <input type="password" id="pwNew" placeholder="नया Password (कम से कम 4 अंक/अक्षर)">
+        <label>Confirm New Password</label>
+        <input type="password" id="pwConfirm" placeholder="नया Password दोबारा लिखें">
+        <button class="btn blue small" style="margin-top:14px;" onclick="changePassword()">✔️ Password Update करें</button>
+      </div>
+      <div class="pw-box">
+        <h3>🆘 Password भूल गए?</h3>
+        <p class="setup-note">अगर आप अपना Password भूल गए हैं, तो नीचे बटन दबाकर इसे वापस Default (<b>9648</b>) पर Reset करें।</p>
+        <button class="btn orange small" onclick="resetPasswordToDefault()">♻️ Password Reset करें (Default 9648)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💾 Backup &amp; Restore</h2>
+    <p class="setup-note">पूरा Data (School Setup + Students + Fee Records) एक Backup फाइल में Save करें, और ज़रूरत पड़ने पर उसी फाइल से वापस लोड करें — डेटा खोने का डर खत्म!</p>
+    <div class="pw-grid">
+      <div class="pw-box">
+        <h3>⬇️ Backup लें</h3>
+        <p class="setup-note">एक क्लिक में पूरा Data JSON फाइल में Download होगा।</p>
+        <button class="btn small" onclick="backupData()">⬇️ Backup Download करें</button>
+      </div>
+      <div class="pw-box">
+        <h3>⬆️ Backup Restore करें</h3>
+        <p class="setup-note">पहले से Save की गई Backup फाइल चुनें — पूरा Data वापस आ जाएगा।</p>
+        <input type="file" id="restoreFile" accept="application/json" onchange="restoreData(event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Danger Zone</h2>
+    <button class="btn red" onclick="resetAll()">🗑️ सब Data रीसेट करें (Password ज़रूरी)</button>
+  </div>
+  ` : ''}
+  `;
+    }
+    function initSetupPicks() {
+      if (SETUP_PICK.school) highlightPick('schoolPicks', SETUP_PICK.school);
+      if (SETUP_PICK.cls) highlightPick('classPicks', SETUP_PICK.cls);
+    }
+    function highlightPick(containerId, val) {
+      document.querySelectorAll('#' + containerId + ' .pick-card').forEach(el => {
+        el.classList.toggle('selected', el.getAttribute('data-val') === val);
+      });
+    }
+    function pickSchool(v) {SETUP_PICK.school = v; highlightPick('schoolPicks', v);}
+    function pickClass(v) {SETUP_PICK.cls = v; highlightPick('classPicks', v);}
+
+    function saveSetup() {
+      if (!SETUP_PICK.school) {alert('कृपया School चुनें'); return;}
+      if (!SETUP_PICK.cls) {alert('कृपया Class चुनें'); return;}
+      const teacher = document.getElementById('teacherInput').value.trim();
+      const feeCharge = document.getElementById('feeChargeInput').value.trim();
+      const sessionStart = document.getElementById('sessionStart').value;
+      const sessionEnd = document.getElementById('sessionEnd').value;
+      CONFIG = {
+        school: SETUP_PICK.school,
+        className: SETUP_PICK.cls,
+        teacher, feeCharge, sessionStart, sessionEnd
+      };
+      saveConfig(CONFIG);
+      alert('✅ Setup Save हो गया!');
+      goTab('dashboard');
+    }
+    function resetAll() {
+      if (!askAdminPassword('सारा Data Reset करने के लिए')) return;
+      if (confirm('क्या आप वाकई सारा Data (Students + Setup + Password) डिलीट करना चाहते हैं? यह वापस नहीं होगा। Backup लेना न भूलें!')) {
+        localStorage.removeItem('sdm_config');
+        localStorage.removeItem('sdm_students');
+        localStorage.removeItem('sdm_pwd_hash');
+        CONFIG = null; STUDENTS = []; SETUP_PICK = {school: null, cls: null};
+        goTab('setup');
+      }
+    }
+
+    /* ============ PASSWORD MANAGEMENT ============ */
+    function changePassword() {
+      const oldP = document.getElementById('pwOld').value;
+      const newP = document.getElementById('pwNew').value;
+      const confP = document.getElementById('pwConfirm').value;
+      if (!verifyPassword(oldP)) {alert('❌ मौजूदा Password गलत है!'); return;}
+      if (newP.length < 4) {alert('⚠️ नया Password कम से कम 4 अंक/अक्षर का होना चाहिए।'); return;}
+      if (newP !== confP) {alert('⚠️ नया Password और Confirm Password मेल नहीं खा रहे।'); return;}
+      localStorage.setItem('sdm_pwd_hash', hashPwd(newP));
+      alert('✅ Password सफलतापूर्वक बदल दिया गया!');
+      goTab('setup');
+    }
+    function resetPasswordToDefault() {
+      if (!confirm('क्या आप Password को Default (9648) पर वापस Reset करना चाहते हैं?')) return;
+      localStorage.setItem('sdm_pwd_hash', hashPwd(DEFAULT_PASSWORD));
+      alert('✅ Password Default (9648) पर Reset हो गया है। कृपया इसे Login के बाद तुरंत बदल लें।');
+      goTab('setup');
+    }
+
+    /* ============ BACKUP & RESTORE ============ */
+    function backupData() {
+      const payload = {
+        app: 'FeeRecordManager',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        config: CONFIG,
+        students: STUDENTS,
+        pwdHash: getPwdHash()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `FeeRecord_Backup_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    function restoreData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.config || !Array.isArray(data.students)) {
+            alert('❌ यह Backup फाइल सही Format में नहीं है।');
+            return;
+          }
+          if (!confirm('⚠️ यह मौजूदा सारा Data Overwrite कर देगा। क्या आप जारी रखना चाहते हैं?')) return;
+          CONFIG = data.config;
+          STUDENTS = data.students;
+          saveConfig(CONFIG);
+          saveStudents(STUDENTS);
+          if (data.pwdHash) localStorage.setItem('sdm_pwd_hash', data.pwdHash);
+          alert('✅ Data सफलतापूर्वक Restore हो गया!');
+          SETUP_PICK = {school: CONFIG.school, cls: CONFIG.className};
+          goTab('dashboard');
+        } catch (err) {
+          alert('❌ फाइल पढ़ने में समस्या हुई। सही Backup फाइल चुनें।');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* ============ DASHBOARD ============ */
+    function feeNumber() {
+      const n = parseFloat((CONFIG.feeCharge || '').toString().replace(/[^0-9.]/g, ''));
+      return isNaN(n) ? 0 : n;
+    }
+    function computeStats() {
+      const fee = feeNumber();
+      let totalCollected = 0, totalDue = 0, thisMonthCollected = 0, todayCollected = 0;
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      const thisMonthStr = now.toISOString().slice(0, 7);
+      STUDENTS.forEach(st => {
+        MONTHS.forEach(m => {
+          const p = st.payments[m];
+          if (p.paid) {
+            totalCollected += fee;
+            if (p.date) {
+              if (p.date.slice(0, 7) === thisMonthStr) thisMonthCollected += fee;
+              if (p.date === todayStr) todayCollected += fee;
+            }
+          } else {
+            totalDue += fee;
+          }
+        });
+      });
+      return {totalCollected, totalDue, thisMonthCollected, todayCollected, count: STUDENTS.length};
+    }
+    function viewDashboard() {
+      const s = computeStats();
+      return `
+  <div class="card">
+    <h2>🏠 Dashboard — ${CONFIG.school} (${CONFIG.className})</h2>
+    <div class="dash-grid">
+      <div class="stat s1"><h3>${s.count}</h3><p>Total Students</p></div>
+      <div class="stat s2"><h3>₹${s.totalCollected}</h3><p>Total Fee Collected</p></div>
+      <div class="stat s4"><h3>₹${s.totalDue}</h3><p>Total Due</p></div>
+      <div class="stat s3"><h3>₹${s.thisMonthCollected}</h3><p>This Month Collected</p></div>
+      <div class="stat s2" style="background:linear-gradient(135deg,#00c6ff,#0072ff);"><h3>₹${s.todayCollected}</h3><p>Today Collected</p></div>
+    </div>
+    <p style="margin-top:20px;"><b>Class Teacher:</b> ${CONFIG.teacher || '-'} &nbsp; | &nbsp; <b>Fee Charge/Head:</b> ${CONFIG.feeCharge || '-'} &nbsp; | &nbsp; <b>Session:</b> 20${String(CONFIG.sessionStart).slice(-2)} - 20${String(CONFIG.sessionEnd).slice(-2)}</p>
+  </div>`;
+    }
+
+    /* ============ ADD STUDENT ============ */
+    function viewAdd() {
+      return `
+  <div class="card">
+    <h2>➕ Add Student (${CONFIG.className})</h2>
+    <label>SR (From SR Register)</label>
+    <input type="text" id="addSr" placeholder="SR No.">
+    <label>Name of Student</label>
+    <input type="text" id="addName" placeholder="छात्र का नाम">
+    <label>Father Name</label>
+    <input type="text" id="addFather" placeholder="पिता का नाम">
+    <label>Mobile No.</label>
+    <input type="tel" id="addMobile" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10">
+    <label>Back Balance (पिछला बकाया)</label>
+    <input type="number" id="addBackBal" placeholder="0" value="0">
+    <button class="btn" onclick="addStudent()">✅ Student जोड़ें</button>
+  </div>`;
+    }
+    function addStudent() {
+      const sr = document.getElementById('addSr').value.trim();
+      const name = document.getElementById('addName').value.trim();
+      const father = document.getElementById('addFather').value.trim();
+      const mobile = document.getElementById('addMobile').value.trim();
+      const backBal = document.getElementById('addBackBal').value.trim() || "0";
+      if (!name) {alert('Student का नाम भरें'); return;}
+      STUDENTS.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        sr, name, father, mobile, backBal,
+        payments: emptyPayments()
+      });
+      saveStudents(STUDENTS);
+      alert('✅ ' + name + ' जोड़ दिया गया!');
+      goTab('search');
+    }
+
+    /* ============ SEARCH / LIST ============ */
+    function viewSearch() {
+      return `
+  <div class="card">
+    <h2>🔍 Search Student</h2>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="नाम या SR No. लिखें..." oninput="doSearch()">
+    </div>
+    <div id="searchResults"></div>
+  </div>`;
+    }
+    function doSearch() {
+      const box = document.getElementById('searchResults');
+      if (!box) return;
+      const qEl = document.getElementById('searchInput');
+      const q = (qEl ? qEl.value : '').trim().toLowerCase();
+      let list = STUDENTS;
+      if (q) {
+        list = STUDENTS.filter(st =>
+          (st.name || '').toLowerCase().includes(q) ||
+          (st.sr || '').toLowerCase().includes(q)
+        );
+      }
+      if (list.length === 0) {
+        box.innerHTML = `<div class="empty-msg">कोई Student नहीं मिला। ऊपर "Add Student" से नया जोड़ें।</div>`;
+        return;
+      }
+      box.innerHTML = list.map(st => renderStudentCard(st)).join('');
+    }
+    function renderStudentCard(st) {
+      const monthsHtml = MONTHS.map(m => {
+        const p = st.payments[m];
+        return `<div class="month-box ${p.paid ? 'paid' : ''}" onclick="togglePay('${st.id}','${m}')">
+        ${m}<br>${p.paid ? '<span class="tick">✔</span>' : '<span style="opacity:.4;">—</span>'}
+      </div>`;
+      }).join('');
+      return `
+  <div class="student-card">
+    <div class="student-top">
+      <div class="info">
+        <b>${st.name}</b> (SR: ${st.sr || '-'})<br>
+        Father: ${st.father || '-'} | Mobile: ${st.mobile || '-'}
+      </div>
+      <div>
+        ${st.mobile ? `<a class="call-link" href="tel:${st.mobile}">📞 Call</a>` : ''}
+        <button class="btn red small" onclick="deleteStudent('${st.id}')">🗑️ हटाएं</button>
+      </div>
+    </div>
+    <div class="backbal-row">
+      <label style="margin:0;">Back Bal.:</label>
+      <input type="number" value="${st.backBal || 0}" onchange="updateBackBal('${st.id}', this.value)">
+    </div>
+    <div class="months-grid">${monthsHtml}</div>
+  </div>`;
+    }
+    function togglePay(id, month) {
+      const st = STUDENTS.find(s => s.id === id);
+      if (!st) return;
+      if (!askAdminPassword('Fee Mark करने के लिए')) return;
+      const p = st.payments[month];
+      p.paid = !p.paid;
+      p.date = p.paid ? new Date().toISOString().slice(0, 10) : null;
+      saveStudents(STUDENTS);
+      doSearch();
+    }
+    function updateBackBal(id, val) {
+      const st = STUDENTS.find(s => s.id === id);
+      if (!st) return;
+      st.backBal = val;
+      saveStudents(STUDENTS);
+    }
+    function deleteStudent(id) {
+      if (!askAdminPassword('Student Delete करने के लिए')) return;
+      if (!confirm('क्या आप वाकई इस Student को हटाना चाहते हैं?')) return;
+      STUDENTS = STUDENTS.filter(s => s.id !== id);
+      saveStudents(STUDENTS);
+      doSearch();
+    }
+
+    /* ============ PRINT VIEW ============ */
+    function viewPrint() {
+      buildPrintArea();
+      return `
+  <div class="card">
+    <h2>🖨️ Print Fee Record Sheet (A4)</h2>
+    <p>नीचे बटन दबाकर पूरी Fee Record Sheet A4 साइज़ में Print करें, बिल्कुल स्कूल के रजिस्टर जैसी।</p>
+    <button class="btn orange" onclick="window.print()">🖨️ Print करें</button>
+  </div>`;
+    }
+    function buildPrintArea() {
+      const p = document.getElementById('printArea');
+      const rows = STUDENTS.length ? STUDENTS.map((st, i) => `
+    <tr>
+      <td>${i + 1}.</td>
+      <td style="text-align:left;">${st.name}</td>
+      <td>${st.backBal || 0}</td>
+      ${MONTHS.map(m => `<td>${st.payments[m].paid ? '✔' : ''}</td>`).join('')}
+      <td>${st.mobile || ''}</td>
+    </tr>`).join('')
+        : `<tr><td colspan="16">कोई Student Register नहीं है</td></tr>`;
+
+      p.innerHTML = `
+    <div class="sheet">
+      <h1>${CONFIG.school}</h1>
+      <h2>Fee Record (Session-20${String(CONFIG.sessionStart).slice(-2)} - 20${String(CONFIG.sessionEnd).slice(-2)})</h2>
+      <div class="print-meta">
+        <div><b>Name of Class Teacher:</b> ${CONFIG.teacher || '________________'}</div>
+        <div><b>Class:</b> ${CONFIG.className}</div>
+      </div>
+      <div class="print-meta">
+        <div><b>No. of Student:</b> ${STUDENTS.length}</div>
+        <div><b>Fee Charge / Head:</b> ${CONFIG.feeCharge || '________________'}</div>
+      </div>
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>S.N.</th>
+            <th>Name of Student</th>
+            <th>Back Bal.</th>
+            ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            <th>Mo.no.</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+    }
+
+    /* ============ INIT ============ */
+    getPwdHash(); // ensure a password hash always exists
+    renderNav();
+    renderMain();
+  </script>
+</body>
+
+</html>
