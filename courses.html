@@ -1,152 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>New - Shiv Computer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courses - SHIV COMPUTER</title>
   <link rel="icon" type="image/png" href="SHIV.png">
   <style>
+    :root {
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --dark: #0f172a;
+      --text: #334155
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
     body {
-      font-family: Arial;
       margin: 0;
-      background: #e0f7fa;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #eef4ff, #faf7ff);
+      color: var(--text)
     }
 
     header {
-      background: #0072ff;
-      color: white;
-      padding: 10px;
-      text-align: center;
+      background: linear-gradient(135deg, #0758e8, #7c3aed);
+      color: #fff;
+      box-shadow: 0 8px 25px #0002
     }
-.logo {
-  width: 80px;    /* Logo छोटा करने के लिए */
-  height: auto;
-  border-radius: 10px; /* Optional – थोड़ा rounded look */
-}
-header h1, header h3 {
-  color: #fff;
-  text-align: left;
-}
+
+    .top {
+      max-width: 1200px;
+      margin: auto;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 18px;
+      padding: 5px
+    }
+
+    .site-info h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 1px
+    }
+
+    .site-info h3 {
+      margin: 5px 0 0;
+      font-size: 13px;
+      font-weight: 500
+    }
+
+    nav {
+      background: #073fa8
+    }
 
     nav ul {
+      max-width: 1200px;
+      margin: auto;
+      padding: 9px 15px;
       list-style: none;
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      background: #005bb5;
-      padding: 10px;
-      gap: 20px;
+      gap: 8px;
+      flex-wrap: wrap
     }
 
-    nav ul li a {
-      color: Yellow;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 5px 10px;
-    }
-
-    nav ul li a:hover {
-      background-color: #ff0000;
-      border-radius: 9px;
-    }
-
-    main {
-      padding: 40px 20px;
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 30px;
-    }
-
-    .social-links {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      max-width: 2000px;
-      margin: auto;
-      padding: 10px;
-    }
-
-    .social-links a {
-      text-decoration: none;
+    nav a {
       display: block;
-      padding: 15px;
-      background: #ffffff;
-      border: 2px solid #0072ff;
-      border-radius: 12px;
-      color: #0072ff;
+      color: #fff;
+      text-decoration: none;
       font-weight: bold;
-      transition: all 0.5s ease;
+      padding: 10px 17px;
+      border-radius: 25px
     }
 
-    .social-links a:hover {
-      background: #facade;
-      color: #123524;
+    nav a:hover,
+    nav a.active {
+      background: #fff;
+      color: #1456d9
     }
-  </style>
-</head>
-<body>
- <header>
-  <div style="display: flex; align-items: center; background: #0072ff; padding:10px;">
-    <img src="logo.png" alt="Logo" class="logo">
-    <div class="site-info" style="margin-left: 15px;">
-      <h1 style="margin:0;">SHIV COMPUTER</h1>
-      <h3 style="margin:0;">KARANPUR SURATGANJ BARABANKI</h3>
-    </div>
-  </div>
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="contact.html">Contact</a></li>
-      <li><a href="Collage.html">Collage</a></li>
-      <li><a href="Photo.html">Photo</a></li>
-      <li><a href="AI.html">AI</a></li>
-    </ul>
-  </nav>
-</header>
+
+    .hero {
+      max-width: 1200px;
+      margin: 35px auto 20px;
+      padding: 25px 20px;
+      text-align: center
     }
-  </style>
-</head>
-<body>
-  <main>
-    <h2>Our Courses</h2>
-    <ul>
-      <li>Basic Computer</li>
-      <li>MS Office</li>
-      <li>Web Development</li>
-      <li>Networking</li>
-      <li>Programming</li>
-    </ul>
-  </main>
-</body>
-</html>
-</main>
 
-  <footer>
-    <div class="footer-container">
-      <p>&copy; 2025 Shiv Computer. All rights reserved.</p>
-      <p>📍 27,Karnpur, Uttar Pradesh-225304 | 📞 +91-80901 53304 | ✉️ ceshivkumar@gmail.com</p>
-    </div>
-  </footer>
+    .badge {
+      display: inline-block;
+      background: #e8edff;
+      color: #315bd8;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 14px
+    }
 
-  <style>
+    .hero h2 {
+      font-size: 38px;
+      margin: 15px 0 10px;
+      color: var(--dark)
+    }
+
+    .hero h2 span {
+      background: linear-gradient(90deg, #2563eb, #9333ea);
+      color: transparent;
+      background-clip: text
+    }
+
+    .hero p {
+      font-size: 17px;
+      margin: auto;
+      max-width: 720px;
+      line-height: 1.6
+    }
+
+    .courses {
+      max-width: 1200px;
+      margin: 0 auto 50px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 22px
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      padding: 25px;
+      box-shadow: 0 10px 30px #253b7a18;
+      position: relative;
+      overflow: hidden;
+      transition: .3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 245px
+    }
+
+    .card:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #2563eb, #9333ea)
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 40px #253b7a25
+    }
+
+    .icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 29px;
+      background: #eef2ff;
+      margin-bottom: 16px
+    }
+
+    .card h3 {
+      margin: 0 0 9px;
+      color: var(--dark);
+      font-size: 20px
+    }
+
+    .card p {
+      margin: 0 0 18px;
+      line-height: 1.55;
+      font-size: 14px;
+      flex: 1
+    }
+
+    .tag {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold
+    }
+
+    .online {
+      background: #dcfce7;
+      color: #15803d
+    }
+
     footer {
-      background-color: #003d80;
-      color: white;
+      background: #0b1f4b;
+      color: #fff;
       text-align: center;
-      padding: 20px 10px;
-      margin-top: 40px;
-      font-size: 15px;
+      padding: 25px 15px
     }
 
-    .footer-container p {
-      margin: 5px 0;
+    footer p {
+      margin: 6px 0;
+      font-size: 14px
+    }
+
+    @media(max-width:600px) {
+      .top {
+        padding: 14px
+      }
+
+      .logo {
+        width: 58px;
+        height: 58px
+      }
+
+      .site-info h1 {
+        font-size: 22px
+      }
+
+      .site-info h3 {
+        font-size: 11px
+      }
+
+      .hero h2 {
+        font-size: 29px
+      }
+
+      .courses {
+        grid-template-columns: 1fr
+      }
     }
   </style>
+</head>
 
+<body>
+  <header>
+    <div class="top"><img src="logo.png" alt="SHIV COMPUTER Logo" class="logo">
+      <div class="site-info">
+        <h1>SHIV COMPUTER</h1>
+        <h3>KARANPUR • SURATGANJ • BARABANKI</h3>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a class="active" href="courses.html">Courses</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="Collage.html">Collage</a></li>
+        <li><a href="Photo.html">Photo</a></li>
+        <li><a href="AI.html">AI</a></li>
+      </ul>
+    </nav>
+  </header>
+  <section class="hero"><span class="badge">🎓 100% ONLINE COURSES</span>
+    <h2>Learn Today. <span>Build Tomorrow.</span></h2>
+    <p>Practical, career-focused computer courses designed for beginners, students, professionals and future developers.
+    </p>
+  </section>
+  <main class="courses" id="courses"></main>
+  <footer>
+    <p><strong>SHIV COMPUTER</strong> — Learn • Practice • Build • Grow</p>
+    <p>© 2026 Shiv Computer. All rights reserved.</p>
+    <p>📍 27, Karanpur, Uttar Pradesh-225304 | 📞 +91-80901 53304 | ✉️ ceshivkumar@gmail.com</p>
+  </footer>
+  <script>
+    const courses = [
+      ["💻", "Basic Computer", "Computer fundamentals, Windows, files, internet and digital skills."], ["📊", "MS Office & Advanced Office", "MS Word, Excel, PowerPoint, advanced formulas and presentations."], ["🌐", "Web Designing", "HTML, CSS, responsive design, UI/UX basics and modern websites."], ["🚀", "Web Development", "Frontend + backend development, APIs, databases and deployment."], ["📱", "Android App Development", "Build modern Android applications, UI, APIs, storage and publishing."], ["🪟", "Windows App Development", "Create desktop applications for Windows using modern technologies."], ["🐍", "Python Programming", "Python fundamentals, OOP, automation, projects and applications."], ["☕", "Java Programming", "Core Java, OOP, collections, database connectivity and projects."], ["⚡", "C / C++ Programming", "Programming fundamentals, logic building, OOP and problem solving."], ["🗄️", "SQL & Database", "SQL, database design, queries, joins, relationships and projects."], ["🔗", "Computer Networking", "LAN/WAN, TCP/IP, routers, switches and troubleshooting."], ["🛡️", "Cyber Security", "Security fundamentals, threats, vulnerabilities and defensive concepts."], ["🔎", "Digital Forensics", "Digital evidence, forensic workflow and investigation concepts."], ["🤖", "Artificial Intelligence", "AI fundamentals, tools and practical applications."], ["🧠", "Machine Learning", "Data preparation, algorithms, model evaluation and ML workflows."], ["☁️", "Cloud Computing", "Cloud concepts, virtual machines, storage, networking and deployment."], ["🐙", "Git & GitHub", "Version control, repositories, branching and collaboration."], ["🎨", "UI/UX Designing", "Interface principles, layouts, typography, prototypes and usability."], ["📈", "Digital Marketing", "SEO, social media, content strategy and analytics."], ["🧾", "Tally & Accounting", "Accounting basics, vouchers, GST concepts and reports."], ["⌨️", "Hindi & English Typing", "Typing practice, speed improvement and accuracy."], ["🧑‍💼", "Office Automation", "Professional documents, spreadsheets, presentations and email."], ["🧩", "Software Development", "Project structure, debugging, testing and deployment."], ["🔧", "Computer Hardware", "PC components, assembly, maintenance and troubleshooting."]
+    ];
+    document.getElementById("courses").innerHTML = courses.map(c => `<article class="card"><div class="icon">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p><div><span class="tag online">ONLINE COURSE</span> <span class="tag">Practical Learning</span></div></article>`).join("");
+  </script>
 </body>
-</html>
 
+</html>
