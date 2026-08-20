@@ -216,13 +216,63 @@
       color: var(--h2-color);
       font-size: 1.15rem;
       opacity: 0.85;
-      margin-bottom: 34px;
+      margin-bottom: 28px;
       animation: fadeSlideDown 0.9s ease both;
     }
 
     @keyframes fadeSlideDown {
       from { opacity: 0; transform: translateY(-18px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PLATFORM TABS (Windows / Android) ===== */
+    .platform-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 auto 30px;
+      flex-wrap: wrap;
+    }
+
+    .platform-tab {
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.55);
+      color: var(--heading-color);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      padding: 13px 30px;
+      border-radius: 34px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0,60,150,0.14);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .platform-tab .tab-count {
+      font-size: 0.78rem;
+      font-weight: 600;
+      opacity: 0.85;
+      background: rgba(0,0,0,0.08);
+      padding: 1px 9px;
+      border-radius: 12px;
+    }
+
+    .platform-tab.active .tab-count {
+      background: rgba(255,255,255,0.28);
+    }
+
+    .platform-tab:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,90,255,0.28); }
+
+    .platform-tab.active {
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      border-color: var(--card-glow);
+      box-shadow: 0 6px 22px var(--card-glow);
+      transform: translateY(-2px) scale(1.03);
     }
 
     /* ===== SEARCH SECTION (Glassmorphism) ===== */
@@ -576,7 +626,8 @@
       .header-top { justify-content: center; text-align: center; }
       .site-info h1 { font-size: 1.4rem; }
       .main-title { font-size: 1.8rem; letter-spacing: 2px; }
-      .main-subtitle { font-size: 1rem; margin-bottom: 24px; }
+      .main-subtitle { font-size: 1rem; margin-bottom: 22px; }
+      .platform-tab { padding: 10px 18px; font-size: 0.92rem; }
       .downloads-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .dl-card { padding: 16px 10px 14px; }
       .dl-icon { font-size: 1.7rem; }
@@ -620,7 +671,7 @@
       <li><a href="courses.html">📚 Courses</a></li>
       <li><a href="contact.html">📞 Contact</a></li>
       <li><a href="Collage.html">🎓 College</a></li>
-      <li><a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=q3n4zc18&amp;dl=1">📱 APP</a></li>
+      <li><a href="download.html#android">📱 APP</a></li>
       <li><a href="Photo.html">📷 Photo</a></li>
       <li><a href="AI.html">🤖 AI</a></li>
       <li><a href="gamecenter.html">🎮 Game Center</a></li>
@@ -636,6 +687,11 @@
   <h2 class="main-title">⬇️ Download Center</h2>
   <p class="main-subtitle">Shiv Computer के सभी सॉफ़्टवेयर, टूल्स और ऐप — एक ही जगह पर</p>
 
+  <div class="platform-tabs" id="platformTabs">
+    <button class="platform-tab active" data-platform="windows">🖥️ Windows Installer <span class="tab-count" id="winTabCount"></span></button>
+    <button class="platform-tab" data-platform="android">📱 Android Installer <span class="tab-count" id="andTabCount"></span></button>
+  </div>
+
   <div class="search-section">
     <div class="search-bar-wrap">
       <span class="search-icon">🔍</span>
@@ -645,15 +701,7 @@
     </div>
     <div class="result-counter" id="resultCounter"></div>
 
-    <div class="category-filters" id="categoryFilters">
-      <button class="cat-chip active" data-cat="All">🗂️ All</button>
-      <button class="cat-chip" data-cat="Finance">💰 Finance</button>
-      <button class="cat-chip" data-cat="Utility">🛠️ Utility</button>
-      <button class="cat-chip" data-cat="Security">🔒 Security</button>
-      <button class="cat-chip" data-cat="Education">📚 Education</button>
-      <button class="cat-chip" data-cat="Media">🖼️ Media</button>
-      <button class="cat-chip" data-cat="Mobile App">📱 Mobile App</button>
-    </div>
+    <div class="category-filters" id="categoryFilters"></div>
 
     <div class="quick-lists">
       <button class="quick-btn" id="showRecentBtn">🕘 Recently Downloaded</button>
@@ -664,179 +712,7 @@
   <div id="loadingSpinner" class="loading-spinner"><div class="spinner-ring"></div></div>
   <div id="noResults" class="no-results" style="display:none;">😕 कोई फ़ाइल नहीं मिली। दूसरा शब्द आज़माएँ।</div>
 
-  <div class="downloads-grid" id="downloadsGrid">
-      <div class="dl-card-wrap" data-category="Finance" data-name="Accounting">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&amp;st=d115zlb8&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&amp;st=d115zlb8&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Accounting</span>
-          <span class="dl-desc">पूरा हिसाब-किताब एक जगह — आय, व्यय और रिपोर्ट</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Utility" data-name="Calculator 1">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&amp;st=7ixede5q&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&amp;st=7ixede5q&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Calculator 1</span>
-          <span class="dl-desc">साधारण डेस्कटॉप कैलकुलेटर</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="d1-card-wrap" data-category="Utility" data-name="Hindi Input Tool">
-        <span class="dl-badge">EXE Installer</span>
-         <a href="https://www.dropbox.com/scl/fi/681yxqtwczc0pb0jc0rf7/HindiInputTool.zip?rlkey=qzqkxnsukrxbehgfbk9s7qys6&st=zkau31xp&dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&amp;st=7ixede5q&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Hindi Input Tool</span>
-          <span class="dl-desc">हिन्दी इनपुट टूल</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Utility" data-name="Calculator 2">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&amp;st=2iwqdw34&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&amp;st=2iwqdw34&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Calculator 2</span>
-          <span class="dl-desc">एडवांस फीचर्स वाला कैलकुलेटर</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Utility" data-name="Clock 1">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&amp;st=j98a1hcn&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&amp;st=j98a1hcn&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Clock 1</span>
-          <span class="dl-desc">डेस्कटॉप डिजिटल घड़ी</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Utility" data-name="Clock 2">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&amp;st=r8izihlu&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&amp;st=r8izihlu&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Clock 2</span>
-          <span class="dl-desc">स्टाइलिश एनिमेटेड घड़ी</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Finance" data-name="DayBook">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&amp;st=ifx44nxl&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&amp;st=ifx44nxl&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">DayBook</span>
-          <span class="dl-desc">रोज़ाना लेन-देन का रिकॉर्ड रखें</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Finance" data-name="Shop Inventory">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&amp;st=u035z3jw&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&amp;st=u035z3jw&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Shop Inventory</span>
-          <span class="dl-desc">दुकान का स्टॉक और इन्वेंट्री मैनेजमेंट</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Media" data-name="Picture &amp; ID Print">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&amp;st=wi92asj9&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&amp;st=wi92asj9&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Picture &amp; ID Print</span>
-          <span class="dl-desc">फोटो एडिट करें और ID कार्ड प्रिंट करें</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Mobile App" data-name="Shiv Computer APK">
-        <span class="dl-badge">Android APK</span>
-        <a href="https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=53zgp936&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&amp;st=53zgp936&amp;dl=1')">
-          <span class="dl-icon">📱</span>
-          <span class="dl-title">Shiv Computer APK</span>
-          <span class="dl-desc">Android मोबाइल एप्लिकेशन</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker 1">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&amp;st=3weznyx9&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&amp;st=3weznyx9&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">File &amp; Folder Locker 1</span>
-          <span class="dl-desc">फाइल और फोल्डर को पासवर्ड से लॉक करें</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker 3">
-        <span class="dl-badge">ZIP Archive</span>
-        <a href="https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&amp;st=cun8bya0&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&amp;st=cun8bya0&amp;dl=1')">
-          <span class="dl-icon">🗜️</span>
-          <span class="dl-title">File &amp; Folder Locker 3</span>
-          <span class="dl-desc">अपडेटेड वर्ज़न — बेहतर सिक्योरिटी के साथ</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Security" data-name="File &amp; Folder Locker Advance">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&amp;st=cltgd7cq&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&amp;st=cltgd7cq&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">File &amp; Folder Locker Advance</span>
-          <span class="dl-desc">एन्क्रिप्शन के साथ एडवांस लॉकर टूल</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Education" data-name="Fee Manager V1">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&amp;st=6gxfbfuk&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&amp;st=6gxfbfuk&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Fee Manager V1</span>
-          <span class="dl-desc">स्कूल फीस मैनेजमेंट — पुराना वर्ज़न</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Education" data-name="Fee Manager V2">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&amp;st=kecsfwgr&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&amp;st=kecsfwgr&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Fee Manager V2</span>
-          <span class="dl-desc">स्कूल फीस मैनेजमेंट — अपडेटेड वर्ज़न</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Education" data-name="Latest Fee Manager">
-        <span class="dl-badge">ZIP Archive</span>
-        <a href="https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&st=hq8of1qf&dl=1')">
-          <span class="dl-icon">🗜️</span>
-          <span class="dl-title">Latest Fee Manager</span>
-          <span class="dl-desc">FeeBook का सबसे नया और स्थिर वर्ज़न</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Education" data-name="All Versions – Fee Manager">
-        <span class="dl-badge">Drive Folder</span>
-        <a href="https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing')">
-          <span class="dl-icon">📁</span>
-          <span class="dl-title">All Versions – Fee Manager</span>
-          <span class="dl-desc">FeeBook के सभी पुराने-नए वर्ज़न एक साथ</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Education" data-name="FeeBook 842">
-        <span class="dl-badge">ZIP Archive</span>
-        <a href="https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&amp;st=v25sqc2m&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&amp;st=v25sqc2m&amp;dl=1')">
-          <span class="dl-icon">🗜️</span>
-          <span class="dl-title">FeeBook 842</span>
-          <span class="dl-desc">FeeBook का इंस्टॉलर वर्ज़न 8.4.2</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-      <div class="dl-card-wrap" data-category="Utility" data-name="Auto DSC Setup">
-        <span class="dl-badge">EXE Installer</span>
-        <a href="https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&amp;st=9b0oixte&amp;dl=1" class="dl-card" target="_blank" rel="noopener" onclick="recordRecent('https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&amp;st=9b0oixte&amp;dl=1')">
-          <span class="dl-icon">💻</span>
-          <span class="dl-title">Auto DSC Setup</span>
-          <span class="dl-desc">डिजिटल सिग्नेचर सर्टिफिकेट सेटअप टूल</span>
-          <span class="dl-btn">⬇️ Download</span>
-        </a>
-      </div>
-  </div>
+  <div class="downloads-grid" id="downloadsGrid"></div>
 </main>
 
 <footer>
@@ -845,7 +721,7 @@
     <p>© 2025 <strong>Shiv Computer</strong>. All rights reserved.</p>
     <p>📍 27, Karnpur, Uttar Pradesh – 225304 &nbsp;|&nbsp; 📞 +91-80901 53304 &nbsp;|&nbsp; ✉️ ceshivkumar@gmail.com</p>
     <div class="footer-line"></div>
-    <a aria-label="Chat on WhatsApp" href="https://wa.me/80901553043?text=Hello%20Shiv!" class="whatsapp-btn">
+    <a aria-label="Chat on WhatsApp" href="https://wa.me/918090153304?text=Hello%20Shiv!" class="whatsapp-btn">
       <img src="wlogo.png" alt="WhatsApp">
       WhatsApp Us
     </a>
@@ -855,6 +731,56 @@
 <button id="scrollTopBtn" title="Scroll to Top">⬆️</button>
 
 <script>
+  /* =========================================================
+     📦 DOWNLOADS DATA
+     -----------------------------------------------------------
+     Naya App/Tool (EXE ho ya APK) add karne ke liye bas neeche
+     wali DOWNLOADS list mein ek naya { ... } object jod dijiye.
+     Poore page ke baaki hisse (cards, tabs, filter, search)
+     apne aap update ho jaayenge — kahin aur kuch edit karne ki
+     zaroorat nahi hai.
+
+     Fields:
+       id        -> ek unique chhota naam (spaces mat rakhna)
+       name      -> card par dikhne wala title
+       desc      -> Hindi mein chhota description
+       category  -> Finance / Utility / Security / Education /
+                    Media / Mobile App (naya category bhi bana
+                    sakte hain, filter chip apne aap ban jaayegi)
+       platform  -> "windows"  -> Windows Installer tab mein dikhega
+                    "android"  -> Android Installer tab mein dikhega
+       badge     -> "EXE Installer" / "ZIP Archive" /
+                    "Android APK" / "Drive Folder"
+       icon      -> emoji icon (💻 / 📱 / 🗜️ / 📁 ...)
+       url       -> Dropbox (dl=1 ke saath) ya Google Drive link
+  ========================================================= */
+  const DOWNLOADS = [
+    { id:'accounting',        name:'Accounting',                    desc:'पूरा हिसाब-किताब एक जगह — आय, व्यय और रिपोर्ट',       category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&st=d115zlb8&dl=1' },
+    { id:'calc1',              name:'Calculator 1',                  desc:'साधारण डेस्कटॉप कैलकुलेटर',                          category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&st=7ixede5q&dl=1' },
+    { id:'hindi-input',       name:'Hindi Input Tool',              desc:'हिन्दी इनपुट टूल',                                    category:'Utility',    platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/681yxqtwczc0pb0jc0rf7/HindiInputTool.zip?rlkey=qzqkxnsukrxbehgfbk9s7qys6&st=zkau31xp&dl=1' },
+    { id:'calc2',              name:'Calculator 2',                  desc:'एडवांस फीचर्स वाला कैलकुलेटर',                        category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&st=2iwqdw34&dl=1' },
+    { id:'clock1',             name:'Clock 1',                       desc:'डेस्कटॉप डिजिटल घड़ी',                                category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&st=j98a1hcn&dl=1' },
+    { id:'clock2',             name:'Clock 2',                       desc:'स्टाइलिश एनिमेटेड घड़ी',                              category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&st=r8izihlu&dl=1' },
+    { id:'daybook',            name:'DayBook',                       desc:'रोज़ाना लेन-देन का रिकॉर्ड रखें',                     category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&st=ifx44nxl&dl=1' },
+    { id:'shop-inventory',    name:'Shop Inventory',                desc:'दुकान का स्टॉक और इन्वेंट्री मैनेजमेंट',              category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&st=u035z3jw&dl=1' },
+    { id:'picture-id-print',  name:'Picture & ID Print',             desc:'फोटो एडिट करें और ID कार्ड प्रिंट करें',              category:'Media',      platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&st=wi92asj9&dl=1' },
+    { id:'shiv-apk',           name:'Shiv Computer APK',             desc:'Android मोबाइल एप्लिकेशन',                            category:'Mobile App', platform:'android', badge:'Android APK',   icon:'📱', url:'https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=53zgp936&dl=1' },
+    { id:'locker1',            name:'File & Folder Locker 1',        desc:'फाइल और फोल्डर को पासवर्ड से लॉक करें',              category:'Security',   platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&st=3weznyx9&dl=1' },
+    { id:'locker3',            name:'File & Folder Locker 3',        desc:'अपडेटेड वर्ज़न — बेहतर सिक्योरिटी के साथ',            category:'Security',   platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&st=cun8bya0&dl=1' },
+    { id:'locker-adv',        name:'File & Folder Locker Advance',  desc:'एन्क्रिप्शन के साथ एडवांस लॉकर टूल',                  category:'Security',   platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&st=cltgd7cq&dl=1' },
+    { id:'feemanager-v1',     name:'Fee Manager V1',                desc:'स्कूल फीस मैनेजमेंट — पुराना वर्ज़न',                 category:'Education',  platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&st=6gxfbfuk&dl=1' },
+    { id:'feemanager-v2',     name:'Fee Manager V2',                desc:'स्कूल फीस मैनेजमेंट — अपडेटेड वर्ज़न',                category:'Education',  platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&st=kecsfwgr&dl=1' },
+    { id:'feemanager-latest', name:'Latest Fee Manager',            desc:'FeeBook का सबसे नया और स्थिर वर्ज़न',                 category:'Education',  platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&st=hq8of1qf&dl=1' },
+    { id:'feemanager-all',    name:'All Versions – Fee Manager',    desc:'FeeBook के सभी पुराने-नए वर्ज़न एक साथ',              category:'Education',  platform:'windows', badge:'Drive Folder',  icon:'📁', url:'https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing' },
+    { id:'feebook842',        name:'FeeBook 842',                   desc:'FeeBook का इंस्टॉलर वर्ज़न 8.4.2',                   category:'Education',  platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&st=v25sqc2m&dl=1' },
+    { id:'auto-dsc',           name:'Auto DSC Setup',                desc:'डिजिटल सिग्नेचर सर्टिफिकेट सेटअप टूल',               category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&st=9b0oixte&dl=1' },
+  ];
+
+  const CATEGORY_ICONS = {
+    'All': '🗂️', 'Finance': '💰', 'Utility': '🛠️', 'Security': '🔒',
+    'Education': '📚', 'Media': '🖼️', 'Mobile App': '📱'
+  };
+
   /* ===== THEME TOGGLE ===== */
   function setTheme(theme, btn) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -949,37 +875,116 @@
   initParticles();
 
   /* =========================================================
-     🔎 LIVE SEARCH + CATEGORY FILTER + RECENTLY DOWNLOADED
+     🕘 RECENTLY DOWNLOADED (localStorage)
   ========================================================= */
-  const downloadsGrid = document.getElementById('downloadsGrid');
-  const cardWraps   = Array.from(downloadsGrid.querySelectorAll('.dl-card-wrap'));
-  const searchInput = document.getElementById('toolSearch');
-  const clearBtn    = document.getElementById('clearSearchBtn');
-  const voiceBtn    = document.getElementById('voiceSearchBtn');
-  const resultCounter = document.getElementById('resultCounter');
-  const noResults   = document.getElementById('noResults');
-  const loadingSpinner = document.getElementById('loadingSpinner');
-  const catChips    = document.querySelectorAll('.cat-chip');
-  const showRecentBtn = document.getElementById('showRecentBtn');
-  const showAllBtn  = document.getElementById('showAllBtn');
-
-  let activeCategory = 'All';
-  let activeView = 'all'; // all | recent
-  let searchTimer = null;
-
   function getRecent() {
     try { return JSON.parse(localStorage.getItem('shiv-dl-recent')) || []; }
     catch (e) { return []; }
   }
   function setRecent(arr) { localStorage.setItem('shiv-dl-recent', JSON.stringify(arr)); }
 
-  window.recordRecent = function (href) {
+  function recordRecent(href) {
     let recent = getRecent();
     recent = recent.filter(h => h !== href);
     recent.unshift(href);
     if (recent.length > 12) recent = recent.slice(0, 12);
     setRecent(recent);
-  };
+  }
+
+  /* =========================================================
+     🖥️ / 📱 TABS + 🔎 LIVE SEARCH + CATEGORY FILTER + RECENT
+  ========================================================= */
+  const downloadsGrid   = document.getElementById('downloadsGrid');
+  const searchInput     = document.getElementById('toolSearch');
+  const clearBtn        = document.getElementById('clearSearchBtn');
+  const voiceBtn        = document.getElementById('voiceSearchBtn');
+  const resultCounter   = document.getElementById('resultCounter');
+  const noResults       = document.getElementById('noResults');
+  const loadingSpinner  = document.getElementById('loadingSpinner');
+  const categoryFiltersEl = document.getElementById('categoryFilters');
+  const showRecentBtn   = document.getElementById('showRecentBtn');
+  const showAllBtn      = document.getElementById('showAllBtn');
+  const platformTabs    = document.querySelectorAll('.platform-tab');
+
+  let activePlatform = 'windows';
+  let activeCategory = 'All';
+  let activeView = 'all'; // all | recent
+  let cardWraps = [];
+  let searchTimer = null;
+
+  function buildCard(item) {
+    const wrap = document.createElement('div');
+    wrap.className = 'dl-card-wrap';
+    wrap.dataset.category = item.category;
+    wrap.dataset.name = item.name;
+
+    const badge = document.createElement('span');
+    badge.className = 'dl-badge';
+    badge.textContent = item.badge;
+
+    const a = document.createElement('a');
+    a.href = item.url;
+    a.className = 'dl-card';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.addEventListener('click', () => recordRecent(item.url));
+
+    const iconEl = document.createElement('span');
+    iconEl.className = 'dl-icon';
+    iconEl.textContent = item.icon;
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'dl-title';
+    titleEl.textContent = item.name;
+
+    const descEl = document.createElement('span');
+    descEl.className = 'dl-desc';
+    descEl.textContent = item.desc;
+
+    const btnEl = document.createElement('span');
+    btnEl.className = 'dl-btn';
+    btnEl.textContent = '⬇️ Download';
+
+    a.append(iconEl, titleEl, descEl, btnEl);
+    wrap.append(badge, a);
+    return wrap;
+  }
+
+  function buildCategoryChips() {
+    const cats = ['All', ...new Set(DOWNLOADS.filter(d => d.platform === activePlatform).map(d => d.category))];
+    categoryFiltersEl.innerHTML = '';
+    cats.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-chip' + (cat === 'All' ? ' active' : '');
+      btn.dataset.cat = cat;
+      btn.textContent = (CATEGORY_ICONS[cat] || '🗂️') + ' ' + cat;
+      btn.addEventListener('click', () => {
+        categoryFiltersEl.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = cat;
+        applyFilters();
+      });
+      categoryFiltersEl.appendChild(btn);
+    });
+    activeCategory = 'All';
+  }
+
+  function updateTabCounts() {
+    document.getElementById('winTabCount').textContent =
+      '(' + DOWNLOADS.filter(d => d.platform === 'windows').length + ')';
+    document.getElementById('andTabCount').textContent =
+      '(' + DOWNLOADS.filter(d => d.platform === 'android').length + ')';
+  }
+
+  function renderGrid() {
+    downloadsGrid.innerHTML = '';
+    DOWNLOADS.filter(d => d.platform === activePlatform).forEach(item => {
+      downloadsGrid.appendChild(buildCard(item));
+    });
+    cardWraps = Array.from(downloadsGrid.querySelectorAll('.dl-card-wrap'));
+    buildCategoryChips();
+    applyFilters();
+  }
 
   function applyFilters() {
     loadingSpinner.classList.add('active');
@@ -995,9 +1000,9 @@
         const cat  = wrap.getAttribute('data-category');
         const href = wrap.querySelector('.dl-card').getAttribute('href');
 
-        let matchesSearch = !query || name.includes(query);
-        let matchesCategory = activeCategory === 'All' || cat === activeCategory;
-        let matchesView = activeView !== 'recent' || recent.includes(href);
+        const matchesSearch = !query || name.includes(query);
+        const matchesCategory = activeCategory === 'All' || cat === activeCategory;
+        const matchesView = activeView !== 'recent' || recent.includes(href);
 
         const visible = matchesSearch && matchesCategory && matchesView;
         wrap.style.display = visible ? '' : 'none';
@@ -1075,15 +1080,6 @@
     });
   }
 
-  catChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      catChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      activeCategory = chip.getAttribute('data-cat');
-      applyFilters();
-    });
-  });
-
   function setActiveView(view, btn) {
     activeView = view;
     [showAllBtn, showRecentBtn].forEach(b => b.classList.remove('active'));
@@ -1093,7 +1089,25 @@
   showAllBtn.addEventListener('click', () => setActiveView('all', showAllBtn));
   showRecentBtn.addEventListener('click', () => setActiveView('recent', showRecentBtn));
 
-  applyFilters();
+  platformTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      platformTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activePlatform = tab.dataset.platform;
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      renderGrid();
+    });
+  });
+
+  // Agar URL mein #android hai (jaise nav ke "APP" link se) to seedhe Android tab khulega
+  if (window.location.hash === '#android') {
+    const androidTab = document.querySelector('.platform-tab[data-platform="android"]');
+    if (androidTab) androidTab.click();
+  }
+
+  updateTabCounts();
+  renderGrid();
 
   /* =========================================================
      ⬆️ SCROLL-TO-TOP BUTTON
