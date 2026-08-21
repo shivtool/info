@@ -60,7 +60,6 @@
             .mobile-full { width: 100% !important; }
         }
     </style>
-    <script src="security.js"></script>
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar font-poppins">
 
@@ -328,13 +327,57 @@
 
     <!-- JavaScript Core & Application Logic -->
     <script>
+        // Global safety net: inside an Android WebView APK there is no visible
+        // console, so an uncaught error can silently freeze the UI. Surface it.
+        window.addEventListener('error', function (e) {
+            console.error('Unhandled error:', e.error || e.message);
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
+
         // Initialize Lucide icons
         lucide.createIcons();
 
-        let patients = JSON.parse(localStorage.getItem('dr_shiv_patients') || '[]');
+        function loadPatientsFromStorage() {
+            try {
+                const raw = localStorage.getItem('dr_shiv_patients');
+                return normalizePatients(raw ? JSON.parse(raw) : []);
+            } catch (e) {
+                console.error('Corrupt patient data in storage, starting fresh list:', e);
+                return [];
+            }
+        }
+        let patients = loadPatientsFromStorage();
         let html5QrCode = null;
         let currentEditFiles = []; // files kept while editing (removable before save)
-        let currentDetailId = null;
+        let currentDetailPatient = null; // full or embedded-only patient object shown in detail/print modal
+
+        // Ensures every patient record has all expected fields, even if it came
+        // from an old backup or a manually edited JSON file. Prevents crashes.
+        function normalizePatients(list) {
+            if (!Array.isArray(list)) return [];
+            return list.map(p => ({
+                id: p.id || ('PAT-' + Date.now().toString().slice(-6)),
+                name: p.name || 'Unknown',
+                phone: p.phone || '',
+                age: p.age || '',
+                gender: p.gender || 'Other',
+                blood: p.blood || 'Unknown',
+                address: p.address || '',
+                vitals: {
+                    bp: (p.vitals && p.vitals.bp) || '',
+                    pulse: (p.vitals && p.vitals.pulse) || '',
+                    temp: (p.vitals && p.vitals.temp) || '',
+                    weight: (p.vitals && p.vitals.weight) || ''
+                },
+                symptoms: p.symptoms || '',
+                diagnosis: p.diagnosis || '',
+                files: Array.isArray(p.files) ? p.files : [],
+                date: p.date || '',
+                updatedDate: p.updatedDate || ''
+            }));
+        }
 
         function genFileId() {
             return 'F' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -632,6 +675,23 @@
             renderExistingFilesChips();
         }
 
+        // Build the data that gets encoded into the QR code.
+        // IMPORTANT: We embed basic details (not just the ID) directly into the QR,
+        // because patient records live in this browser's localStorage only —
+        // they are NOT synced across devices. If this QR is scanned on a different
+        // phone/browser where this patient was never registered, a plain ID would
+        // show nothing. Embedding the basics guarantees the name always shows up.
+        function buildQrPayload(p) {
+            return JSON.stringify({
+                id: p.id,
+                name: p.name,
+                phone: p.phone,
+                age: p.age,
+                gender: p.gender,
+                blood: p.blood
+            });
+        }
+
         // QR Modal Display
         function showQrModal(id) {
             const p = patients.find(item => item.id === id);
@@ -640,7 +700,7 @@
             const qrContainer = document.getElementById('qrcodeDisplay');
             qrContainer.innerHTML = '';
 
-            QRCode.toCanvas(p.id, { width: 180, margin: 1 }, function (err, canvas) {
+            QRCode.toCanvas(buildQrPayload(p), { width: 180, margin: 1 }, function (err, canvas) {
                 if (!err) qrContainer.appendChild(canvas);
             });
 
@@ -667,6 +727,10 @@
             const qrImageData = canvas.toDataURL('image/png');
 
             const printWindow = window.open('', '', 'height=600,width=500');
+            if (!printWindow) {
+                alert('⚠️ Print window nahi khul paayi. Agar app (APK) me hain to WebView me "multiple windows" allow nahi hai isliye printing yaha se possible nahi hai. Browser me kholkar try karein.');
+                return;
+            }
             printWindow.document.write('<html><head><title>Print QR</title></head><body style="text-align:center;font-family:sans-serif;padding:30px;">');
             printWindow.document.write('<h2>Dr. Shiv Ji Clinic</h2>');
             printWindow.document.write(`<img src="${qrImageData}" style="width:180px;height:180px;margin:20px auto;display:block;">`);
@@ -688,7 +752,7 @@
             // browsers camera permission popup hi nahi dikhate.
             const isSecure = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
             if (!isSecure) {
-                alert("⚠️ Camera sirf HTTPS website par ya localhost par kaam karta hai.\n\nYe file abhi 'file://' se khuli hui hai (seedha double-click karke), isliye mobile browser camera permission maangta hi nahi.\n\nSahi solution: is file ko kisi web hosting (jaise GitHub Pages / shivtool.github.io) par upload karke waha se kholein, tabhi QR scanner kaam karega.");
+                alert("⚠️ Camera sirf HTTPS website par ya localhost par kaam karta hai.\n\nYe file abhi 'file://' se khuli hui hai, isliye camera permission maangta hi nahi. Ye Android APK (WebView) me bhi hoga agar HTML file seedhe assets se file:// tarike se load ho rahi ho.\n\nSolution: (1) Browser me test karne ke liye is file ko web hosting (GitHub Pages waghera) par upload karke kholein, YA (2) APK banate waqt WebView ko WebViewAssetLoader / local server (https://appassets.androidx.net) se serve karein, taaki origin secure mane jaaye aur camera kaam kare.");
                 return;
             }
 
@@ -716,8 +780,7 @@
                         { fps: 10, qrbox: { width: 250, height: 250 } },
                         (decodedText) => {
                             closeScannerModal();
-                            document.getElementById('globalSearch').value = decodedText;
-                            renderPatients(decodedText);
+                            handleScannedResult(decodedText);
                         },
                         (error) => {}
                     ).catch(err => {
@@ -748,6 +811,47 @@
                 });
             } else {
                 document.getElementById('scannerModal').classList.add('hidden');
+            }
+        }
+
+        // Handle a successfully scanned QR code: clean the text, find the exact
+        // patient, and show their full details immediately (name/phone/etc.)
+        function handleScannedResult(decodedText) {
+            const cleanText = (decodedText || '').trim();
+
+            // Newer QR codes hold a JSON payload with basic details embedded.
+            // Older/already-printed QR codes just hold the raw patient ID.
+            let embedded = null;
+            try {
+                const parsed = JSON.parse(cleanText);
+                if (parsed && parsed.id) embedded = parsed;
+            } catch (e) {
+                // not JSON - treat as a plain ID (old QR format)
+            }
+
+            const idToFind = embedded ? embedded.id : cleanText;
+
+            // Prefer an exact ID match against this browser's local records
+            let match = patients.find(p => p.id.toLowerCase() === idToFind.toLowerCase());
+            if (!match) {
+                match = patients.find(p =>
+                    p.id.toLowerCase().includes(idToFind.toLowerCase()) ||
+                    idToFind.toLowerCase().includes(p.id.toLowerCase())
+                );
+            }
+
+            document.getElementById('globalSearch').value = idToFind;
+            renderPatients(idToFind);
+
+            if (match) {
+                // Full local record found - show everything (vitals, diagnosis, files)
+                showDetailModal(match.id);
+            } else if (embedded) {
+                // No local record on this device, but the QR itself carried the
+                // basic details - show those directly so the name is never missing.
+                showEmbeddedInfoModal(embedded);
+            } else {
+                alert(`⚠️ Is QR code (${cleanText || 'khaali'}) se koi jaankari nahi mil paayi. QR code damaged ho sakta hai.`);
             }
         }
 
@@ -792,12 +896,37 @@
             document.getElementById('galleryModal').classList.add('hidden');
         }
 
-        // Full Patient Details Modal
+        // Full Patient Details Modal (for a patient that exists in this browser's local records)
         function showDetailModal(id) {
             const p = patients.find(item => item.id === id);
             if (!p) return;
-            currentDetailId = id;
+            currentDetailPatient = p;
+            renderDetailModalContent(p, false);
+        }
 
+        // Shown when a QR is scanned but no matching local record exists on this
+        // device - displays whatever basic info was embedded in the QR itself.
+        function showEmbeddedInfoModal(embedded) {
+            const normalized = {
+                id: embedded.id || '',
+                name: embedded.name || 'Unknown',
+                phone: embedded.phone || '',
+                age: embedded.age || '',
+                gender: embedded.gender || '',
+                blood: embedded.blood || '',
+                address: '',
+                vitals: { bp: '', pulse: '', temp: '', weight: '' },
+                symptoms: '',
+                diagnosis: '',
+                files: [],
+                date: '',
+                updatedDate: ''
+            };
+            currentDetailPatient = normalized;
+            renderDetailModalContent(normalized, true);
+        }
+
+        function renderDetailModalContent(p, isEmbeddedOnly) {
             const rows = (label, value) => `
                 <div class="flex justify-between border-b border-gray-800 py-2 gap-3">
                     <span class="text-gray-400">${label}</span>
@@ -805,13 +934,21 @@
                 </div>
             `;
 
+            const banner = isEmbeddedOnly ? `
+                <div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs rounded-xl p-3 flex items-start gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                    <span>Is patient ka poora medical record is device/browser par save nahi hai (records device-specific hote hain, cloud sync nahi). Neeche sirf QR code me mojood basic jaankari dikhayi ja rahi hai.</span>
+                </div>
+            ` : '';
+
             document.getElementById('detailContent').innerHTML = `
+                ${banner}
                 <div class="bg-gray-800/50 rounded-xl p-4 border border-gold/20">
                     <div class="flex justify-between items-center flex-wrap gap-2 mb-2">
                         <span class="text-xs bg-gold/15 text-gold px-3 py-1 rounded-full border border-gold/30 font-mono font-semibold">${p.id}</span>
                     </div>
                     <h4 class="text-xl font-bold text-white font-heading">${p.name}</h4>
-                    <p class="text-xs text-gray-400 mt-1">Registered: ${p.date}${p.updatedDate ? ` &nbsp;|&nbsp; Last Updated: ${p.updatedDate}` : ''}</p>
+                    ${p.date ? `<p class="text-xs text-gray-400 mt-1">Registered: ${p.date}${p.updatedDate ? ` &nbsp;|&nbsp; Last Updated: ${p.updatedDate}` : ''}</p>` : ''}
                 </div>
 
                 <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800">
@@ -819,9 +956,10 @@
                     ${rows('Mobile Number', p.phone)}
                     ${rows('Age / Gender', `${p.age} yrs / ${p.gender}`)}
                     ${rows('Blood Group', p.blood)}
-                    ${rows('Address', p.address)}
+                    ${!isEmbeddedOnly ? rows('Address', p.address) : ''}
                 </div>
 
+                ${!isEmbeddedOnly ? `
                 <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800">
                     <h5 class="text-gold text-xs font-semibold uppercase tracking-wide mb-2">Clinical Vitals</h5>
                     ${rows('Blood Pressure', p.vitals.bp)}
@@ -847,6 +985,7 @@
                     <p class="text-gray-100">${p.files && p.files.length > 0 ? `${p.files.length} prescription(s)/report(s) attached.` : 'Koi file attach nahi hai.'}</p>
                     ${p.files && p.files.length > 0 ? `<button onclick="closeDetailModal(); openGalleryModal('${p.id}')" class="mt-2 text-xs bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-lg transition-all">View Prescriptions</button>` : ''}
                 </div>
+                ` : ''}
             `;
 
             document.getElementById('detailModal').classList.remove('hidden');
@@ -855,15 +994,18 @@
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
-            currentDetailId = null;
+            currentDetailPatient = null;
         }
 
         function printDetail() {
-            if (!currentDetailId) return;
-            const p = patients.find(item => item.id === currentDetailId);
-            if (!p) return;
+            if (!currentDetailPatient) return;
+            const p = currentDetailPatient;
 
             const printWindow = window.open('', '', 'height=800,width=650');
+            if (!printWindow) {
+                alert('⚠️ Print window nahi khul paayi. Agar app (APK) me hain to WebView me "multiple windows" allow nahi hai isliye printing yaha se possible nahi hai. Browser me kholkar try karein.');
+                return;
+            }
             printWindow.document.write(`
                 <html><head><title>Patient Record - ${p.name}</title>
                 <style>
@@ -912,18 +1054,32 @@
                 return;
             }
             const msg = `Dr. Shiv Ji Clinic\n\nPatient: ${p.name}\nPatient ID: ${p.id}\nDate: ${p.date}\n\nDiagnosis: ${p.diagnosis || 'N/A'}\n\nApna QR ID card clinic se collect karein. Dhanyawad!`;
-            window.open(`https://wa.me/91${p.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            const waUrl = `https://wa.me/91${p.phone}?text=${encodeURIComponent(msg)}`;
+            const opened = window.open(waUrl, '_blank');
+            // Kuch Android WebView setups me window.open() naya window/tab block kar
+            // deta hai (returns null). Us case me current page ko hi navigate karke
+            // WhatsApp app tak handoff try karte hain.
+            if (!opened) {
+                window.location.href = waUrl;
+            }
         }
 
         // Backup & Restore JSON Data Option
         function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(patients, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `dr_shiv_patients_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            try {
+                const blob = new Blob([JSON.stringify(patients, null, 2)], { type: 'application/json' });
+                const blobUrl = URL.createObjectURL(blob);
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.href = blobUrl;
+                downloadAnchor.download = `dr_shiv_patients_backup_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                // Object URL ko thodi der baad revoke karein taaki download shuru ho jaaye
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+            } catch (e) {
+                alert('⚠️ Backup download nahi ho paaya. Agar app (APK) me hain to WebView me file download support (DownloadListener) enable hona zaroori hai.');
+            }
         }
 
         function importData(event) {
@@ -934,8 +1090,9 @@
                     try {
                         const imported = JSON.parse(e.target.result);
                         if (Array.isArray(imported)) {
-                            if (saveToStorage(imported)) {
-                                patients = imported;
+                            const normalized = normalizePatients(imported);
+                            if (saveToStorage(normalized)) {
+                                patients = normalized;
                                 renderPatients();
                                 alert("Backup safaltapoorvak restore ho gaya!");
                             }
