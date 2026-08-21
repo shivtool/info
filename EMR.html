@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>Dr. Shiv Ji Clinic - Professional Patient Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    },
+                    colors: {
+                        darkBg: '#0a0a0f',
+                        cardBg: '#12121a',
+                        gold: '#d4af37',
+                        goldLight: '#f4d160',
+                        goldDark: '#a8842a'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- QR Code Generator library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <!-- QR Code Scanner library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top, #14141f 0%, #0a0a0f 55%, #050507 100%);
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-heading { font-family: 'Rajdhani', sans-serif; }
+        .glass-card {
+            background: rgba(18, 18, 26, 0.72);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.14);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3a3320; border-radius: 4px; }
+        .gold-focus:focus { outline: none; border-color: #d4af37 !important; box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+        .gold-gradient-btn { background: linear-gradient(135deg, #d4af37 0%, #f4d160 50%, #a8842a 100%); }
+        .gold-gradient-btn:hover { filter: brightness(1.08); }
+        @media (max-width: 640px) {
+            .mobile-full { width: 100% !important; }
+        }
+    </style>
+    <script src="security.js"></script>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar font-poppins">
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-card border-b border-gold/10 sticky top-0 z-40 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div class="flex items-center space-x-3">
+            <div class="p-2.5 bg-gold/10 text-gold rounded-xl border border-gold/30 shrink-0">
+                <i data-lucide="stethoscope" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white font-heading truncate">Dr. Shiv Ji Clinic</h1>
+                <p class="text-[11px] sm:text-xs text-gray-400 truncate">Advanced Electronic Medical Record (EMR) System</p>
+            </div>
+        </div>
+
+        <!-- Global Actions: Search, Backup, QR Scanner Trigger -->
+        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            <div class="relative flex-1 min-w-[160px] sm:flex-none sm:w-64">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-3"></i>
+                <input type="text" id="globalSearch" placeholder="Naam / Phone / ID se dhoondhein..."
+                    class="bg-gray-900/80 text-sm text-gray-200 pl-9 pr-4 py-2 rounded-xl border border-gray-700 gold-focus w-full transition-all">
+            </div>
+            <button onclick="openScannerModal()" class="flex items-center space-x-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all">
+                <i data-lucide="scan" class="w-4 h-4"></i>
+                <span>Scan QR</span>
+            </button>
+            <button onclick="exportData()" class="flex items-center space-x-1.5 bg-gray-800 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-xl text-xs sm:text-sm border border-gray-700 transition-all" title="Backup JSON">
+                <i data-lucide="download" class="w-4 h-4 text-gold"></i>
+                <span class="hidden xs:inline">Backup</span>
+            </button>
+            <label class="flex items-center space-x-1.5 bg-gray-800 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-xl text-xs sm:text-sm border border-gray-700 cursor-pointer transition-all" title="Restore JSON">
+                <i data-lucide="upload" class="w-4 h-4 text-emerald-400"></i>
+                <span class="hidden xs:inline">Restore</span>
+                <input type="file" id="importFile" accept=".json" onchange="importData(event)" class="hidden">
+            </label>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-grow p-3 sm:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+
+        <!-- Left Column: Patient Registration Form (Card Style) -->
+        <section class="lg:col-span-5 glass-card rounded-2xl p-4 sm:p-6 shadow-2xl h-fit border border-gold/10">
+            <div class="flex items-center justify-between mb-5 pb-4 border-b border-gold/10">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-gold"></i>
+                    <h2 id="formTitle" class="text-lg font-semibold text-white font-heading">Naya Mareez Registration</h2>
+                </div>
+                <span class="text-[10px] sm:text-xs bg-gold/10 text-gold px-2.5 py-1 rounded-full border border-gold/20 shrink-0">Secure EMR</span>
+            </div>
+
+            <form id="patientForm" onsubmit="registerPatient(event)" class="space-y-4">
+                <input type="hidden" id="editPatientId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="pName" class="block text-xs font-medium text-gray-400 mb-1">Poora Naam (Full Name) *</label>
+                        <input type="text" id="pName" required placeholder="e.g. Rahul Sharma"
+                            class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                    </div>
+                    <div>
+                        <label for="pPhone" class="block text-xs font-medium text-gray-400 mb-1">Mobile Number *</label>
+                        <input type="tel" id="pPhone" required placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" inputmode="numeric"
+                            class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                    <div>
+                        <label for="pAge" class="block text-xs font-medium text-gray-400 mb-1">Age *</label>
+                        <input type="number" id="pAge" required placeholder="Years" min="0" max="120"
+                            class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-2.5 sm:px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                    </div>
+                    <div>
+                        <label for="pGender" class="block text-xs font-medium text-gray-400 mb-1">Gender *</label>
+                        <select id="pGender" class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-2 sm:px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="pBlood" class="block text-xs font-medium text-gray-400 mb-1">Blood Group</label>
+                        <select id="pBlood" class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-2 sm:px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                            <option value="Unknown">Unknown</option>
+                            <option value="A+">A+</option><option value="A-">A-</option>
+                            <option value="B+">B+</option><option value="B-">B-</option>
+                            <option value="O+">O+</option><option value="O-">O-</option>
+                            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="pAddress" class="block text-xs font-medium text-gray-400 mb-1">Residential Address</label>
+                    <input type="text" id="pAddress" placeholder="Village / City / District"
+                        class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 gold-focus">
+                </div>
+
+                <!-- Clinical Vitals -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-900/50 p-3 rounded-xl border border-gray-800">
+                    <div>
+                        <label for="vBp" class="block text-[10px] text-gray-400">BP (mmHg)</label>
+                        <input type="text" id="vBp" placeholder="120/80" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white gold-focus">
+                    </div>
+                    <div>
+                        <label for="vPulse" class="block text-[10px] text-gray-400">Pulse (/min)</label>
+                        <input type="text" id="vPulse" placeholder="72" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white gold-focus">
+                    </div>
+                    <div>
+                        <label for="vTemp" class="block text-[10px] text-gray-400">Temp (°F)</label>
+                        <input type="text" id="vTemp" placeholder="98.6" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white gold-focus">
+                    </div>
+                    <div>
+                        <label for="vWeight" class="block text-[10px] text-gray-400">Weight (kg)</label>
+                        <input type="text" id="vWeight" placeholder="70" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white gold-focus">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="pSymptoms" class="block text-xs font-medium text-gray-400 mb-1">Chief Complaints / Symptoms</label>
+                    <textarea id="pSymptoms" rows="2" placeholder="Fever, cough, body pain..."
+                        class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 gold-focus"></textarea>
+                </div>
+
+                <div>
+                    <label for="pDiagnosis" class="block text-xs font-medium text-gray-400 mb-1">Diagnosis & Clinical Notes</label>
+                    <textarea id="pDiagnosis" rows="2" placeholder="Viral infection, advised rest..."
+                        class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 gold-focus"></textarea>
+                </div>
+
+                <!-- Existing attached files while editing (removable chips) -->
+                <div id="existingFilesWrap" class="hidden">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Pehle se Attached Files</label>
+                    <div id="existingFilesContainer" class="flex flex-wrap gap-2 mb-2"></div>
+                </div>
+
+                <div>
+                    <label for="pFiles" class="block text-xs font-medium text-gray-400 mb-1">Nayi Prescriptions / Reports Upload Karein (Images/PDF)</label>
+                    <input type="file" id="pFiles" multiple accept="image/*,.pdf"
+                        class="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-gold/15 file:text-gold hover:file:bg-gold/25 file:cursor-pointer border border-gray-700 rounded-xl bg-gray-900/90">
+                    <p class="text-[10px] text-gray-500 mt-1">Note: Purani attached files delete nahi hongi, nayi files unke saath add ho jaayengi.</p>
+                </div>
+
+                <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 gold-gradient-btn text-gray-900 font-semibold py-3 rounded-xl shadow-lg shadow-gold/10 transition-all text-sm flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span id="formSubmitBtnText">Save & Generate QR</span>
+                    </button>
+                    <button type="button" onclick="resetForm()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-3 rounded-xl text-sm transition-all border border-gray-700">
+                        Reset
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Right Column: Patient Directory Cards & Record View -->
+        <section class="lg:col-span-7 flex flex-col space-y-4">
+            <div class="glass-card rounded-2xl p-4 border border-gold/10 flex flex-col gap-3">
+                <div class="flex justify-between items-center gap-2 flex-wrap">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="users" class="w-5 h-5 text-gold"></i>
+                        <h2 class="text-base font-semibold text-white font-heading">Registered Patient Database</h2>
+                    </div>
+                    <select id="sortSelect" onchange="renderPatients(document.getElementById('globalSearch').value)" class="bg-gray-900/80 text-xs text-gray-300 px-2.5 py-1.5 rounded-lg border border-gray-700 gold-focus">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name A-Z</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="patientCountBadge" class="text-[11px] sm:text-xs bg-gold/10 text-gold px-3 py-1 rounded-full border border-gold/20 font-medium">0 Patients</span>
+                    <span id="maleCountBadge" class="text-[11px] sm:text-xs bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-medium">0 Male</span>
+                    <span id="femaleCountBadge" class="text-[11px] sm:text-xs bg-pink-500/10 text-pink-400 px-3 py-1 rounded-full border border-pink-500/20 font-medium">0 Female</span>
+                </div>
+            </div>
+
+            <!-- Patient Cards Grid Container -->
+            <div id="patientListContainer" class="space-y-4 max-h-[65vh] lg:max-h-[calc(100vh-260px)] overflow-y-auto custom-scrollbar pr-1 sm:pr-2">
+                <!-- Dynamic cards populated via JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- QR Code & Patient Detail Modal -->
+    <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card max-w-md w-full rounded-2xl p-5 sm:p-6 border border-gold/20 shadow-2xl relative text-center max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeQrModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 font-heading">Patient QR Identifier</h3>
+            <p class="text-xs text-gray-400 mb-4">Is QR code ko app scanner se scan karke turant patient record access karein.</p>
+
+            <div id="qrcodeDisplay" class="bg-white p-4 rounded-xl inline-block mx-auto mb-4 border border-gray-300"></div>
+            <div id="modalPatientInfo" class="text-sm text-gray-300 mb-6 bg-gray-900/60 p-3 rounded-xl border border-gray-800 text-left"></div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="printQrCode()" class="flex-1 gold-gradient-btn text-gray-900 font-semibold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center space-x-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print QR Card</span>
+                </button>
+                <button onclick="closeQrModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2.5 rounded-xl text-sm border border-gray-700">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="scannerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card max-w-lg w-full rounded-2xl p-5 sm:p-6 border border-gold/20 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeScannerModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 font-heading">Scan Patient QR Code</h3>
+            <p class="text-xs text-gray-400 mb-4">QR code ko neeche diye gaye frame ke andar rakhein.</p>
+
+            <div id="reader" class="w-full rounded-xl overflow-hidden border border-gray-700 bg-black"></div>
+
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeScannerModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-sm border border-gray-700">
+                    Cancel Scanner
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Prescription Gallery Modal -->
+    <div id="galleryModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="max-w-4xl w-full max-h-[90vh] bg-gray-900 border border-gold/20 rounded-2xl p-4 sm:p-6 flex flex-col shadow-2xl relative">
+            <button onclick="closeGalleryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center space-x-2 font-heading pr-8">
+                <i data-lucide="file-text" class="w-5 h-5 text-gold"></i>
+                <span>Uploaded Prescriptions & Reports</span>
+            </h3>
+            <div id="galleryContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto p-1 sm:p-2 custom-scrollbar flex-grow">
+                <!-- Prescriptions populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Patient Details Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="max-w-2xl w-full max-h-[90vh] bg-gray-900 border border-gold/20 rounded-2xl p-4 sm:p-6 flex flex-col shadow-2xl relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center space-x-2 font-heading pr-8">
+                <i data-lucide="clipboard-list" class="w-5 h-5 text-gold"></i>
+                <span>Mareez ka Poora Vivran (Full Patient Details)</span>
+            </h3>
+            <div id="detailContent" class="overflow-y-auto custom-scrollbar flex-grow pr-1 space-y-4 text-sm"></div>
+            <div class="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-gray-800">
+                <button onclick="printDetail()" class="flex-1 gold-gradient-btn text-gray-900 font-semibold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center space-x-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print Full Record</span>
+                </button>
+                <button onclick="closeDetailModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2.5 rounded-xl text-sm border border-gray-700">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Core & Application Logic -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        let patients = JSON.parse(localStorage.getItem('dr_shiv_patients') || '[]');
+        let html5QrCode = null;
+        let currentEditFiles = []; // files kept while editing (removable before save)
+        let currentDetailId = null;
+
+        function genFileId() {
+            return 'F' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        // Save Patients to localStorage safely (returns true/false)
+        function saveToStorage(list) {
+            try {
+                localStorage.setItem('dr_shiv_patients', JSON.stringify(list));
+                return true;
+            } catch (e) {
+                alert('⚠️ Storage full ho gaya hai! Kuch purani prescriptions/photos delete karein ya "Backup" lekar purane records clear karein, phir dobara try karein.');
+                return false;
+            }
+        }
+
+        // Register or Update Patient
+        async function registerPatient(event) {
+            event.preventDefault();
+            const editId = document.getElementById('editPatientId').value;
+            const fileInput = document.getElementById('pFiles');
+
+            let newFiles = [];
+            if (fileInput.files.length > 0) {
+                for (let file of fileInput.files) {
+                    const base64Data = await convertFileToBase64(file);
+                    newFiles.push({ fid: genFileId(), name: file.name, type: file.type, data: base64Data });
+                }
+            }
+
+            // Merge: existing (non-removed) files + newly uploaded files
+            const finalFiles = currentEditFiles.concat(newFiles);
+
+            const existingPatient = editId ? patients.find(p => p.id === editId) : null;
+            const nowStr = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            const patientData = {
+                id: editId ? editId : 'PAT-' + Date.now().toString().slice(-6),
+                name: document.getElementById('pName').value.trim(),
+                phone: document.getElementById('pPhone').value.trim(),
+                age: document.getElementById('pAge').value,
+                gender: document.getElementById('pGender').value,
+                blood: document.getElementById('pBlood').value,
+                address: document.getElementById('pAddress').value.trim(),
+                vitals: {
+                    bp: document.getElementById('vBp').value.trim(),
+                    pulse: document.getElementById('vPulse').value.trim(),
+                    temp: document.getElementById('vTemp').value.trim(),
+                    weight: document.getElementById('vWeight').value.trim()
+                },
+                symptoms: document.getElementById('pSymptoms').value.trim(),
+                diagnosis: document.getElementById('pDiagnosis').value.trim(),
+                files: finalFiles,
+                date: existingPatient ? existingPatient.date : nowStr, // registration date preserved
+                updatedDate: existingPatient ? nowStr : ''
+            };
+
+            // Build the list we would save, test storage BEFORE committing in-memory state
+            let updatedList = [...patients];
+            if (editId) {
+                const index = updatedList.findIndex(p => p.id === editId);
+                if (index !== -1) updatedList[index] = patientData;
+            } else {
+                updatedList.unshift(patientData);
+            }
+
+            const ok = saveToStorage(updatedList);
+            if (!ok) return; // keep old data intact, don't lose the form
+
+            patients = updatedList;
+            currentEditFiles = [];
+
+            if (!editId) {
+                showQrModal(patientData.id);
+            } else {
+                document.getElementById('editPatientId').value = '';
+                document.getElementById('formSubmitBtnText').innerText = 'Save & Generate QR';
+                document.getElementById('formTitle').innerText = 'Naya Mareez Registration';
+            }
+
+            renderPatients(document.getElementById('globalSearch').value);
+            document.getElementById('patientForm').reset();
+            renderExistingFilesChips();
+            lucide.createIcons();
+        }
+
+        // Convert files to Base64 for local persistence
+        function convertFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Render removable chips for files already attached to the patient being edited
+        function renderExistingFilesChips() {
+            const wrap = document.getElementById('existingFilesWrap');
+            const container = document.getElementById('existingFilesContainer');
+            container.innerHTML = '';
+
+            if (!currentEditFiles || currentEditFiles.length === 0) {
+                wrap.classList.add('hidden');
+                return;
+            }
+
+            wrap.classList.remove('hidden');
+            currentEditFiles.forEach(f => {
+                const chip = document.createElement('div');
+                chip.className = 'flex items-center space-x-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300';
+                chip.innerHTML = `
+                    <i data-lucide="${f.type && f.type.startsWith('image/') ? 'image' : 'file-text'}" class="w-3.5 h-3.5 text-gold"></i>
+                    <span class="max-w-[120px] truncate">${f.name}</span>
+                    <button type="button" onclick="removeExistingFile('${f.fid}')" class="text-red-400 hover:text-red-300 ml-1" title="Remove">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                container.appendChild(chip);
+            });
+            lucide.createIcons();
+        }
+
+        function removeExistingFile(fid) {
+            currentEditFiles = currentEditFiles.filter(f => f.fid !== fid);
+            renderExistingFilesChips();
+        }
+
+        // Render Patient Cards in Card Style
+        function renderPatients(filterText = '') {
+            const container = document.getElementById('patientListContainer');
+            container.innerHTML = '';
+
+            let filtered = patients.filter(p =>
+                p.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                p.phone.includes(filterText) ||
+                p.id.toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'newest';
+            if (sortVal === 'name') {
+                filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortVal === 'oldest') {
+                filtered = [...filtered].reverse();
+            }
+            // 'newest' = default array order (newest unshifted to front)
+
+            document.getElementById('patientCountBadge').innerText = `${filtered.length} Patients`;
+            document.getElementById('maleCountBadge').innerText = `${filtered.filter(p => p.gender === 'Male').length} Male`;
+            document.getElementById('femaleCountBadge').innerText = `${filtered.filter(p => p.gender === 'Female').length} Female`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-8 text-center border border-gray-800 text-gray-400">
+                        <i data-lucide="folder-open" class="w-10 h-10 mx-auto mb-2 text-gray-600"></i>
+                        <p class="text-sm">Koi patient record nahi mila.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded-2xl p-4 sm:p-5 border border-gray-800 hover:border-gold/30 transition-all shadow-xl space-y-3';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-2 flex-wrap">
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                <span class="text-xs bg-gold/15 text-gold px-2.5 py-0.5 rounded-full border border-gold/30 font-mono font-semibold">${p.id}</span>
+                                <span class="text-xs text-gray-400">${p.date}</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mt-1 font-heading">${p.name}</h3>
+                            <p class="text-xs text-gray-300">Ph: <span class="text-gold font-medium">${p.phone}</span> | ${p.age} yrs / ${p.gender} | Blood: <span class="text-red-400 font-semibold">${p.blood}</span></p>
+                        </div>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            <button onclick="showDetailModal('${p.id}')" class="p-2 bg-gray-800 hover:bg-gray-700 text-gold rounded-xl border border-gray-700 transition-all" title="Poora Vivran Dekhein">
+                                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="showQrModal('${p.id}')" class="p-2 bg-gray-800 hover:bg-gray-700 text-gold rounded-xl border border-gray-700 transition-all" title="View QR">
+                                <i data-lucide="qr-code" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="shareOnWhatsApp('${p.id}')" class="p-2 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-xl border border-gray-700 transition-all" title="Send on WhatsApp">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="editPatient('${p.id}')" class="p-2 bg-gray-800 hover:bg-gray-700 text-blue-400 rounded-xl border border-gray-700 transition-all" title="Edit Record">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deletePatient('${p.id}')" class="p-2 bg-gray-800 hover:bg-gray-700 text-red-400 rounded-xl border border-gray-700 transition-all" title="Delete">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    ${p.address ? `<p class="text-xs text-gray-400 flex items-center space-x-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-gray-500 shrink-0"></i><span>${p.address}</span></p>` : ''}
+
+                    <!-- Vitals Badge Grid -->
+                    <div class="grid grid-cols-4 gap-2 bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-center">
+                        <div>
+                            <span class="block text-[10px] text-gray-500">BP</span>
+                            <span class="text-xs font-semibold text-gray-200">${p.vitals.bp || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-gray-500">Pulse</span>
+                            <span class="text-xs font-semibold text-gray-200">${p.vitals.pulse || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-gray-500">Temp</span>
+                            <span class="text-xs font-semibold text-gray-200">${p.vitals.temp || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-gray-500">Weight</span>
+                            <span class="text-xs font-semibold text-gray-200">${p.vitals.weight ? p.vitals.weight + ' kg' : 'N/A'}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-xs space-y-1 bg-gray-900/30 p-2.5 rounded-xl border border-gray-800/80">
+                        <p><strong class="text-gray-400">Symptoms:</strong> <span class="text-gray-200">${p.symptoms || 'None specified'}</span></p>
+                        <p><strong class="text-gray-400">Diagnosis:</strong> <span class="text-emerald-400 font-medium">${p.diagnosis || 'None specified'}</span></p>
+                    </div>
+
+                    ${p.files && p.files.length > 0 ? `
+                        <div class="flex items-center justify-between pt-1 gap-2 flex-wrap">
+                            <span class="text-xs text-gold flex items-center space-x-1">
+                                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+                                <span>${p.files.length} Prescription(s) Attached</span>
+                            </span>
+                            <button onclick="openGalleryModal('${p.id}')" class="text-xs bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-lg transition-all">
+                                View Prescriptions
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Search Listener
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            renderPatients(e.target.value);
+        });
+
+        // Restrict phone field to digits only (better mobile UX)
+        document.getElementById('pPhone').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        });
+
+        // Edit Patient Record
+        function editPatient(id) {
+            const p = patients.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('editPatientId').value = p.id;
+            document.getElementById('pName').value = p.name || '';
+            document.getElementById('pPhone').value = p.phone || '';
+            document.getElementById('pAge').value = p.age || '';
+            document.getElementById('pGender').value = p.gender || 'Male';
+            document.getElementById('pBlood').value = p.blood || 'Unknown';
+            document.getElementById('pAddress').value = p.address || '';
+            document.getElementById('vBp').value = (p.vitals && p.vitals.bp) || '';
+            document.getElementById('vPulse').value = (p.vitals && p.vitals.pulse) || '';
+            document.getElementById('vTemp').value = (p.vitals && p.vitals.temp) || '';
+            document.getElementById('vWeight').value = (p.vitals && p.vitals.weight) || '';
+            document.getElementById('pSymptoms').value = p.symptoms || '';
+            document.getElementById('pDiagnosis').value = p.diagnosis || '';
+            document.getElementById('formSubmitBtnText').innerText = 'Update Patient Record';
+            document.getElementById('formTitle').innerText = 'Mareez Record Update Karein';
+
+            // Ensure legacy files (without fid) get one, so removal works
+            currentEditFiles = JSON.parse(JSON.stringify(p.files || [])).map(f => ({ ...f, fid: f.fid || genFileId() }));
+            renderExistingFilesChips();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Delete Patient Record
+        function deletePatient(id) {
+            if (confirm('Kya aap sach me is patient record ko delete karna chahte hain?')) {
+                const updatedList = patients.filter(p => p.id !== id);
+                if (saveToStorage(updatedList)) {
+                    patients = updatedList;
+                    renderPatients(document.getElementById('globalSearch').value);
+                }
+            }
+        }
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('patientForm').reset();
+            document.getElementById('editPatientId').value = '';
+            document.getElementById('formSubmitBtnText').innerText = 'Save & Generate QR';
+            document.getElementById('formTitle').innerText = 'Naya Mareez Registration';
+            currentEditFiles = [];
+            renderExistingFilesChips();
+        }
+
+        // QR Modal Display
+        function showQrModal(id) {
+            const p = patients.find(item => item.id === id);
+            if (!p) return;
+
+            const qrContainer = document.getElementById('qrcodeDisplay');
+            qrContainer.innerHTML = '';
+
+            QRCode.toCanvas(p.id, { width: 180, margin: 1 }, function (err, canvas) {
+                if (!err) qrContainer.appendChild(canvas);
+            });
+
+            document.getElementById('modalPatientInfo').innerHTML = `
+                <strong>ID:</strong> ${p.id}<br>
+                <strong>Name:</strong> ${p.name} (${p.age}Y/${p.gender})<br>
+                <strong>Phone:</strong> ${p.phone}
+            `;
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        function printQrCode() {
+            const canvas = document.querySelector('#qrcodeDisplay canvas');
+            if (!canvas) {
+                alert('QR code abhi taiyaar nahi hua, thodi der ruk kar dobara try karein.');
+                return;
+            }
+            // Canvas pixel data ko image me convert karna zaroori hai,
+            // warna print window me sirf khaali <canvas> tag jata hai (data nahi).
+            const qrImageData = canvas.toDataURL('image/png');
+
+            const printWindow = window.open('', '', 'height=600,width=500');
+            printWindow.document.write('<html><head><title>Print QR</title></head><body style="text-align:center;font-family:sans-serif;padding:30px;">');
+            printWindow.document.write('<h2>Dr. Shiv Ji Clinic</h2>');
+            printWindow.document.write(`<img src="${qrImageData}" style="width:180px;height:180px;margin:20px auto;display:block;">`);
+            printWindow.document.write(document.getElementById('modalPatientInfo').innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+
+            // Image load hone ka wait karke print karein, warna kabhi kabhi khaali print aa sakta hai
+            printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
+        // QR Scanner Logic
+        function openScannerModal() {
+            // Camera sirf secure context (HTTPS ya localhost) me kaam karta hai.
+            // File ko seedha double-click karke (file://) kholne par mobile/desktop
+            // browsers camera permission popup hi nahi dikhate.
+            const isSecure = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
+            if (!isSecure) {
+                alert("⚠️ Camera sirf HTTPS website par ya localhost par kaam karta hai.\n\nYe file abhi 'file://' se khuli hui hai (seedha double-click karke), isliye mobile browser camera permission maangta hi nahi.\n\nSahi solution: is file ko kisi web hosting (jaise GitHub Pages / shivtool.github.io) par upload karke waha se kholein, tabhi QR scanner kaam karega.");
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("⚠️ Aapka browser camera access support nahi karta. Chrome ya Firefox ka latest version try karein.");
+                return;
+            }
+
+            const readerEl = document.getElementById('reader');
+            readerEl.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">Camera permission maangi ja rahi hai...</p>';
+            document.getElementById('scannerModal').classList.remove('hidden');
+
+            // Pehle explicitly permission maangte hain, taaki mobile par permission
+            // prompt guaranteed dikhe (kai baar html5-qrcode ka start() seedha call karne par
+            // permission popup skip/silently fail ho jaata hai).
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then((stream) => {
+                    // Test stream turant band kar dete hain, actual scanning html5-qrcode khud shuru karega
+                    stream.getTracks().forEach(track => track.stop());
+                    readerEl.innerHTML = '';
+
+                    html5QrCode = new Html5Qrcode("reader");
+                    html5QrCode.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        (decodedText) => {
+                            closeScannerModal();
+                            document.getElementById('globalSearch').value = decodedText;
+                            renderPatients(decodedText);
+                        },
+                        (error) => {}
+                    ).catch(err => {
+                        alert("Scanner start nahi ho paya: " + (err && err.message ? err.message : err));
+                        closeScannerModal();
+                    });
+                })
+                .catch((err) => {
+                    let msg = "Camera access nahi mil paaya.";
+                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        msg = "⚠️ Camera permission deny ho gayi hai.\n\nBrowser ke address bar me site name/lock icon par tap karke Permissions me jaakar Camera ko 'Allow' karein, phir dobara try karein.";
+                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        msg = "⚠️ Is device par koi camera nahi mila.";
+                    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                        msg = "⚠️ Camera kisi doosri app me already use ho raha hai. Wo app band karke dobara try karein.";
+                    }
+                    alert(msg);
+                    closeScannerModal();
+                });
+        }
+
+        function closeScannerModal() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                }).catch(err => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scannerModal').classList.add('hidden');
+            }
+        }
+
+        // View Gallery Prescriptions Modal
+        function openGalleryModal(id) {
+            const p = patients.find(item => item.id === id);
+            if (!p || !p.files) return;
+
+            const gallery = document.getElementById('galleryContainer');
+            gallery.innerHTML = '';
+
+            p.files.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'bg-gray-800 p-3 rounded-xl border border-gray-700 flex flex-col space-y-2';
+                if (file.type && file.type.startsWith('image/')) {
+                    item.innerHTML = `
+                        <img src="${file.data}" class="w-full h-48 object-contain rounded-lg bg-black">
+                        <div class="flex justify-between items-center text-xs text-gray-300 gap-2">
+                            <span class="truncate max-w-[200px]">${file.name}</span>
+                            <a href="${file.data}" download="${file.name}" class="text-gold hover:underline shrink-0">Download</a>
+                        </div>
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <div class="h-48 flex items-center justify-center bg-black rounded-lg text-gray-400 flex-col space-y-2">
+                            <i data-lucide="file-text" class="w-10 h-10 text-gold"></i>
+                            <span class="text-xs truncate max-w-[250px]">${file.name}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-300 gap-2">
+                            <span>PDF Document</span>
+                            <a href="${file.data}" download="${file.name}" class="text-gold hover:underline shrink-0">Download PDF</a>
+                        </div>
+                    `;
+                }
+                gallery.appendChild(item);
+            });
+            document.getElementById('galleryModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeGalleryModal() {
+            document.getElementById('galleryModal').classList.add('hidden');
+        }
+
+        // Full Patient Details Modal
+        function showDetailModal(id) {
+            const p = patients.find(item => item.id === id);
+            if (!p) return;
+            currentDetailId = id;
+
+            const rows = (label, value) => `
+                <div class="flex justify-between border-b border-gray-800 py-2 gap-3">
+                    <span class="text-gray-400">${label}</span>
+                    <span class="text-gray-100 font-medium text-right">${value || 'N/A'}</span>
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="bg-gray-800/50 rounded-xl p-4 border border-gold/20">
+                    <div class="flex justify-between items-center flex-wrap gap-2 mb-2">
+                        <span class="text-xs bg-gold/15 text-gold px-3 py-1 rounded-full border border-gold/30 font-mono font-semibold">${p.id}</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-white font-heading">${p.name}</h4>
+                    <p class="text-xs text-gray-400 mt-1">Registered: ${p.date}${p.updatedDate ? ` &nbsp;|&nbsp; Last Updated: ${p.updatedDate}` : ''}</p>
+                </div>
+
+                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800">
+                    <h5 class="text-gold text-xs font-semibold uppercase tracking-wide mb-2">Personal Vivran</h5>
+                    ${rows('Mobile Number', p.phone)}
+                    ${rows('Age / Gender', `${p.age} yrs / ${p.gender}`)}
+                    ${rows('Blood Group', p.blood)}
+                    ${rows('Address', p.address)}
+                </div>
+
+                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800">
+                    <h5 class="text-gold text-xs font-semibold uppercase tracking-wide mb-2">Clinical Vitals</h5>
+                    ${rows('Blood Pressure', p.vitals.bp)}
+                    ${rows('Pulse Rate', p.vitals.pulse ? p.vitals.pulse + ' /min' : '')}
+                    ${rows('Temperature', p.vitals.temp ? p.vitals.temp + ' °F' : '')}
+                    ${rows('Weight', p.vitals.weight ? p.vitals.weight + ' kg' : '')}
+                </div>
+
+                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800 space-y-3">
+                    <h5 class="text-gold text-xs font-semibold uppercase tracking-wide">Symptoms & Diagnosis</h5>
+                    <div>
+                        <p class="text-gray-400 text-xs mb-1">Chief Complaints / Symptoms</p>
+                        <p class="text-gray-100">${p.symptoms || 'None specified'}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs mb-1">Diagnosis & Clinical Notes</p>
+                        <p class="text-emerald-400 font-medium">${p.diagnosis || 'None specified'}</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-800">
+                    <h5 class="text-gold text-xs font-semibold uppercase tracking-wide mb-2">Attachments</h5>
+                    <p class="text-gray-100">${p.files && p.files.length > 0 ? `${p.files.length} prescription(s)/report(s) attached.` : 'Koi file attach nahi hai.'}</p>
+                    ${p.files && p.files.length > 0 ? `<button onclick="closeDetailModal(); openGalleryModal('${p.id}')" class="mt-2 text-xs bg-gold/10 text-gold hover:bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-lg transition-all">View Prescriptions</button>` : ''}
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            currentDetailId = null;
+        }
+
+        function printDetail() {
+            if (!currentDetailId) return;
+            const p = patients.find(item => item.id === currentDetailId);
+            if (!p) return;
+
+            const printWindow = window.open('', '', 'height=800,width=650');
+            printWindow.document.write(`
+                <html><head><title>Patient Record - ${p.name}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
+                    h2 { margin-bottom: 0; }
+                    .sub { color: #555; font-size: 12px; margin-top: 4px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+                    td { padding: 6px 4px; border-bottom: 1px solid #ddd; font-size: 13px; }
+                    td.label { color: #555; width: 40%; }
+                    h3 { margin-top: 24px; margin-bottom: 6px; font-size: 14px; border-bottom: 2px solid #333; padding-bottom: 4px; }
+                </style>
+                </head><body>
+                <h2>Dr. Shiv Ji Clinic</h2>
+                <p class="sub">Patient ID: ${p.id} | Registered: ${p.date}${p.updatedDate ? ' | Updated: ' + p.updatedDate : ''}</p>
+                <h3>Personal Details</h3>
+                <table>
+                    <tr><td class="label">Name</td><td>${p.name}</td></tr>
+                    <tr><td class="label">Mobile</td><td>${p.phone}</td></tr>
+                    <tr><td class="label">Age / Gender</td><td>${p.age} yrs / ${p.gender}</td></tr>
+                    <tr><td class="label">Blood Group</td><td>${p.blood}</td></tr>
+                    <tr><td class="label">Address</td><td>${p.address || 'N/A'}</td></tr>
+                </table>
+                <h3>Clinical Vitals</h3>
+                <table>
+                    <tr><td class="label">Blood Pressure</td><td>${p.vitals.bp || 'N/A'}</td></tr>
+                    <tr><td class="label">Pulse</td><td>${p.vitals.pulse || 'N/A'}</td></tr>
+                    <tr><td class="label">Temperature</td><td>${p.vitals.temp || 'N/A'}</td></tr>
+                    <tr><td class="label">Weight</td><td>${p.vitals.weight || 'N/A'}</td></tr>
+                </table>
+                <h3>Symptoms</h3>
+                <p>${p.symptoms || 'None specified'}</p>
+                <h3>Diagnosis</h3>
+                <p>${p.diagnosis || 'None specified'}</p>
+                </body></html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Send patient summary via WhatsApp
+        function shareOnWhatsApp(id) {
+            const p = patients.find(item => item.id === id);
+            if (!p) return;
+            if (!/^\d{10}$/.test(p.phone)) {
+                alert('Valid 10-digit mobile number nahi mila is patient ke liye.');
+                return;
+            }
+            const msg = `Dr. Shiv Ji Clinic\n\nPatient: ${p.name}\nPatient ID: ${p.id}\nDate: ${p.date}\n\nDiagnosis: ${p.diagnosis || 'N/A'}\n\nApna QR ID card clinic se collect karein. Dhanyawad!`;
+            window.open(`https://wa.me/91${p.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Backup & Restore JSON Data Option
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(patients, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `dr_shiv_patients_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0], "UTF-8");
+                fileReader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            if (saveToStorage(imported)) {
+                                patients = imported;
+                                renderPatients();
+                                alert("Backup safaltapoorvak restore ho gaya!");
+                            }
+                        } else {
+                            alert("Invalid backup file format.");
+                        }
+                    } catch (error) {
+                        alert("JSON backup file parse karne me error aayi.");
+                    }
+                };
+            }
+            event.target.value = '';
+        }
+
+        // Initial render on load
+        renderPatients();
+    </script>
+</body>
+</html>
