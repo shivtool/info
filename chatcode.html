@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHiV</title>
+  <link rel="icon" type="image/png" href="SHIV.png">
+  <style>
+    :root {
+      --bg-color: linear-gradient(135deg, #c3ecb2, #7ee8fa);
+      --container-bg: rgba(255, 255, 255, 0.25);
+      --text-color: #333;
+      --input-bg:  linear-gradient(190deg, #c3ecb2, #7ee8fa);
+      --sent-bg: #007bff;
+      --sent-color: white;
+      --received-bg: #ffe0f7;
+      --received-color: #5a00a0;
+    }
+
+    body.dark-mode {
+      --bg-color: linear-gradient(135deg, #1f1f1f, #3a3a3a);
+      --container-bg: rgba(40, 40, 40, 0.8);
+      --text-color: #eee;
+      --input-bg: #2c2c2c;
+      --sent-bg: #4444aa;
+      --sent-color: #fff;
+      --received-bg: #5a5a5a;
+      --received-color: #ffc;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      color: var(--text-color);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #000;
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .chat-container {
+      width: 95%;
+      max-width: 600px;
+      height: 90vh;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+      background: var(--container-bg);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      background: transparent;
+    }
+
+    .message {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 16px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+
+    .sent {
+      background: var(--sent-bg);
+      color: var(--sent-color);
+      margin-left: auto;
+    }
+
+    .received {
+      background: var(--received-bg);
+      color: var(--received-color);
+      margin-right: auto;
+    }
+
+    .chat-input {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.4);
+      display: flex;
+      gap: 10px;
+      border-top: 2px solid #ccc;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 10px;
+      background: var(--input-bg);
+      border: 2px solid #a0d8ef;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      min-height: 44px;
+    }
+
+    button {
+      padding: 10px 14px;
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+      min-height: 44px;
+    }
+
+    button:hover {
+      background: #218838;
+      transform: scale(1.05);
+    }
+  </style>
+	<script src="security.js"></script>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="message-input" placeholder="Type a message...">
+      <button onclick="sendMessage()">🪶</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const message = input.value.trim();
+
+      if (message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', 'sent');
+        messageDiv.textContent = message;
+
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.appendChild(messageDiv);
+
+        input.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        setTimeout(() => {
+          const responseDiv = document.createElement('div');
+          responseDiv.classList.add('message', 'received');
+          responseDiv.textContent = getResponse(message);
+          chatMessages.appendChild(responseDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+      }
+    }
+
+    function getResponse(msg) {
+      msg = msg.toLowerCase();
+      const responses = {
+        'hi': 'Hello',
+	'hello': 'Hi',
+        'welcome': 'Thank you',
+        'thank you': 'Welcome',
+        'name': 'Dr. Shiv Kumar',
+        'aapko kisne banaya': 'Shivkumar ji ne',
+        'आपके जनक': 'मेरे प्रिय शिव जी ने मुझे बनाया है मैं इनका आभारी हूँ 🙏',
+	'clases': 'Pre Nursery to 12, English and Hindi mediuam',
+        'sar dard': 'Doctor Se Sampark karo',
+        'dard': 'Doctor Se Sampark karo',
+        'pain': 'Doctor Se Sampark karo',
+        'bukhar': 'Doctor Se Sampark karo',
+        'principal': '9794493050 Shri Shree Prakash Singh',
+        'contact': 'Email: ceshiv@gmail.com',
+        'help': '9794493050 8090155304',
+        'आपका स्वागत': 'धन्यवाद',
+        'आपका स्वागत करता हूँ': 'मुझे बहुत ख़ुशी हुयी कि आप मेरा इंतजार कर रहे थे और मेरे से बहुत प्रसन्न हैं!',
+        'नाम': 'डा. शिव कुमार',
+        'nursery': 'Detail books+copy+Diary 1670+100+210 total ₹1980',
+        'आपको किसने बनाया': 'मेरे प्रिय शिवकुमार जी ने मुझे बहुत ही अच्छा बनाया है!',
+        'lkg': '₹2190',
+        'ukg': '₹2530',
+        '1st': '₹2560',
+        '4th': '₹3109',
+        '2nd': '₹2660',
+        '3rd': '₹3045',
+        '5th': '₹3540',
+        '6th': '₹3679',
+        '7th': '₹3520',
+        '8th': '₹1980',
+        'dairy': '₹100',
+        'belt': '₹100',
+        'tie s': '₹60',
+        'tie m': '₹70',
+        'स्कूल के निकट डाक्टर': 'वैद्य शैलेन्द्र जी',
+        'स्कूल के निकट अंग्रेजी दवाएं': 'साईं फार्मा और मेन गेट के सामने एक और मेडिकल स्टोर',
+        'चोट लगने पर': 'निकटतम मेडिकल स्टोर, या पास के किसी स्वास्थ्य केंद्र पर जा सकतें हैं...',
+        'सर दर्द': 'मैं आपको सलाह देता हूँ कि आप अपने डाक्टर से संपर्क करें...',
+        'दर्द': 'मैं आपको सलाह देता हूँ कि आप अपने डाक्टर से संपर्क करें...',
+        'पेट दर्द': 'मैं आपको सलाह देता हूँ कि आप अपने डाक्टर से संपर्क करें...',
+        'बुखार': 'मैं आपको सलाह देता हूँ कि आप अपने डाक्टर से संपर्क करें...',
+        'प्रधानाचार्य': '9794493050',
+	'gpm': 'G.P.M. Convent School Achli Khera-Lucknow Principal - Mrs. Suneeta Tiwari      English Mediuam CBSE Pattern',
+        'i love you': 'Same to you .... मुझे बहुत ख़ुशी हुयी कि आप हमें पसंद करतें हैं !',
+        'i like you': 'Same to you .... मुझे बहुत ख़ुशी हुयी कि आप हमें पसंद करतें हैं !',
+        'दिल': 'यह जीवधारी के शरीर में रक्त का प्रवाह करता है... कुछ लोग इसे प्यार का प्रतीक मानतें हैं.',
+        'computer': 'यह एक ऐसी मशीन है जो हमारे कार्य को बहुत कुशलतापूर्वक करती है',
+        'नंबर': '9794493050',
+        'ई मेल': 'Email: ceshivkumar@gmail.com',
+        'शिव के 12 ज्योतिर्लिंग': 'भगवान शिव के 12 ज्योतिर्लिंग हैं- सोमनाथ ...',
+        'bheem': 'डॉ. भीमराव अंबेडकर दलितों के भगवान हैं।',
+        'भीम': 'डॉ.भीमराव अंबेडकर दलितों के भगवान हैं।',
+		'shiv': 'हमें बनाने वाले',
+        'दलितों के मसीहा': 'डॉ. भीमराव अंबेडकर दलितों के भगवान हैं।',
+        'admission': 'https://forms.gle/ZkbSLiKjnUhxaJoU7'
+      };
+      return responses[msg] || 'मुझे इसके बारे में अभी कुछ नहीं पता है, मुझे इसके लिए अफ़सोस है ! कृपया सही प्रश्न पूंछे!';
+    }
+
+    document.getElementById('message-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+  <script src="floating-home.js"></script>
+</body>
+</html>

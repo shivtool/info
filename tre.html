@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/png" href="SHIV.png">
+    <title>Responsive chat</title>
+    <style>
+/* सामान्य और लेआउट */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.chatbot-container {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+}
+
+/* हेडर */
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header button {
+    background: none;
+    border: 1px solid white;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* चैट विंडो */
+.chat-window {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #e5ddd5;
+}
+
+/* संदेश स्टाइलिंग */
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: flex-end;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    color: white;
+    font-size: 12px;
+}
+
+.bot-msg .avatar {
+    background-color: #007bff;
+    order: 1; /* बाईं ओर */
+    margin-right: 10px;
+}
+
+.user-msg .avatar {
+    background-color: #28a745;
+    order: 2; /* दाईं ओर */
+    margin-left: 10px;
+}
+
+.message p {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* बॉट संदेश (बाएँ) */
+.bot-msg {
+    justify-content: flex-start;
+}
+.bot-msg p {
+    background-color: #fff;
+    border-bottom-left-radius: 2px;
+}
+
+/* उपयोगकर्ता संदेश (दाएँ) */
+.user-msg {
+    justify-content: flex-end;
+}
+.user-msg p {
+    background-color: #dcf8c6;
+    border-bottom-right-radius: 2px;
+}
+
+/* इनपुट एरिया */
+.input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background-color: #f0f0f0;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+#send-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+/* फुटर */
+footer {
+    padding: 5px;
+    text-align: center;
+    background-color: #e9ecef;
+    font-size: 10px;
+    color: #6c757d;
+}
+    </style>
+	<script src="security.js"></script>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learner Chatbot</title>
+    <link rel="stylesheet" href="styles.css"> </head>
+<body>
+
+    <div class="chatbot-container">
+        <header>
+            <h3>Trenning </h3>
+            <button onclick="resetKnowledge()" title="ज्ञानकोश रीसेट करें">🔄 </button>
+        </header>
+
+        <div id="chat-window" class="chat-window">
+            <div class="message bot-msg">
+                <span class="avatar">AI</span>
+                <p>नमस्कार! मुझे आपसे बहुत कुछ सीखना है ।</p>
+				 <p> आप मुझे क्या-क्या सिखायेंगें </p>
+				<p> मैं आपसे सीखने के लिए तैयार हूँ </p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="यहाँ प्रश्न टाइप करें..." onkeypress="handleKeyPress(event)">
+            <button onclick="processInput()" id="send-button">भेजें</button>
+        </div>
+        <footer>
+            <small>यह चैटबॉट आंशिक कीवर्ड मिलान का उपयोग करता है।</small>
+			<small>आप जो भी इसे सिखायेंगें उसी के अनुसार आपको उत्तर मिलेगा</small>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+    <script>
+// Local Storage से ज्ञानकोश (Knowledge Base) लोड करना
+// ज्ञानकोश अब ऑब्जेक्ट के बजाय [प्रश्न, उत्तर] जोड़े का एक ऐरे होगा
+let knowledgeBase = JSON.parse(localStorage.getItem('chatbotKnowledge')) || [];
+let waitingForAnswer = false;
+let waitingForQuestion = null;
+
+// ---------------------------------------------
+// 1. चैट विंडो में संदेश जोड़ना (अवतार सहित)
+// ---------------------------------------------
+function displayMessage(sender, message) {
+    const chatWindow = document.getElementById('chat-window');
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.classList.add(sender === 'bot' ? 'bot-msg' : 'user-msg');
+    
+    const avatarSpan = document.createElement('span');
+    avatarSpan.classList.add('avatar');
+    avatarSpan.textContent = sender === 'bot' ? 'AI' : 'आप';
+
+    const p = document.createElement('p');
+    p.innerHTML = message;
+
+    if (sender === 'bot') {
+        msgDiv.appendChild(avatarSpan);
+        msgDiv.appendChild(p);
+    } else {
+        msgDiv.appendChild(p);
+        msgDiv.appendChild(avatarSpan);
+    }
+    
+    chatWindow.appendChild(msgDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// ---------------------------------------------
+// 2. उन्नत उत्तर खोजना (आंशिक मिलान)
+// ---------------------------------------------
+function findBestResponse(userInput) {
+    const normalizedInput = userInput.trim().toLowerCase();
+    
+    for (const item of knowledgeBase) {
+        const [question, answer] = item;
+        const normalizedQuestion = question.toLowerCase();
+        
+        // **उन्नत मिलान:** जांचें कि क्या यूजर का इनपुट, सीखे गए प्रश्न को कहीं भी शामिल करता है
+        // या, क्या सीखे गए प्रश्न में, यूजर का इनपुट कहीं शामिल है (बेहतर लचीलेपन के लिए)
+        if (normalizedInput.includes(normalizedQuestion) || normalizedQuestion.includes(normalizedInput)) {
+            return answer;
+        }
+    }
+    return null; // अगर कोई मिलान नहीं मिला
+}
+
+// ---------------------------------------------
+// 3. उपयोगकर्ता के इनपुट को प्रोसेस करना
+// ---------------------------------------------
+function processInput() {
+    const inputElement = document.getElementById('user-input');
+    let userInput = inputElement.value.trim();
+    
+    if (!userInput) return;
+
+    // 1. यूजर का संदेश दिखाओ और इनपुट खाली करो
+    displayMessage('user', userInput);
+    inputElement.value = '';
+
+    // 2. सीखने के मोड को संभालना
+    if (waitingForAnswer) {
+        // अगर पिछले प्रश्न का जवाब सीख रहे थे
+        learnNewAnswer(waitingForQuestion, userInput);
+        waitingForAnswer = false;
+        waitingForQuestion = null;
+        return;
+    }
+
+    // 3. ज्ञानकोश से जवाब खोजना
+    let botResponse = findBestResponse(userInput);
+
+    if (botResponse) {
+        // जवाब मिला
+        displayMessage('bot', botResponse);
+    } else {
+        // जवाब नहीं मिला, सीखने का प्रॉम्प्ट दें
+        displayMessage('bot', `मुझे **'${userInput}'** का जवाब नहीं पता। कृपया अब सीधे वह जवाब टाइप करें जो मुझे याद रखना चाहिए।`);
+        waitingForAnswer = true;
+        waitingForQuestion = userInput; // इस प्रश्न को याद रखें
+    }
+}
+
+// ---------------------------------------------
+// 4. नया जवाब सीखना और Local Storage में सेव करना
+// ---------------------------------------------
+function learnNewAnswer(question, answer) {
+    // नए प्रश्न-उत्तर के जोड़े को ज्ञानकोश ऐरे में जोड़ना
+    knowledgeBase.push([question, answer]);
+    
+    // Local Storage को अपडेट करें (JSON.stringify का उपयोग करके)
+    localStorage.setItem('chatbotKnowledge', JSON.stringify(knowledgeBase));
+    
+    const botReply = `धन्यवाद! मैंने प्रश्न **'${question}'** का जवाब **'${answer}'** सीख लिया है।`;
+    displayMessage('bot', botReply);
+}
+
+// ---------------------------------------------
+// 5. Enter key दबाने पर इनपुट प्रोसेस करना
+// ---------------------------------------------
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        processInput();
+    }
+}
+
+// ---------------------------------------------
+// 6. ज्ञानकोश रीसेट करना
+// ---------------------------------------------
+function resetKnowledge() {
+    if (confirm("क्या आप वाकई ज्ञानकोश (Local Storage) को रीसेट करना चाहते हैं? सारा सीखा हुआ डेटा मिट जाएगा।")) {
+        localStorage.removeItem('chatbotKnowledge');
+        knowledgeBase = [];
+        alert("ज्ञानकोश सफलतापूर्वक रीसेट हो गया है।");
+        location.reload(); // पेज को रीलोड करें
+    }
+}
+    </script>
+    <script src="floating-home.js"></script>
+</body>
+</html>
+    

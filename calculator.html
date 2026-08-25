@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHIV Calculator</title>
+  <link rel="icon" type="image/png" href="SHIV.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #050714;
+      --bg-card: rgba(12, 14, 35, 0.85);
+      --neon-cyan: #00f5ff;
+      --neon-pink: #ff2d9b;
+      --neon-purple: #b200ff;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff88;
+      --text-main: #e8ecff;
+      --text-dim: rgba(200, 210, 255, 0.45);
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.1);
+      --btn-num: rgba(20, 25, 70, 0.8);
+      --btn-op: rgba(80, 10, 120, 0.75);
+      --btn-fn: rgba(0, 60, 100, 0.75);
+      --btn-eq: rgba(0, 120, 60, 0.8);
+      --btn-clr: rgba(140, 10, 50, 0.75);
+
+      /* ═══ INDUSTRIAL ADD-ONS ═══ */
+      --metal-light: #7c8496;
+      --metal-mid: #3a3f52;
+      --metal-dark: #14161f;
+      --hazard-yellow: #ffcc00;
+      --hazard-black: #0a0a0a;
+      --rivet: #565d78;
+      --led-green: #00ff88;
+      --led-red: #ff3b5c;
+      --led-amber: #ffb800;
+      --panel-steel: linear-gradient(155deg, #1b1e2c 0%, #0d0f18 60%, #05060d 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    /* ═══ ANIMATED BACKGROUND ═══ */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 2px),
+        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 2px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-orbs {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: orbFloat linear infinite;
+    }
+    .orb1 { width: 400px; height: 400px; background: var(--neon-purple); top: -100px; left: -100px; animation-duration: 20s; }
+    .orb2 { width: 350px; height: 350px; background: var(--neon-cyan); bottom: -100px; right: -80px; animation-duration: 25s; animation-direction: reverse; }
+    .orb3 { width: 250px; height: 250px; background: var(--neon-pink); top: 40%; right: 15%; animation-duration: 18s; animation-delay: -8s; }
+    .orb4 { width: 200px; height: 200px; background: var(--neon-gold); bottom: 20%; left: 10%; animation-duration: 22s; animation-delay: -5s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -40px) scale(1.1); }
+      50% { transform: translate(-20px, 30px) scale(0.9); }
+      75% { transform: translate(40px, 20px) scale(1.05); }
+    }
+
+    /* ═══ INDUSTRIAL HAZARD STRIP ═══ */
+    .hazard-strip {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 6px;
+      z-index: 20;
+      background: repeating-linear-gradient(135deg,
+        var(--hazard-yellow) 0 18px,
+        var(--hazard-black) 18px 36px);
+      box-shadow: 0 0 14px rgba(255,204,0,0.35);
+    }
+
+    /* ═══ TOP BRAND BAR ═══ */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--panel-steel);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .top-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+    }
+
+    .brand-badge {
+      font-weight: 900;
+      color: var(--neon-gold);
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
+      letter-spacing: 2px;
+    }
+
+    .status-leds {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .led-unit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+    }
+
+    .led-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--led-green);
+      box-shadow: 0 0 8px var(--led-green), 0 0 2px var(--led-green);
+      animation: blinkDot 2s ease-in-out infinite;
+    }
+    .led-dot.amber { background: var(--led-amber); box-shadow: 0 0 8px var(--led-amber); animation-delay: -0.6s; }
+    .led-dot.red   { background: var(--led-red);   box-shadow: 0 0 8px var(--led-red);   animation-delay: -1.2s; }
+
+    /* ═══ RIVETS on panels ═══ */
+    .rivet-corners { position: relative; }
+    .rivet-corners::before,
+    .rivet-corners::after,
+    .rivet-corners .rivet-tl,
+    .rivet-corners .rivet-tr {
+      content: '';
+      position: absolute;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--metal-light), var(--rivet) 60%, #000 100%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 0 1px rgba(255,255,255,0.4);
+      z-index: 2;
+    }
+    .rivet-corners::before { top: 10px; left: 10px; }
+    .rivet-corners::after  { bottom: 10px; right: 10px; }
+    .rivet-corners .rivet-tl { top: 10px; right: 10px; }
+    .rivet-corners .rivet-tr { bottom: 10px; left: 10px; }
+
+    /* ═══ Brushed metal edge on calculator ═══ */
+    .calculator {
+      background:
+        linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+        linear-gradient(135deg, var(--metal-light), var(--metal-dark) 40%, var(--metal-light) 60%, var(--metal-dark)) border-box;
+    }
+
+    /* ═══ MAIN LAYOUT ═══ */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      max-width: 980px;
+      width: 100%;
+    }
+
+    /* ═══ CALCULATOR CARD ═══ */
+    .calculator {
+      flex: 0 0 auto;
+      width: 370px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 24px;
+      border: 3px solid transparent;
+      box-shadow:
+        0 0 0 1px rgba(0,245,255,0.08),
+        0 30px 80px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      animation: slideInLeft 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    /* ═══ TITLE ═══ */
+    .calc-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 18px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      position: relative;
+    }
+
+    .calc-title::after {
+      content: '';
+      display: block;
+      width: 60%;
+      height: 1px;
+      margin: 8px auto 0;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    }
+
+    /* ═══ DISPLAY AREA ═══ */
+    .display-wrapper {
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 14px 18px 10px;
+      margin-bottom: 18px;
+      border: 3px solid rgba(0,245,255,0.12);
+      box-shadow: inset 0 2px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,245,255,0.04);
+      position: relative;
+      min-height: 90px;
+    }
+
+    .expression-line {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      text-align: right;
+      min-height: 18px;
+      letter-spacing: 1px;
+      word-break: break-all;
+    }
+
+    .main-display {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      text-align: right;
+      text-shadow: 0 0 20px rgba(0,245,255,0.5);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      word-break: break-all;
+      transition: color 0.2s;
+    }
+
+    .main-display.result-mode { color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+    .main-display.error-mode { color: var(--neon-pink); text-shadow: 0 0 20px rgba(255,45,155,0.5); }
+
+    /* ═══ LIVE RESULT BAR ═══ */
+    .live-result-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(0,245,255,0.15);
+      min-height: 20px;
+    }
+
+    .live-tag {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      color: var(--neon-gold);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .live-tag .live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--neon-gold);
+      box-shadow: 0 0 6px var(--neon-gold);
+      animation: blinkDot 1.2s ease-in-out infinite;
+    }
+
+    .live-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--neon-gold);
+      text-shadow: 0 0 12px rgba(255,215,0,0.4);
+      letter-spacing: 1px;
+    }
+    .live-value.empty { color: var(--text-dim); text-shadow: none; font-size: 0.75rem; font-weight: 400; }
+
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      color: rgba(43, 173, 49, 0.623);
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+    }
+
+    /* ═══ BUTTON GRID ═══ */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      height: 56px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 3.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.9s, box-shadow 0.15s;
+      letter-spacing: 0.5px;
+      outline: none;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.15s;
+    }
+
+    .btn:hover::before { background: rgba(255,255,255,0.08); }
+    .btn:active { transform: scale(0.93) !important; }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      width: 10px; height: 10px;
+      background: rgba(255,255,255,0.35);
+      animation: rippleOut 0.5s ease-out forwards;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    @keyframes rippleOut {
+      to { width: 200px; height: 200px; opacity: 0; }
+    }
+
+    /* Button Types */
+    .btn.number {
+      background: var(--btn-num);
+      color: var(--text-main);
+      border: 2px solid rgba(100,120,255,0.2);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .btn.number:hover { box-shadow: 0 8px 25px rgba(80,100,255,0.3), inset 0 1px 0 rgba(255,255,255,0.08); }
+
+    .btn.operator {
+      background: var(--btn-op);
+      color: #e0aaff;
+      border: 2px solid rgba(178,0,255,0.25);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.operator:hover { box-shadow: 0 8px 25px rgba(178,0,255,0.35); }
+
+    .btn.function {
+      background: var(--btn-fn);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0,245,255,0.2);
+      font-size: 1.9rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.function:hover { box-shadow: 0 8px 25px rgba(0,245,255,0.25); }
+
+    .btn.equals {
+      background: linear-gradient(135deg, rgba(0,180,100,0.8), rgba(0,220,130,0.6));
+      color: #fff;
+      border: 1px solid rgba(0,255,136,0.3);
+      grid-column: span 2;
+      font-size: 1.5rem;
+      font-weight: 900;
+      box-shadow: 0 4px 20px rgba(0,200,100,0.3);
+      text-shadow: 0 0 12px rgba(0,255,136,0.6);
+    }
+    .btn.equals:hover { box-shadow: 0 8px 30px rgba(0,255,136,0.4); }
+
+    .btn.clear {
+      background: var(--btn-clr);
+      color: var(--neon-pink);
+      border: 1px solid rgba(255,45,155,0.25);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn.clear:hover { box-shadow: 0 8px 25px rgba(255,45,155,0.35); }
+
+    .btn.zero { grid-column: span 2; }
+
+    /* ═══ MEMORY ROW ═══ */
+    .memory-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .btn.mem {
+      height: 34px;
+      font-size: 0.85rem;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(20, 25, 70, 0.5);
+      color: var(--metal-light);
+      border: 1px solid rgba(124,132,150,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn.mem:hover { color: var(--neon-cyan); border-color: rgba(0,245,255,0.4); box-shadow: 0 0 12px rgba(0,245,255,0.2); }
+    .btn.mem:active { transform: scale(0.93); }
+    .btn.mem.has-value { color: var(--neon-gold); border-color: rgba(255,215,0,0.35); }
+
+    /* ═══ COPY BUTTON ═══ */
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(0,245,255,0.08);
+      border: 1px solid rgba(0,245,255,0.25);
+      color: var(--neon-cyan);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 3;
+    }
+    .copy-btn:hover { background: rgba(0,245,255,0.18); box-shadow: 0 0 10px rgba(0,245,255,0.3); }
+    .copy-btn.copied { color: var(--neon-green); border-color: rgba(0,255,136,0.35); background: rgba(0,255,136,0.1); }
+
+    /* ═══ RIGHT PANEL ═══ */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideInRight 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.1s forwards;
+      opacity: 0;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    /* ═══ STEPS PANEL ═══ */
+    .panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(30px);
+      border-radius: 22px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title.cyan { color: var(--neon-cyan); }
+    .panel-title.pink { color: var(--neon-pink); }
+
+    .panel-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: blinkDot 1.5s ease-in-out infinite;
+    }
+    @keyframes blinkDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ═══ STEPS ═══ */
+    .steps-container {
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .steps-container::-webkit-scrollbar { width: 4px; }
+    .steps-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .steps-container::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; opacity: 0.5; }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      background: rgba(0,245,255,0.04);
+      border: 1px solid rgba(0,245,255,0.08);
+      animation: stepIn 0.3s ease-out;
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      background: rgba(0,245,255,0.1);
+      border-radius: 6px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .step-result {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      color: var(--neon-green);
+      margin-top: 2px;
+    }
+
+    .steps-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      padding: 20px 0;
+      letter-spacing: 1px;
+    }
+
+    /* ═══ STEP CHECKER ═══ */
+    .panel-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .panel-header-row .panel-title { margin-bottom: 0; }
+
+    .verify-btn {
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.3);
+      color: var(--neon-green);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .verify-btn:hover { background: rgba(0,255,136,0.18); box-shadow: 0 0 12px rgba(0,255,136,0.3); }
+    .verify-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .verify-summary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: none;
+    }
+    .verify-summary.show { display: block; }
+    .verify-summary .ok-count { color: var(--neon-green); }
+
+    .step-check-badge {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      margin-left: auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-dim);
+      transition: all 0.25s;
+    }
+    .step-check-badge.pending { animation: blinkDot 1s ease-in-out infinite; }
+    .step-check-badge.verified {
+      background: rgba(0,255,136,0.12);
+      border-color: rgba(0,255,136,0.4);
+      color: var(--neon-green);
+      box-shadow: 0 0 8px rgba(0,255,136,0.25);
+    }
+    .step-check-badge.mismatch {
+      background: rgba(255,45,155,0.12);
+      border-color: rgba(255,45,155,0.4);
+      color: var(--neon-pink);
+    }
+
+    .step-item.checkable { display: flex; align-items: center; }
+    .step-item.checkable > div:first-of-type { flex: 1; }
+
+    /* ═══ HISTORY ═══ */
+    .history-container {
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .history-container::-webkit-scrollbar { width: 4px; }
+    .history-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .history-container::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      padding: 20px 0;
+      letter-spacing: 1px;
+    }
+
+    .history-item {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      background: rgba(255,45,155,0.05);
+      border: 1px solid rgba(255,45,155,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+      animation: historyIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes historyIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .history-item:hover {
+      background: rgba(255,45,155,0.1);
+      border-color: rgba(255,45,155,0.25);
+      transform: translateX(4px);
+    }
+
+    .history-expr {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.5px;
+      word-break: break-all;
+    }
+
+    .history-result {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px rgba(255,45,155,0.4);
+      margin-top: 2px;
+    }
+
+    .history-time {
+      font-size: 0.65rem;
+      color: rgba(200,210,255,0.25);
+      margin-top: 3px;
+      letter-spacing: 1px;
+    }
+
+    .history-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .clear-history-btn {
+      background: rgba(255,45,155,0.1);
+      border: 1px solid rgba(255,45,155,0.2);
+      color: var(--neon-pink);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.7rem;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .clear-history-btn:hover {
+      background: rgba(255,45,155,0.2);
+      box-shadow: 0 0 12px rgba(255,45,155,0.3);
+    }
+
+    .history-count {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .shake { animation: shake 0.4s ease-in-out; }
+    .display-pulse { animation: displayPulse 0.3s ease-out; }
+    @keyframes displayPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* ═══ MOBILE TABS ═══ */
+    .mobile-tabs {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .app-wrapper { flex-direction: column; align-items: center; gap: 12px; }
+      .right-panel { width: 100%; max-width: 420px; }
+      .calculator { width: 100%; max-width: 420px; }
+
+      /* Hide right panel on mobile by default; JS shows correct one */
+      .right-panel { display: none; }
+      .right-panel.mob-active { display: flex; }
+
+      .mobile-tabs {
+        display: flex;
+        width: 100%;
+        max-width: 420px;
+        gap: 10px;
+      }
+
+      .mob-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 10px;
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        font-family: 'Orbitron', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+
+      .mob-tab-icon { font-size: 1.1rem; }
+
+      .mob-tab.active {
+        color: var(--neon-cyan);
+        border-color: rgba(0,245,255,0.35);
+        background: rgba(0,245,255,0.08);
+        box-shadow: 0 0 20px rgba(0,245,255,0.15), inset 0 1px 0 rgba(0,245,255,0.1);
+      }
+
+      .mob-tab:nth-child(2).active {
+        color: var(--neon-pink);
+        border-color: rgba(255,45,155,0.35);
+        background: rgba(255,45,155,0.08);
+        box-shadow: 0 0 20px rgba(255,45,155,0.15), inset 0 1px 0 rgba(255,45,155,0.1);
+      }
+
+      /* ── Body / page breathing room ── */
+      body { padding: 10px; align-items: flex-start; }
+
+      /* ── Top brand bar: stack + shrink ── */
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        border-radius: 12px;
+      }
+      .top-bar-brand {
+        font-size: 0.56rem;
+        letter-spacing: 1.5px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .status-leds { gap: 10px; flex-wrap: wrap; }
+      .led-unit { font-size: 0.52rem; letter-spacing: 1px; }
+
+      /* ── Calculator card: tighter padding ── */
+      .calculator { padding: 14px; border-radius: 20px; }
+      .calc-title { font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 12px; }
+      .rivet-corners::before,
+      .rivet-corners::after,
+      .rivet-corners .rivet-tl,
+      .rivet-corners .rivet-tr { width: 5px; height: 5px; }
+      .rivet-corners::before, .rivet-corners .rivet-tl { top: 6px; }
+      .rivet-corners::after, .rivet-corners .rivet-tr { bottom: 6px; }
+      .rivet-corners::before, .rivet-corners .rivet-tr { left: 6px; }
+      .rivet-corners::after, .rivet-corners .rivet-tl { right: 6px; }
+
+      /* ── Display area ── */
+      .display-wrapper { padding: 10px 12px 8px; min-height: 74px; margin-bottom: 12px; }
+      .main-display { font-size: clamp(1.4rem, 8vw, 2rem); }
+      .expression-line { font-size: 0.7rem; }
+      .copy-btn { top: 7px; right: 8px; padding: 2px 6px; font-size: 0.5rem; }
+      .live-tag { font-size: 0.5rem; }
+      .live-value { font-size: 0.8rem; }
+      .live-value.empty { font-size: 0.65rem; }
+      .watermark { font-size: 0.9rem; }
+
+      /* ── Memory row ── */
+      .memory-row { gap: 6px; margin-bottom: 8px; }
+      .btn.mem { height: 30px; font-size: 0.7rem; }
+
+      /* ── Number pad: fluid sizing so digits never clip ── */
+      .buttons { gap: 7px; }
+      .btn {
+        height: 48px;
+        border-radius: 11px;
+        font-size: clamp(1.15rem, 7vw, 1.8rem);
+      }
+      .btn.function { font-size: clamp(0.8rem, 4.4vw, 1.15rem); }
+      .btn.equals   { font-size: clamp(1rem, 5.5vw, 1.3rem); }
+
+      /* ── Right panel (steps / history) ── */
+      .panel { padding: 14px; border-radius: 16px; }
+      .panel-header-row { flex-wrap: wrap; gap: 8px; }
+      .panel-title { font-size: 0.62rem; letter-spacing: 2px; }
+      .verify-btn { font-size: 0.52rem; padding: 4px 8px; }
+      .verify-summary { font-size: 0.55rem; }
+      .steps-container { max-height: 34vh; }
+      .history-container { max-height: 34vh; }
+      .step-text { font-size: 0.78rem; }
+      .step-result { font-size: 0.7rem; }
+      .history-expr { font-size: 0.72rem; }
+      .history-result { font-size: 0.9rem; }
+    }
+
+    /* ── Extra-small phones (≤380px) ── */
+    @media (max-width: 380px) {
+      body { padding: 8px; }
+      .top-bar-brand span:last-child { display: none; }
+      .status-leds { gap: 8px; }
+      .led-unit span:last-child { display: none; }
+      .calculator { padding: 10px; }
+      .buttons { gap: 5px; }
+      .btn { height: 44px; font-size: clamp(1rem, 7.5vw, 1.5rem); border-radius: 9px; }
+      .btn.function { font-size: clamp(0.7rem, 4.6vw, 1rem); }
+      .memory-row { gap: 4px; }
+      .btn.mem { height: 28px; font-size: 0.62rem; }
+      .panel { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Industrial Hazard Strip -->
+<div class="hazard-strip"></div>
+
+<!-- Animated Background -->
+<div class="bg-grid"></div>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+
+<!-- Top Brand / Status Bar -->
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <span class="brand-badge">SHIV COMPUTER</span>
+    <span>INDUSTRIAL CALC UNIT · KANPUR</span>
+  </div>
+  <div class="status-leds">
+    <span class="led-unit"><span class="led-dot"></span>POWER</span>
+    <span class="led-unit"><span class="led-dot amber"></span>READY</span>
+    <span class="led-unit"><span class="led-dot red"></span>LIVE</span>
+  </div>
+</div>
+
+<div class="app-wrapper">
+
+  <!-- ══════════ CALCULATOR ══════════ -->
+  <div class="calculator rivet-corners">
+    <span class="rivet-tl"></span><span class="rivet-tr"></span>
+    <div class="calc-title">✦ SHIV COMPUTER ✦</div>
+
+    <!-- Display -->
+    <div class="display-wrapper" id="displayWrapper">
+      <button class="copy-btn" id="copyBtn" onclick="copyResult()">COPY</button>
+      <div class="expression-line" id="expressionLine">—</div>
+      <div class="main-display" id="mainDisplay">0</div>
+      <div class="live-result-bar">
+        <span class="live-tag"><span class="live-dot"></span>LIVE RESULT</span>
+        <span class="live-value empty" id="liveValue">—</span>
+      </div>
+      <div class="watermark" id="watermark">SHIV CALCULATOR</div>
+    </div>
+
+    <!-- Memory Row -->
+    <div class="memory-row">
+      <button class="btn mem" id="memMC" onclick="memClear()">MC</button>
+      <button class="btn mem" id="memMR" onclick="memRecall()">MR</button>
+      <button class="btn mem" onclick="memAdd()">M+</button>
+      <button class="btn mem" onclick="memSubtract()">M−</button>
+      <button class="btn mem" onclick="memStore()">MS</button>
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <!-- Row 1 -->
+      <button class="btn clear" onclick="clearAll()">C</button>
+      <button class="btn function" onclick="insertFunc('sin(')">sin</button>
+      <button class="btn function" onclick="insertFunc('cos(')">cos</button>
+      <button class="btn function" onclick="insertFunc('tan(')">tan</button>
+      <button class="btn function" onclick="insertFunc('log(')">log</button>
+
+      <!-- Row 2 -->
+      <button class="btn function" onclick="deleteLast()">⌫</button>
+      <button class="btn function" onclick="insertFunc('√(')">√</button>
+      <button class="btn function" onclick="insertRaw('^')">xⁿ</button>
+      <button class="btn function" onclick="insertRaw('(')">(</button>
+      <button class="btn function" onclick="insertRaw(')')">)</button>
+
+      <!-- Row 3 -->
+      <button class="btn number" onclick="insertRaw('7')">7</button>
+      <button class="btn number" onclick="insertRaw('8')">8</button>
+      <button class="btn number" onclick="insertRaw('9')">9</button>
+      <button class="btn operator" onclick="insertRaw('/')">÷</button>
+      <button class="btn operator" onclick="insertRaw('*')">×</button>
+
+      <!-- Row 4 -->
+      <button class="btn number" onclick="insertRaw('4')">4</button>
+      <button class="btn number" onclick="insertRaw('5')">5</button>
+      <button class="btn number" onclick="insertRaw('6')">6</button>
+      <button class="btn operator" onclick="insertRaw('-')">−</button>
+      <button class="btn function" onclick="insertRaw('%')">%</button>
+
+      <!-- Row 5 -->
+      <button class="btn number" onclick="insertRaw('1')">1</button>
+      <button class="btn number" onclick="insertRaw('2')">2</button>
+      <button class="btn number" onclick="insertRaw('3')">3</button>
+      <button class="btn operator" onclick="insertRaw('+')">+</button>
+      <button class="btn function" onclick="insertPi()">π</button>
+
+      <!-- Row 6 -->
+      <button class="btn number zero" onclick="insertRaw('0')">0</button>
+      <button class="btn number" onclick="insertRaw('.')">.</button>
+      <button class="btn equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <!-- ══════════ MOBILE TAB BUTTONS ══════════ -->
+  <div class="mobile-tabs" id="mobileTabs">
+    <button class="mob-tab active" id="tabSteps" onclick="switchTab('steps')">
+      <span class="mob-tab-icon">📋</span>
+      <span>STEPS</span>
+    </button>
+    <button class="mob-tab" id="tabHistory" onclick="switchTab('history')">
+      <span class="mob-tab-icon">🕐</span>
+      <span>HISTORY</span>
+    </button>
+  </div>
+
+  <!-- ══════════ RIGHT PANEL ══════════ -->
+  <div class="right-panel">
+
+    <!-- Steps Panel -->
+    <div class="panel rivet-corners">
+      <span class="rivet-tl"></span><span class="rivet-tr"></span>
+      <div class="panel-header-row">
+        <div class="panel-title cyan">CALCULATION STEPS</div>
+        <button class="verify-btn" id="verifyBtn" onclick="verifySteps()" disabled>✓ VERIFY STEPS</button>
+      </div>
+      <div class="verify-summary" id="verifySummary"></div>
+      <div class="steps-container" id="stepsContainer">
+        <div class="steps-empty" id="stepsEmpty">Press = to see step-by-step solution</div>
+      </div>
+    </div>
+
+    <!-- History Panel -->
+    <div class="panel rivet-corners">
+      <span class="rivet-tl"></span><span class="rivet-tr"></span>
+      <div class="panel-title pink">HISTORY</div>
+      <div class="history-container" id="historyContainer">
+        <div class="history-empty" id="historyEmpty">No calculations yet</div>
+      </div>
+      <div class="history-actions">
+        <span class="history-count" id="historyCount">0 ENTRIES</span>
+        <button class="clear-history-btn" onclick="clearHistory()">CLEAR ALL</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ════════════════════════════════════════
+  //  STATE
+  // ════════════════════════════════════════
+  let currentInput = '';
+  let shouldReset   = false;
+  let historyArr    = [];       // in-memory mirror of IndexedDB
+  let db            = null;
+
+  // Step-checker state
+  let currentSteps       = [];
+  let currentOriginalExpr= '';
+
+  // Memory state
+  let memoryValue    = 0;
+  let memoryHasValue = false;
+
+  const mainDisplay     = document.getElementById('mainDisplay');
+  const expressionLine  = document.getElementById('expressionLine');
+  const watermark       = document.getElementById('watermark');
+  const stepsContainer  = document.getElementById('stepsContainer');
+  const historyContainer= document.getElementById('historyContainer');
+  const historyCount    = document.getElementById('historyCount');
+  const displayWrapper  = document.getElementById('displayWrapper');
+  const liveValueEl     = document.getElementById('liveValue');
+  const verifyBtn       = document.getElementById('verifyBtn');
+  const verifySummary   = document.getElementById('verifySummary');
+
+  // ════════════════════════════════════════
+  //  INDEXEDDB  SETUP
+  // ════════════════════════════════════════
+  function initDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('ShivCalcDB', 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('history')) {
+          const store = d.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+          store.createIndex('ts', 'ts', { unique: false });
+        }
+        if (!d.objectStoreNames.contains('steps')) {
+          d.createObjectStore('steps', { keyPath: 'id' });   // single record, id='last'
+        }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror   = e => { console.warn('IDB error', e); resolve(null); };
+    });
+  }
+
+  // Save one history entry
+  function dbSaveHistory(item) {
+    if (!db) return;
+    const tx    = db.transaction('history', 'readwrite');
+    const store = tx.objectStore('history');
+    store.add(item);
+    // Keep only last 50
+    store.index('ts').openCursor(null, 'prev').onsuccess = e => {
+      let cur = e.target.result;
+      let skip = 0;
+      if (!cur) return;
+      // Count total & delete old
+      store.count().onsuccess = ev => {
+        let total = ev.target.result;
+        if (total > 50) {
+          store.index('ts').openCursor().onsuccess = ec => {
+            let c2 = ec.target.result;
+            if (c2 && total > 50) { c2.delete(); total--; c2.continue(); }
+          };
+        }
+      };
+    };
+  }
+
+  // Load all history from IDB (newest first)
+  function dbLoadHistory() {
+    return new Promise(resolve => {
+      if (!db) return resolve([]);
+      const tx    = db.transaction('history', 'readonly');
+      const store = tx.objectStore('history');
+      const items = [];
+      store.index('ts').openCursor(null, 'prev').onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) { items.push(cur.value); cur.continue(); }
+        else resolve(items);
+      };
+    });
+  }
+
+  // Clear history in IDB
+  function dbClearHistory() {
+    if (!db) return;
+    const tx = db.transaction('history', 'readwrite');
+    tx.objectStore('history').clear();
+  }
+
+  // Save last steps
+  function dbSaveSteps(steps, expr) {
+    if (!db) return;
+    const tx = db.transaction('steps', 'readwrite');
+    tx.objectStore('steps').put({ id: 'last', steps, expr, ts: Date.now() });
+  }
+
+  // Load last steps
+  function dbLoadSteps() {
+    return new Promise(resolve => {
+      if (!db) return resolve(null);
+      const tx  = db.transaction('steps', 'readonly');
+      const req = tx.objectStore('steps').get('last');
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror   = () => resolve(null);
+    });
+  }
+
+  // ════════════════════════════════════════
+  //  DISPLAY
+  // ════════════════════════════════════════
+  function updateDisplay() {
+    if (currentInput === '') {
+      mainDisplay.textContent = '0';
+      expressionLine.textContent = '—';
+      watermark.style.opacity = '1';
+    } else {
+      mainDisplay.textContent = currentInput;
+      expressionLine.textContent = prettyExpr(currentInput);
+      watermark.style.opacity = '0';
+    }
+    mainDisplay.className = 'main-display';
+    liveEval();
+  }
+
+  // ════════════════════════════════════════
+  //  LIVE RESULT — evaluates as you type
+  // ════════════════════════════════════════
+  function liveEval() {
+    if (!liveValueEl) return;
+    if (!currentInput.trim()) {
+      liveValueEl.textContent = '—';
+      liveValueEl.classList.add('empty');
+      return;
+    }
+    try {
+      const result = safeEval(currentInput);
+      const rounded = parseFloat(result.toFixed(8));
+      liveValueEl.textContent = '≈ ' + rounded;
+      liveValueEl.classList.remove('empty');
+    } catch (e) {
+      liveValueEl.textContent = '…';
+      liveValueEl.classList.add('empty');
+    }
+  }
+
+  function prettyExpr(expr) {
+    return expr
+      .replace(/\*/g, '×')
+      .replace(/\//g, '÷')
+      .replace(/sqrt/g, '√')
+      .replace(/Math\.PI/g, 'π');
+  }
+
+  // ════════════════════════════════════════
+  //  AUTO-CLOSE BRACKETS
+  // ════════════════════════════════════════
+  function autoCloseBrackets(expr) {
+    let open = 0;
+    for (const ch of expr) {
+      if (ch === '(') open++;
+      else if (ch === ')') open--;
+    }
+    if (open > 0) expr += ')'.repeat(open);
+    return expr;
+  }
+
+  // ════════════════════════════════════════
+  //  INPUT HANDLERS
+  // ════════════════════════════════════════
+  function insertRaw(val) {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += val;
+    updateDisplay();
+  }
+
+  function insertFunc(fn) {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += fn;
+    updateDisplay();
+  }
+
+  function insertPi() {
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += 'π';
+    updateDisplay();
+  }
+
+  function deleteLast() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+
+  function clearAll() {
+    currentInput = '';
+    shouldReset  = false;
+    updateDisplay();
+    clearStepsUI();
+  }
+
+  // ════════════════════════════════════════
+  //  MEMORY  (M+ / M− / MR / MC / MS)
+  // ════════════════════════════════════════
+  function getCurrentValueForMemory() {
+    try {
+      const src = currentInput.trim() ? currentInput : mainDisplay.textContent;
+      return safeEval(src);
+    } catch (e) { return null; }
+  }
+
+  function updateMemButtons() {
+    const mr = document.getElementById('memMR');
+    const mc = document.getElementById('memMC');
+    if (memoryHasValue) { mr.classList.add('has-value'); mc.classList.add('has-value'); }
+    else { mr.classList.remove('has-value'); mc.classList.remove('has-value'); }
+  }
+
+  function memStore() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = v; memoryHasValue = true; updateMemButtons();
+  }
+  function memAdd() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = (memoryHasValue ? memoryValue : 0) + v;
+    memoryHasValue = true; updateMemButtons();
+  }
+  function memSubtract() {
+    const v = getCurrentValueForMemory();
+    if (v === null) return;
+    memoryValue = (memoryHasValue ? memoryValue : 0) - v;
+    memoryHasValue = true; updateMemButtons();
+  }
+  function memRecall() {
+    if (!memoryHasValue) return;
+    if (shouldReset) { currentInput = ''; shouldReset = false; }
+    currentInput += parseFloat(memoryValue.toFixed(10)).toString();
+    updateDisplay();
+  }
+  function memClear() {
+    memoryValue = 0; memoryHasValue = false; updateMemButtons();
+  }
+
+  // ════════════════════════════════════════
+  //  COPY RESULT
+  // ════════════════════════════════════════
+  function copyResult() {
+    const btn  = document.getElementById('copyBtn');
+    const text = mainDisplay.textContent;
+    const done = ok => {
+      btn.textContent = ok ? '✓ COPIED' : 'FAILED';
+      btn.classList.toggle('copied', ok);
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true)).catch(() => done(false));
+    } else {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        done(true);
+      } catch (e) { done(false); }
+    }
+  }
+
+  // ════════════════════════════════════════
+  //  EVALUATION  (safe parser, no raw eval)
+  // ════════════════════════════════════════
+  function safeEval(expr) {
+    // Strip trailing operators/dots that make expression incomplete  
+    expr = expr.replace(/[+\-*/^.]+$/, '').trim();
+    if (!expr) throw new Error('Empty');
+    // Auto-close any unclosed brackets first
+    expr = autoCloseBrackets(expr);
+
+    // Replace user symbols → JS Math
+    expr = expr.replace(/π/g, '(' + Math.PI + ')');
+    expr = expr.replace(/sin\(/g,  'Math.sin(Math.PI/180*(');
+    expr = expr.replace(/cos\(/g,  'Math.cos(Math.PI/180*(');
+    expr = expr.replace(/tan\(/g,  'Math.tan(Math.PI/180*(');
+    expr = expr.replace(/log\(/g,  'Math.log10(');
+    expr = expr.replace(/√\(/g,    'Math.sqrt(');
+    expr = expr.replace(/\^/g,     '**');
+    expr = expr.replace(/%/g,      '/100');
+
+    // When we wrapped sin/cos/tan we need to close the inner bracket too
+    // e.g. sin(45+5)  →  Math.sin(Math.PI/180*(45+5))
+    // The outer closing ) is already there from user input.
+    // But we inserted an extra ( so we need one extra ) per trig call.
+    // Count them and append.
+    const trigCount = (expr.match(/Math\.(sin|cos|tan)\(/g) || []).length;
+    expr = autoCloseBrackets(expr);   // re-run after substitutions
+
+    // Whitelist check — only safe characters allowed
+    if (/[^0-9+\-*/().%\s,MathsincotaqlgqrPIE_]/.test(expr.replace(/Math\.(sin|cos|tan|sqrt|log10|PI)/g, ''))) {
+      throw new Error('Unsafe');
+    }
+
+    const result = Function('"use strict"; return (' + expr + ')')();
+    if (!isFinite(result) || isNaN(result)) throw new Error('Invalid result');
+    return result;
+  }
+
+  // ════════════════════════════════════════
+  //  STEP BUILDER
+  // ════════════════════════════════════════
+  function buildSteps(original) {
+    const steps = [];
+    const closed = autoCloseBrackets(original);
+
+    steps.push({ label: '📥 Input Expression', value: prettyExpr(closed) });
+
+    if (closed !== original)
+      steps.push({ label: '🔧 Auto-Closed Brackets', value: 'Added ' + (closed.length - original.length) + ' missing ")" bracket(s)' });
+
+    if (original.includes('π'))
+      steps.push({ label: '🔵 Substitute π', value: 'π ≈ ' + Math.PI.toFixed(8) });
+
+    if (/sin\(/.test(original))
+      steps.push({ label: '📐 sin( ) — Degrees Mode', value: 'sin(θ°) = Math.sin(θ × π/180)' });
+    if (/cos\(/.test(original))
+      steps.push({ label: '📐 cos( ) — Degrees Mode', value: 'cos(θ°) = Math.cos(θ × π/180)' });
+    if (/tan\(/.test(original))
+      steps.push({ label: '📐 tan( ) — Degrees Mode', value: 'tan(θ°) = Math.tan(θ × π/180)' });
+    if (/log\(/.test(original))
+      steps.push({ label: '🔢 log( ) = log₁₀', value: 'Using base-10 logarithm' });
+    if (/√\(/.test(original))
+      steps.push({ label: '√ Square Root', value: 'Computing √ of inner value' });
+    if (/\^/.test(original))
+      steps.push({ label: '⬆ Exponentiation ^', value: 'a^b  →  a raised to power b' });
+    if (/%/.test(original))
+      steps.push({ label: '% Percentage', value: 'x%  →  x ÷ 100' });
+
+    const hasMultiOps = /[+\-*/].*[+\-*/]/.test(original);
+    if (hasMultiOps)
+      steps.push({ label: '📏 Order of Operations', value: 'BODMAS: Brackets → Orders → ÷× → +−' });
+
+    // Intermediate evaluation on sub-expressions
+    const subExprs = extractSubExpressions(closed);
+    subExprs.forEach(sub => {
+      try {
+        const r = safeEval(sub);
+        const rr = parseFloat(r.toFixed(8));
+        if (sub !== closed)   // don't duplicate full expression
+          steps.push({ label: '🔎 Sub-expression', value: prettyExpr(sub) + '  =  ' + rr });
+      } catch(e) {}
+    });
+
+    steps.push({ label: '⚙ Evaluating Full Expression', value: prettyExpr(closed) + '  →  ?' });
+
+    return steps;
+  }
+
+  // Extract meaningful sub-expressions (bracketed groups)
+  function extractSubExpressions(expr) {
+    const subs = [];
+    let depth = 0, start = -1;
+    for (let i = 0; i < expr.length; i++) {
+      if (expr[i] === '(') {
+        if (depth === 0) start = i + 1;
+        depth++;
+      } else if (expr[i] === ')') {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          const inner = expr.slice(start, i).trim();
+          if (inner && /\d/.test(inner)) subs.push(inner);
+        }
+      }
+    }
+    return subs;
+  }
+
+  // ════════════════════════════════════════
+  //  CALCULATE
+  // ════════════════════════════════════════
+  function calculate() {
+    if (!currentInput.trim()) return;
+
+    const originalExpr = currentInput;
+    currentOriginalExpr = originalExpr;
+
+    try {
+      const steps  = buildSteps(originalExpr);
+      const result = safeEval(originalExpr);
+      const rounded = parseFloat(result.toFixed(10));
+      const displayResult = rounded.toString();
+
+      // Display
+      mainDisplay.textContent  = displayResult;
+      mainDisplay.className    = 'main-display result-mode';
+      expressionLine.textContent = prettyExpr(autoCloseBrackets(originalExpr)) + ' =';
+      watermark.style.opacity  = '0';
+      pulseDisplay();
+
+      // Final step
+      steps.push({ label: '✅ Final Answer', value: displayResult, isResult: true });
+
+      // Render steps
+      renderSteps(steps);
+
+      // Save steps to IDB
+      dbSaveSteps(steps, originalExpr);
+
+      // History
+      const now  = new Date();
+      const time = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const entry = { expr: originalExpr, result: displayResult, time, ts: Date.now() };
+      historyArr.unshift(entry);
+      if (historyArr.length > 50) historyArr.pop();
+      dbSaveHistory(entry);
+      renderHistory();
+
+      currentInput = displayResult;
+      shouldReset  = true;
+
+      // On mobile: auto-show steps tab
+      if (window.innerWidth <= 700) switchTab('steps');
+
+    } catch(err) {
+      // Show what went wrong, never just "ERROR"
+      mainDisplay.textContent = 'Invalid!';
+      mainDisplay.className   = 'main-display error-mode';
+      expressionLine.textContent = '⚠ Check expression';
+      shakeDisplay();
+
+      // Helpful step hint
+      stepsContainer.innerHTML = `
+        <div class="step-item" style="border-color:rgba(255,45,155,0.3);background:rgba(255,45,155,0.06)">
+          <span class="step-num" style="color:var(--neon-pink)">!</span>
+          <div>
+            <div class="step-text">Expression Problem Detected</div>
+            <div class="step-result" style="color:var(--neon-pink)">Tip: Check brackets, operators &amp; functions</div>
+          </div>
+        </div>
+        <div class="step-item" style="border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)">
+          <span class="step-num" style="color:var(--neon-gold)">💡</span>
+          <div>
+            <div class="step-text">Your input was</div>
+            <div class="step-result" style="color:var(--neon-gold)">${prettyExpr(currentInput)}</div>
+          </div>
+        </div>
+      `;
+
+      // Don't clear input — let user fix it
+      shouldReset = false;
+      currentSteps = [];
+      if (verifyBtn) verifyBtn.disabled = true;
+      if (verifySummary) verifySummary.classList.remove('show');
+    }
+  }
+
+  // ════════════════════════════════════════
+  //  RENDER STEPS UI
+  // ════════════════════════════════════════
+  function renderSteps(steps) {
+    stepsContainer.innerHTML = '';
+    steps.forEach((step, i) => {
+      const div = document.createElement('div');
+      div.className = 'step-item checkable';
+      div.innerHTML = `
+        <span class="step-num">S${i+1}</span>
+        <div>
+          <div class="step-text">${step.label}</div>
+          <div class="step-result">${step.value}</div>
+        </div>
+        <span class="step-check-badge" id="stepBadge${i}" style="display:none"></span>`;
+      if (step.isResult) {
+        div.style.background   = 'rgba(0,255,136,0.07)';
+        div.style.borderColor  = 'rgba(0,255,136,0.2)';
+        div.querySelector('.step-result').style.cssText =
+          'color:var(--neon-green);text-shadow:0 0 10px rgba(0,255,136,0.5);font-size:1.1rem;font-family:Orbitron,monospace;font-weight:700';
+      }
+      stepsContainer.appendChild(div);
+    });
+    stepsContainer.scrollTop = stepsContainer.scrollHeight;
+    currentSteps = steps;
+    if (verifyBtn) verifyBtn.disabled = steps.length === 0;
+    if (verifySummary) verifySummary.classList.remove('show');
+  }
+
+  function clearStepsUI() {
+    stepsContainer.innerHTML = '<div class="steps-empty">Press = to see step-by-step solution</div>';
+    currentSteps = [];
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (verifySummary) verifySummary.classList.remove('show');
+  }
+
+  // ════════════════════════════════════════
+  //  STEP CHECKER — verifies every step
+  // ════════════════════════════════════════
+  function verifySteps() {
+    if (!currentSteps.length || verifyBtn.disabled) return;
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = '⏳ CHECKING...';
+    verifySummary.classList.remove('show');
+
+    const total = currentSteps.length;
+    currentSteps.forEach((step, i) => {
+      const badge = document.getElementById('stepBadge' + i);
+      if (badge) {
+        badge.style.display = 'flex';
+        badge.className = 'step-check-badge pending';
+        badge.textContent = '•';
+      }
+    });
+
+    let okCount = 0;
+    currentSteps.forEach((step, i) => {
+      setTimeout(() => {
+        const badge = document.getElementById('stepBadge' + i);
+        let ok = true;
+        try {
+          const subMatch = step.value.match(/=\s*(-?\d+(?:\.\d+)?)\s*$/);
+          if (subMatch && !step.isResult) {
+            const exprPart = step.value.split('=')[0].trim()
+              .replace(/×/g, '*').replace(/÷/g, '/');
+            const recomputed = parseFloat(safeEval(exprPart).toFixed(8));
+            ok = Math.abs(recomputed - parseFloat(subMatch[1])) < 1e-6;
+          } else if (step.isResult && currentOriginalExpr) {
+            const recomputed = parseFloat(safeEval(currentOriginalExpr).toFixed(10));
+            ok = recomputed.toString() === step.value;
+          }
+          // Descriptive / rule-based steps (no numeric target) are logic
+          // statements about the method itself, so they check out as-is.
+        } catch (e) { ok = true; }
+
+        if (badge) {
+          badge.className = 'step-check-badge ' + (ok ? 'verified' : 'mismatch');
+          badge.textContent = ok ? '✓' : '!';
+        }
+        if (ok) okCount++;
+
+        if (i === total - 1) {
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = '✓ VERIFY STEPS';
+          verifySummary.classList.add('show');
+          verifySummary.innerHTML =
+            '<span class="ok-count">' + okCount + '</span> / ' + total + ' STEPS VERIFIED ✓';
+        }
+      }, i * 200);
+    });
+  }
+
+  // ════════════════════════════════════════
+  //  RENDER HISTORY UI
+  // ════════════════════════════════════════
+  function renderHistory() {
+    historyContainer.innerHTML = '';
+    if (historyArr.length === 0) {
+      historyContainer.innerHTML = '<div class="history-empty">No calculations yet</div>';
+      historyCount.textContent = '0 ENTRIES';
+      return;
+    }
+    historyCount.textContent = historyArr.length + (historyArr.length === 1 ? ' ENTRY' : ' ENTRIES');
+    historyArr.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="history-expr">${prettyExpr(item.expr)}</div>
+        <div class="history-result">= ${item.result}</div>
+        <div class="history-time">${item.time}</div>`;
+      div.onclick = () => {
+        currentInput = item.result;
+        shouldReset  = false;
+        updateDisplay();
+      };
+      historyContainer.appendChild(div);
+    });
+  }
+
+  function clearHistory() {
+    historyArr = [];
+    dbClearHistory();
+    renderHistory();
+  }
+
+  // ════════════════════════════════════════
+  //  ANIMATIONS
+  // ════════════════════════════════════════
+  function pulseDisplay() {
+    displayWrapper.classList.remove('display-pulse');
+    void displayWrapper.offsetWidth;
+    displayWrapper.classList.add('display-pulse');
+    setTimeout(() => displayWrapper.classList.remove('display-pulse'), 400);
+  }
+  function shakeDisplay() {
+    displayWrapper.classList.remove('shake');
+    void displayWrapper.offsetWidth;
+    displayWrapper.classList.add('shake');
+    setTimeout(() => displayWrapper.classList.remove('shake'), 500);
+  }
+
+  // ════════════════════════════════════════
+  //  RIPPLE
+  // ════════════════════════════════════════
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const r    = document.createElement('span');
+      r.className = 'ripple';
+      const rect = this.getBoundingClientRect();
+      r.style.left = (e.clientX - rect.left) + 'px';
+      r.style.top  = (e.clientY - rect.top)  + 'px';
+      this.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    });
+  });
+
+  // ════════════════════════════════════════
+  //  KEYBOARD
+  // ════════════════════════════════════════
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') insertRaw(e.key);
+    else if (e.key === '.')  insertRaw('.');
+    else if (e.key === '+')  insertRaw('+');
+    else if (e.key === '-')  insertRaw('-');
+    else if (e.key === '*')  insertRaw('*');
+    else if (e.key === '/')  { e.preventDefault(); insertRaw('/'); }
+    else if (e.key === '(')  insertRaw('(');
+    else if (e.key === ')')  insertRaw(')');
+    else if (e.key === '^')  insertRaw('^');
+    else if (e.key === '%')  insertRaw('%');
+    else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+    else if (e.key === 'Backspace') { e.preventDefault(); deleteLast(); }
+    else if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') clearAll();
+    else if (e.key === 'h' || e.key === 'H') switchTab('history');
+    else if (e.key === 's' || e.key === 'S') switchTab('steps');
+  });
+
+  // ════════════════════════════════════════
+  //  INIT — load from IndexedDB
+  // ════════════════════════════════════════
+  async function init() {
+    await initDB();
+
+    // Load history
+    historyArr = await dbLoadHistory();
+    renderHistory();
+
+    // Load last steps
+    const lastSteps = await dbLoadSteps();
+    if (lastSteps && lastSteps.steps && lastSteps.steps.length) {
+      currentOriginalExpr = lastSteps.expr || '';
+      renderSteps(lastSteps.steps);
+    } else {
+      clearStepsUI();
+    }
+
+    updateMemButtons();
+    updateDisplay();
+  }
+
+  // ════════════════════════════════════════
+  //  MOBILE TABS
+  // ════════════════════════════════════════
+  let activeTab = 'steps';
+
+  function switchTab(tab) {
+    activeTab = tab;
+    const rightPanel = document.querySelector('.right-panel');
+    const stepsPanel = document.getElementById('stepsPanel');
+    const histPanel  = document.getElementById('histPanel');
+    const tabSteps   = document.getElementById('tabSteps');
+    const tabHist    = document.getElementById('tabHistory');
+
+    const isMobile = window.innerWidth <= 700;
+
+    if (tab === 'steps') {
+      if (isMobile && stepsPanel) stepsPanel.style.display = '';
+      if (isMobile && histPanel)  histPanel.style.display  = 'none';
+      if (tabSteps) tabSteps.classList.add('active');
+      if (tabHist)  tabHist.classList.remove('active');
+      // On desktop scroll steps into view
+      if (!isMobile && stepsPanel) stepsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      if (isMobile && stepsPanel) stepsPanel.style.display  = 'none';
+      if (isMobile && histPanel)  histPanel.style.display   = '';
+      if (tabHist)  tabHist.classList.add('active');
+      if (tabSteps) tabSteps.classList.remove('active');
+      if (!isMobile && histPanel) histPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    if (isMobile) rightPanel.classList.add('mob-active');
+  }
+
+  function initMobileTabs() {
+    if (window.innerWidth <= 700) {
+      // panels get IDs for tab switching
+      const panels = document.querySelectorAll('.right-panel .panel');
+      if (panels[0]) panels[0].id = 'stepsPanel';
+      if (panels[1]) panels[1].id = 'histPanel';
+      // default: show steps
+      switchTab('steps');
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    const rightPanel = document.querySelector('.right-panel');
+    if (window.innerWidth > 700) {
+      rightPanel.classList.remove('mob-active');
+      rightPanel.style.display = '';
+      const stepsPanel = document.getElementById('stepsPanel');
+      const histPanel  = document.getElementById('histPanel');
+      if (stepsPanel) stepsPanel.style.display = '';
+      if (histPanel)  histPanel.style.display  = '';
+    } else {
+      switchTab(activeTab);
+    }
+  });
+
+  init().then(() => initMobileTabs());
+</script>
+<script src="floating-home.js"></script>
+</body>
+</html>

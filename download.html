@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Download Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="SHIV.png">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #dff3f9;
+      --header-bg: linear-gradient(135deg, #0052cc, #0099ff);
+      --nav-bg: #003f99;
+      --nav-link: #ffe600;
+      --nav-hover-bg: #ff2200;
+      --card-bg: #ffffff;
+      --card-border: #0072ff;
+      --card-text: #0052cc;
+      --card-hover-bg: #e0f0ff;
+      --card-glow: #0072ff;
+      --footer-bg: #002a6e;
+      --heading-color: #003080;
+      --h2-color: #002255;
+      --particle-color: rgba(0,90,255,0.3);
+    }
+    [data-theme="mint"] {
+      --bg: #e0faf0;
+      --header-bg: linear-gradient(135deg, #007a50, #00c98a);
+      --nav-bg: #005a38;
+      --nav-link: #fff176;
+      --nav-hover-bg: #ff6f00;
+      --card-bg: #f0fff8;
+      --card-border: #00b37d;
+      --card-text: #005a38;
+      --card-hover-bg: #c8ffe8;
+      --card-glow: #00c98a;
+      --footer-bg: #003322;
+      --heading-color: #004d30;
+      --h2-color: #003322;
+      --particle-color: rgba(0,180,100,0.3);
+    }
+    [data-theme="golden"] {
+      --bg: #1a1205;
+      --header-bg: linear-gradient(135deg, #2a1800, #7a4a00);
+      --nav-bg: #1a0e00;
+      --nav-link: #ffd700;
+      --nav-hover-bg: #c0392b;
+      --card-bg: #1f1608;
+      --card-border: #c8960a;
+      --card-text: #ffd700;
+      --card-hover-bg: #2e1f00;
+      --card-glow: #ffaa00;
+      --footer-bg: #0d0900;
+      --heading-color: #ffd700;
+      --h2-color: #ffcc44;
+      --particle-color: rgba(255,180,0,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url("www.transparenttextures.com/patterns/football-no-lines.png");
+      background-color: var(--bg);
+      min-height: 100vh;
+      transition: background 0.5s;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--header-bg);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transition: background 0.5s;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,255,255,0.35);
+      box-shadow: 0 0 18px rgba(255,255,255,0.3);
+      object-fit: cover;
+    }
+
+    .site-info h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 14px rgba(255,255,255,0.5);
+    }
+
+    .site-info h3 {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .theme-toggles {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .theme-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      padding: 7px 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .theme-btn.light-btn {
+      background: linear-gradient(135deg, #e0f0ff, #b3d9ff);
+      color: #0055aa;
+      box-shadow: 0 2px 10px rgba(0,100,255,0.2);
+    }
+    .theme-btn.mint-btn {
+      background: linear-gradient(135deg, #b2f5d8, #00e59b);
+      color: #004d2e;
+      box-shadow: 0 2px 10px rgba(0,180,100,0.3);
+    }
+    .theme-btn.golden-btn {
+      background: linear-gradient(135deg, #2a1a00, #c8860a);
+      color: #ffd700;
+      box-shadow: 0 2px 10px rgba(200,140,0,0.4);
+    }
+    .theme-btn:hover { transform: scale(1.08) translateY(-2px); }
+    .theme-btn.active { outline: 3px solid rgba(255,255,255,0.7); transform: scale(1.06); }
+
+    nav {
+      background: var(--nav-bg);
+      padding: 8px 12px;
+      overflow-x: auto;
+      transition: background 0.5s;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    nav ul li a {
+      color: var(--nav-link);
+      text-decoration: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      padding: 5px 13px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      display: block;
+      white-space: nowrap;
+    }
+
+    nav ul li a:hover {
+      background: var(--nav-hover-bg);
+      color: #fff;
+      box-shadow: 0 0 14px var(--nav-hover-bg), 0 0 28px rgba(255,80,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    main {
+      padding: 50px 20px 60px;
+      text-align: center;
+    }
+
+    .main-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      animation: fadeSlideDown 0.7s ease both;
+    }
+
+    .main-subtitle {
+      color: var(--h2-color);
+      font-size: 1.15rem;
+      opacity: 0.85;
+      margin-bottom: 28px;
+      animation: fadeSlideDown 0.9s ease both;
+    }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PLATFORM TABS (Windows / Android) ===== */
+    .platform-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 auto 30px;
+      flex-wrap: wrap;
+    }
+
+    .platform-tab {
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.55);
+      color: var(--heading-color);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      padding: 13px 30px;
+      border-radius: 34px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0,60,150,0.14);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .platform-tab .tab-count {
+      font-size: 0.78rem;
+      font-weight: 600;
+      opacity: 0.85;
+      background: rgba(0,0,0,0.08);
+      padding: 1px 9px;
+      border-radius: 12px;
+    }
+
+    .platform-tab.active .tab-count {
+      background: rgba(255,255,255,0.28);
+    }
+
+    .platform-tab:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,90,255,0.28); }
+
+    .platform-tab.active {
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      border-color: var(--card-glow);
+      box-shadow: 0 6px 22px var(--card-glow);
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    /* ===== SEARCH SECTION (Glassmorphism) ===== */
+    .search-section {
+      max-width: 720px;
+      margin: 0 auto 34px;
+      padding: 0 10px;
+    }
+
+    .search-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 40px;
+      padding: 10px 18px;
+      box-shadow: 0 8px 32px rgba(0,60,150,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar-wrap:focus-within {
+      border-color: var(--card-glow);
+      box-shadow: 0 8px 32px rgba(0,60,150,0.28), 0 0 0 4px rgba(0,150,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .search-icon { font-size: 1.1rem; opacity: 0.8; }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      color: var(--heading-color);
+      min-width: 0;
+    }
+
+    .search-input::placeholder { color: rgba(0,40,100,0.5); }
+
+    .search-icon-btn {
+      border: none;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .search-icon-btn:hover { background: var(--card-glow); transform: scale(1.1); }
+    .search-icon-btn.listening { animation: micPulse 1s infinite; background: #ff3b3b; }
+
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(255,59,59,0); }
+    }
+
+    .result-counter {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--h2-color);
+      letter-spacing: 0.3px;
+      min-height: 1.2em;
+    }
+
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .cat-chip {
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.5);
+      color: var(--card-text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .cat-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,90,255,0.25); }
+
+    .cat-chip.active {
+      background: var(--card-glow);
+      color: #fff;
+      border-color: var(--card-glow);
+      box-shadow: 0 4px 14px var(--card-glow);
+    }
+
+    .quick-lists {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .quick-btn {
+      border: none;
+      border-radius: 24px;
+      padding: 8px 18px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: rgba(255,255,255,0.55);
+      color: var(--heading-color);
+      box-shadow: 0 3px 12px rgba(0,60,150,0.15);
+      transition: all 0.25s ease;
+    }
+
+    .quick-btn:hover { transform: translateY(-2px) scale(1.03); }
+
+    .quick-btn.active {
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+    }
+
+    .loading-spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 0;
+    }
+    .loading-spinner.active { display: flex; }
+    .spinner-ring {
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(0,120,255,0.15);
+      border-top-color: var(--card-glow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--heading-color);
+      padding: 40px 10px;
+      font-weight: 600;
+    }
+
+    /* ===== DOWNLOAD GRID ===== */
+    .downloads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 20px;
+      max-width: 1300px;
+      margin: auto;
+    }
+
+    .dl-card-wrap {
+      position: relative;
+      animation: cardPop 0.5s ease both;
+    }
+
+    @keyframes cardPop {
+      from { opacity: 0; transform: scale(0.88) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .dl-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+      background: rgba(255,255,255,0.8);
+      color: var(--card-text);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .dl-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 18px;
+      padding: 22px 16px 18px;
+      color: var(--card-text);
+      text-decoration: none;
+      font-family: 'Rajdhani', sans-serif;
+      transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      height: 100%;
+    }
+
+    .dl-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .dl-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+    .dl-card:hover::after { left: 130%; }
+
+    .dl-icon {
+      font-size: 2.1rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+      transition: transform 0.3s ease;
+      margin-bottom: 4px;
+    }
+
+    .dl-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.3px;
+    }
+
+    .dl-desc {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 0.78rem;
+      color: var(--card-text);
+      opacity: 0.75;
+      line-height: 1.4;
+      margin: 4px 0 8px;
+    }
+
+    .dl-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 18px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 3px 10px rgba(0,90,255,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .dl-card:hover {
+      background: var(--card-hover-bg);
+      transform: translateY(-7px) scale(1.03);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.18), 0 0 20px var(--card-glow);
+      border-color: var(--card-glow);
+    }
+
+    .dl-card:hover .dl-icon { transform: scale(1.2) rotate(-5deg); }
+    .dl-card:hover .dl-btn { transform: scale(1.06); box-shadow: 0 5px 16px var(--card-glow); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--footer-bg);
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      padding: 28px 16px;
+      font-size: 0.85rem;
+      margin-top: 40px;
+      transition: background 0.5s;
+    }
+
+    .footer-container p { margin: 5px 0; }
+    .footer-line { width: 80px; height: 2px; background: var(--card-glow); margin: 14px auto; border-radius: 2px; }
+
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+      padding: 8px 18px;
+      border-radius: 30px;
+      background: #25D366;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+    }
+
+    .whatsapp-btn img { width: 24px; height: 24px; transition: transform 0.3s ease; }
+    .whatsapp-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 20px #25D366, 0 0 40px rgba(37,211,102,0.4);
+    }
+    .whatsapp-btn:hover img { transform: rotate(10deg) scale(1.15); }
+
+    /* ===== SCROLL TO TOP BUTTON ===== */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 26px;
+      right: 22px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--card-glow), var(--card-border));
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,60,150,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+    #scrollTopBtn.show { display: flex; animation: fadeSlideDown 0.4s ease both; }
+    #scrollTopBtn:hover { transform: translateY(-4px) scale(1.08); }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 6px; }
+
+    /* ===== RESPONSIVE MOBILE LAYOUT ===== */
+    @media (max-width: 600px) {
+      .header-top { justify-content: center; text-align: center; }
+      .site-info h1 { font-size: 1.4rem; }
+      .main-title { font-size: 1.8rem; letter-spacing: 2px; }
+      .main-subtitle { font-size: 1rem; margin-bottom: 22px; }
+      .platform-tab { padding: 10px 18px; font-size: 0.92rem; }
+      .downloads-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .dl-card { padding: 16px 10px 14px; }
+      .dl-icon { font-size: 1.7rem; }
+      .dl-title { font-size: 0.9rem; }
+      .dl-desc { font-size: 0.7rem; }
+      .search-bar-wrap { padding: 8px 12px; border-radius: 26px; }
+      .search-input { font-size: 0.9rem; }
+      .cat-chip { font-size: 0.75rem; padding: 5px 10px; }
+      .quick-btn { font-size: 0.75rem; padding: 7px 14px; }
+      #scrollTopBtn { width: 42px; height: 42px; bottom: 16px; right: 14px; font-size: 1.1rem; }
+    }
+
+    @media (max-width: 380px) {
+      .downloads-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+
+<header>
+  <div class="header-top">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" class="logo">
+      <div class="site-info">
+        <h1>SHIV COMPUTER</h1>
+        <h3>Karanpur Suratganj · Barabanki</h3>
+      </div>
+    </div>
+    <div class="theme-toggles">
+      <button class="theme-btn light-btn active" onclick="setTheme('light',this)" title="Light Theme">☀️ Light</button>
+      <button class="theme-btn mint-btn" onclick="setTheme('mint',this)" title="Mint Theme">🌿 Mint</button>
+      <button class="theme-btn golden-btn" onclick="setTheme('golden',this)" title="Golden Night">🌙 Golden</button>
+    </div>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="about.html">👤 About</a></li>
+      <li><a href="courses.html">📚 Courses</a></li>
+      <li><a href="contact.html">📞 Contact</a></li>
+      <li><a href="Collage.html">🎓 College</a></li>
+      <li><a href="download.html#android">📱 APP</a></li>
+      <li><a href="Photo.html">📷 Photo</a></li>
+      <li><a href="AI.html">🤖 AI</a></li>
+      <li><a href="gamecenter.html">🎮 Game Center</a></li>
+      <li><a href="account.html">🧾 Accounting</a></li>
+      <li><a href="download.html">⬇️ Downloads</a></li>
+      <li><a href="reader.html">Book</a></li>
+      <li><a href="https://www.blogger.com/profile/16830436167123469896">✍️ Blog</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h2 class="main-title">⬇️ Download Center</h2>
+  <p class="main-subtitle">Shiv Computer के सभी सॉफ़्टवेयर, टूल्स और ऐप — एक ही जगह पर</p>
+
+  <div class="platform-tabs" id="platformTabs">
+    <button class="platform-tab active" data-platform="windows">🖥️ Windows Installer <span class="tab-count" id="winTabCount"></span></button>
+    <button class="platform-tab" data-platform="android">📱 Android Installer <span class="tab-count" id="andTabCount"></span></button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-bar-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="toolSearch" class="search-input" placeholder="Search downloads... (Ctrl+K)" autocomplete="off">
+      <button id="voiceSearchBtn" class="search-icon-btn" title="Voice Search">🎙️</button>
+      <button id="clearSearchBtn" class="search-icon-btn" title="Clear Search" style="display:none;">✖</button>
+    </div>
+    <div class="result-counter" id="resultCounter"></div>
+
+    <div class="category-filters" id="categoryFilters"></div>
+
+    <div class="quick-lists">
+      <button class="quick-btn" id="showRecentBtn">🕘 Recently Downloaded</button>
+      <button class="quick-btn active" id="showAllBtn">📋 All Downloads</button>
+    </div>
+  </div>
+
+  <div id="loadingSpinner" class="loading-spinner"><div class="spinner-ring"></div></div>
+  <div id="noResults" class="no-results" style="display:none;">😕 कोई फ़ाइल नहीं मिली। दूसरा शब्द आज़माएँ।</div>
+
+  <div class="downloads-grid" id="downloadsGrid"></div>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-line"></div>
+    <p>© 2025 <strong>Shiv Computer</strong>. All rights reserved.</p>
+    <p>📍 27, Karnpur, Uttar Pradesh – 225304 &nbsp;|&nbsp; 📞 +91-80901 53304 &nbsp;|&nbsp; ✉️ ceshivkumar@gmail.com</p>
+    <div class="footer-line"></div>
+    <a aria-label="Chat on WhatsApp" href="https://wa.me/918090153304?text=Hello%20Shiv!" class="whatsapp-btn">
+      <img src="wlogo.png" alt="WhatsApp">
+      WhatsApp Us
+    </a>
+  </div>
+</footer>
+
+<button id="scrollTopBtn" title="Scroll to Top">⬆️</button>
+
+<script>
+  /* =========================================================
+     📦 DOWNLOADS DATA
+     -----------------------------------------------------------
+     Naya App/Tool (EXE ho ya APK) add karne ke liye bas neeche
+     wali DOWNLOADS list mein ek naya { ... } object jod dijiye.
+     Poore page ke baaki hisse (cards, tabs, filter, search)
+     apne aap update ho jaayenge — kahin aur kuch edit karne ki
+     zaroorat nahi hai.
+
+     Fields:
+       id        -> ek unique chhota naam (spaces mat rakhna)
+       name      -> card par dikhne wala title
+       desc      -> Hindi mein chhota description
+       category  -> Finance / Utility / Security / Education /
+                    Media / Mobile App (naya category bhi bana
+                    sakte hain, filter chip apne aap ban jaayegi)
+       platform  -> "windows"  -> Windows Installer tab mein dikhega
+                    "android"  -> Android Installer tab mein dikhega
+       badge     -> "EXE Installer" / "ZIP Archive" /
+                    "Android APK" / "Drive Folder"
+       icon      -> emoji icon (💻 / 📱 / 🗜️ / 📁 ...)
+       url       -> Dropbox (dl=1 ke saath) ya Google Drive link
+  ========================================================= */
+  const DOWNLOADS = [
+    { id:'accounting',        name:'Accounting',                    desc:'पूरा हिसाब-किताब एक जगह — आय, व्यय और रिपोर्ट',       category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/91d216rxvyxmkeevpds2n/AccountBook.exe?rlkey=7b4ius3a611yr5hc68xcdkewm&st=d115zlb8&dl=1' },
+    { id:'calc1',              name:'Calculator 1',                  desc:'साधारण डेस्कटॉप कैलकुलेटर',                          category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/jahfwe3oostujn1qvs8n2/cal.exe?rlkey=52nmyw9x1htp0f2orawktwltm&st=7ixede5q&dl=1' },
+    { id:'hindi-input',       name:'Hindi Input Tool',              desc:'हिन्दी इनपुट टूल',                                    category:'Utility',    platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/681yxqtwczc0pb0jc0rf7/HindiInputTool.zip?rlkey=qzqkxnsukrxbehgfbk9s7qys6&st=zkau31xp&dl=1' },
+    { id:'calc2',              name:'Calculator 2',                  desc:'एडवांस फीचर्स वाला कैलकुलेटर',                        category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/ifij3wu6pa7x18ar17k0k/calcu.exe?rlkey=sjja14y55x9qs5d2h2957pcnr&st=2iwqdw34&dl=1' },
+    { id:'clock1',             name:'Clock 1',                       desc:'डेस्कटॉप डिजिटल घड़ी',                                category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/uqyfw1qq0kgns8ysbn920/clock.exe?rlkey=pd82ked7u6vilhz60024qy6tn&st=j98a1hcn&dl=1' },
+    { id:'clock2',             name:'Clock 2',                       desc:'स्टाइलिश एनिमेटेड घड़ी',                              category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/4j9r5vn8cckdy3rdja3kx/Clock001.exe?rlkey=cvx9sx01w94d7bawst3td0nvd&st=r8izihlu&dl=1' },
+    { id:'daybook',            name:'DayBook',                       desc:'रोज़ाना लेन-देन का रिकॉर्ड रखें',                     category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/xhvr7ks3znw9i302k3ldd/daybook.exe?rlkey=dulesoha8wr8qn6k97cv8bg8x&st=ifx44nxl&dl=1' },
+    { id:'shop-inventory',    name:'Shop Inventory',                desc:'दुकान का स्टॉक और इन्वेंट्री मैनेजमेंट',              category:'Finance',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/jifavrqn9m74t1pqyf6fc/inv.exe?rlkey=78dlh78pyi9coicl672fq7sp3&st=u035z3jw&dl=1' },
+    { id:'picture-id-print',  name:'Picture & ID Print',             desc:'फोटो एडिट करें और ID कार्ड प्रिंट करें',              category:'Media',      platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/vvfqkgod6cv4z7yos8mch/picedit.exe?rlkey=ba6zwrinmhgkytl8k2neegrjh&st=wi92asj9&dl=1' },
+    { id:'locker1',            name:'File & Folder Locker 1',        desc:'फाइल और फोल्डर को पासवर्ड से लॉक करें',              category:'Security',   platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/js3t8h7rl4v5ng1ejx4g6/locker.exe?rlkey=t5rxd4fyp5kwb3zrmf38gd7ht&st=3weznyx9&dl=1' },
+    { id:'locker3',            name:'File & Folder Locker 3',        desc:'अपडेटेड वर्ज़न — बेहतर सिक्योरिटी के साथ',            category:'Security',   platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/hslbahwq5cw7ph8hodbs8/Locker.zip?rlkey=jrlo0gj3cbp8e98u114cgi3lj&st=cun8bya0&dl=1' },
+    { id:'locker-adv',        name:'File & Folder Locker Advance',  desc:'एन्क्रिप्शन के साथ एडवांस लॉकर टूल',                  category:'Security',   platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/dargb1tc4c0s2i51tzk7c/locker005.exe?rlkey=q1uci68cz0notalsbgwboyfmg&st=cltgd7cq&dl=1' },
+    { id:'feemanager-v1',     name:'Fee Manager V1',                desc:'स्कूल फीस मैनेजमेंट — पुराना वर्ज़न',                 category:'Education',  platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/g2xmq4s29171f2nw93hd2/feebook002.exe?rlkey=gvuwyvgewq1mescgksgezecbi&st=6gxfbfuk&dl=1' },
+    { id:'feemanager-v2',     name:'Fee Manager V2',                desc:'स्कूल फीस मैनेजमेंट — अपडेटेड वर्ज़न',                category:'Education',  platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/djqnu692qwy4ys854guzj/feebook003.exe?rlkey=4e330x68zggj0mvbtvkk0oowg&st=kecsfwgr&dl=1' },
+    { id:'feemanager-latest', name:'Latest Fee Manager',            desc:'FeeBook का सबसे नया और स्थिर वर्ज़न',                 category:'Education',  platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/ek58txqma8hzs1q65dg05/FeeBook960.zip?rlkey=jpf9lq0kzkd7ddstgv281pfa0&st=hq8of1qf&dl=1' },
+    { id:'feemanager-all',    name:'All Versions – Fee Manager',    desc:'FeeBook के सभी पुराने-नए वर्ज़न एक साथ',              category:'Education',  platform:'windows', badge:'Drive Folder',  icon:'📁', url:'https://drive.google.com/drive/folders/14Mdjag7ftexiMbqnGk2QBtygm1gdh15E?usp=sharing' },
+    { id:'feebook842',        name:'FeeBook 842',                   desc:'FeeBook का इंस्टॉलर वर्ज़न 8.4.2',                   category:'Education',  platform:'windows', badge:'ZIP Archive',   icon:'🗜️', url:'https://www.dropbox.com/scl/fi/dvu07txhayscn608fexon/FeeBook842Installer.zip?rlkey=b7dicmvvvyi03j2hzbmvmi34m&st=v25sqc2m&dl=1' },
+    { id:'auto-dsc',           name:'Auto DSC Setup',                desc:'डिजिटल सिग्नेचर सर्टिफिकेट सेटअप टूल',               category:'Utility',    platform:'windows', badge:'EXE Installer', icon:'💻', url:'https://www.dropbox.com/scl/fi/4odr5v1jaeeaqjkz7krhg/dsc.exe?rlkey=hbktrn1nqphjcs8uvsbpt7koi&st=9b0oixte&dl=1' },
+
+  
+    { id:'shiv-apk',           name:'Shiv Computer APK',             desc:'Android मोबाइल एप्लिकेशन',                            category:'Mobile App', platform:'android', badge:'Android APK',   icon:'📱', url:'https://www.dropbox.com/scl/fi/svccn4jy14oq4hwxg1v1a/Shiv.apk?rlkey=vsti9l3zpoibsm0ys4z53seie&st=53zgp936&dl=1' },
+    { id:'shiv-apk-new',       name:'Shiv Computer APK (New)',       desc:'नया वर्ज़न (v2.0.0) — स्मूद रन ',                         category:'Mobile App', platform:'android', badge:'Android APK',   icon:'📱', 
+    url:'https://www.dropbox.com/scl/fi/c77uoxxpmgrtpdx4i2r4z/shv.apk?rlkey=qk2vr09ej4mn15bvmezyy1pt4&st=jjv7k099&dl=1' },
+    { id:'key-board',      name:'Key Board',      desc:'बीटा वर्ज़न (v2.1.0) — नए फीचर्स के साथ',                category:'Mobile App', platform:'android', badge:'Android APK',   icon:'📱',
+    url:'https://www.dropbox.com/scl/fi/1wowrximzquqzf65t3yec/KeyBoard1.apk?rlkey=pgknd030pbn4z7aiim794j29t&st=q8rkfj6a&dl=1' },
+    {id:'music-player', name:'Music Player', desc:'बीटा वर्ज़न (v1.0.0) — ऑडियो प्लेयर और म्यूजिक लिस्ट', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+    url:'https://www.dropbox.com/scl/fi/sux0vb8igc2asil38xtzg/Music-Player.apk?rlkey=yc2zypdy4qr5uybvds5kev73c&st=cdxdm038&dl=1' },
+    {id:'dukan-inventory', name:'Dukan Inventory', desc:'बीटा वर्ज़न (v1.0.0) — दुकान स्टॉक और इन्वेंट्री मैनेजमेंट', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+    url:'https://www.dropbox.com/scl/fi/n93fkqaylzhmf0kql2poe/dukan.apk?rlkey=efsk649po5ammz4g2a9ykun74&st=uh8k9twp&dl=1' },
+    {id:'pos-system', name:'POS System', desc:'बीटा वर्ज़न (v1.0.0) — बिक्री और बिलिंग के लिए पॉइंट ऑफ़ सेल सिस्टम', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+    url:'https://www.dropbox.com/scl/fi/lcjxxr9i9zg5l2xifcxgs/SHIV-POS.apk?rlkey=phyna5g48geyy0u35mzi4rdki&st=t79voj3u&dl=' },
+    {id:'shiv-tools', name:'Shiv Tools', desc:'बीटा वर्ज़न (v1.0.0) — उपयोगी टूल्स और यूटिलिटी ऐप्स', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+    url:'https://www.dropbox.com/scl/fi/yjl8l7p5m5d7d7u83mhtd/ShivTool.apk?rlkey=knpvqugwubmfxbbq8byn7n1lj&st=pl8pfjjy&dl=1' },
+    {id:'teacher-app', name:'Teacher App', desc:'बीटा वर्ज़न (v1.0.0) — कक्षाअध्यापक के लिए उपयोगी टूल', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+     url:'https://www.dropbox.com/scl/fi/yqhqbkapiv89yssvs32q0/TeacherApp.apk?rlkey=rt573c77cubvbc25c6tiq71a1&st=8ned548n&dl=1' },
+    {id:'clinic-app', name:'Clinik App', desc:'बीटा वर्ज़न (v1.0.0) — Small Clinic Patiant Record', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+     url:'https://www.dropbox.com/scl/fi/ozjujrdo9vcmkfurx3aoz/CLINIK.apk?rlkey=4t05jh07aql6wzh7pd4gipxpo&st=m5uny33y&dl=1' },
+    {id:'khata-app', name:'Khata App', desc:'बीटा वर्ज़न (v1.0.0) — Credit and Debit', category:'Mobile App', platform:'android', badge:'Android APK', icon:'📱',
+     url:'https://www.dropbox.com/scl/fi/71rj8pxx2814m22h0ilp4/Khata.apk?rlkey=15ejx5mpsyh4lpy077xnbo4v2&st=mvvdh57t&dl=1' },
+  ];
+
+  const CATEGORY_ICONS = {
+    'All': '🗂️', 'Finance': '💰', 'Utility': '🛠️', 'Security': '🔒',
+    'Education': '📚', 'Media': '🖼️', 'Mobile App': '📱'
+  };
+
+  /* ===== THEME TOGGLE ===== */
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active')
+    localStorage.setItem('shiv-theme', theme);
+    initParticles();
+  }
+
+  const savedTheme = localStorage.getItem('shiv-theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      if (b.classList.contains(savedTheme + '-btn')) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  }
+
+  /* ===== PARTICLE SYSTEM ===== */
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], animId;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function getParticleColor() {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t === 'mint')   return ['rgba(0,180,100,', 'rgba(0,220,140,'];
+    if (t === 'golden') return ['rgba(255,170,0,',  'rgba(200,120,0,'];
+    return ['rgba(0,100,255,', 'rgba(0,180,255,'];
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+      alpha: Math.random() * 0.5 + 0.15,
+      pulse: Math.random() * Math.PI * 2
+    };
+  }
+
+  function initParticles() {
+    cancelAnimationFrame(animId);
+    particles = Array.from({ length: 90 }, createParticle);
+    animate();
+  }
+
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const colors = getParticleColor();
+
+    particles.forEach(p => {
+      p.x += p.dx; p.y += p.dy;
+      p.pulse += 0.02;
+      const a = p.alpha + Math.sin(p.pulse) * 0.1;
+
+      if (p.x < 0 || p.x > canvas.width)  p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = colors[0] + a + ')';
+      ctx.fill();
+    });
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = colors[1] + (0.12 * (1 - dist/120)) + ')';
+          ctx.lineWidth = 0.7;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  resize();
+  initParticles();
+
+  /* =========================================================
+     🕘 RECENTLY DOWNLOADED (localStorage)
+  ========================================================= */
+  function getRecent() {
+    try { return JSON.parse(localStorage.getItem('shiv-dl-recent')) || []; }
+    catch (e) { return []; }
+  }
+  function setRecent(arr) { localStorage.setItem('shiv-dl-recent', JSON.stringify(arr)); }
+
+  function recordRecent(href) {
+    let recent = getRecent();
+    recent = recent.filter(h => h !== href);
+    recent.unshift(href);
+    if (recent.length > 12) recent = recent.slice(0, 12);
+    setRecent(recent);
+  }
+
+  /* =========================================================
+     🖥️ / 📱 TABS + 🔎 LIVE SEARCH + CATEGORY FILTER + RECENT
+  ========================================================= */
+  const downloadsGrid   = document.getElementById('downloadsGrid');
+  const searchInput     = document.getElementById('toolSearch');
+  const clearBtn        = document.getElementById('clearSearchBtn');
+  const voiceBtn        = document.getElementById('voiceSearchBtn');
+  const resultCounter   = document.getElementById('resultCounter');
+  const noResults       = document.getElementById('noResults');
+  const loadingSpinner  = document.getElementById('loadingSpinner');
+  const categoryFiltersEl = document.getElementById('categoryFilters');
+  const showRecentBtn   = document.getElementById('showRecentBtn');
+  const showAllBtn      = document.getElementById('showAllBtn');
+  const platformTabs    = document.querySelectorAll('.platform-tab');
+
+  let activePlatform = 'windows';
+  let activeCategory = 'All';
+  let activeView = 'all'; // all | recent
+  let cardWraps = [];
+  let searchTimer = null;
+
+  function buildCard(item) {
+    const wrap = document.createElement('div');
+    wrap.className = 'dl-card-wrap';
+    wrap.dataset.category = item.category;
+    wrap.dataset.name = item.name;
+
+    const badge = document.createElement('span');
+    badge.className = 'dl-badge';
+    badge.textContent = item.badge;
+
+    const a = document.createElement('a');
+    a.href = item.url;
+    a.className = 'dl-card';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.addEventListener('click', () => recordRecent(item.url));
+
+    const iconEl = document.createElement('span');
+    iconEl.className = 'dl-icon';
+    iconEl.textContent = item.icon;
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'dl-title';
+    titleEl.textContent = item.name;
+
+    const descEl = document.createElement('span');
+    descEl.className = 'dl-desc';
+    descEl.textContent = item.desc;
+
+    const btnEl = document.createElement('span');
+    btnEl.className = 'dl-btn';
+    btnEl.textContent = '⬇️ Download';
+
+    a.append(iconEl, titleEl, descEl, btnEl);
+    wrap.append(badge, a);
+    return wrap;
+  }
+
+  function buildCategoryChips() {
+    const cats = ['All', ...new Set(DOWNLOADS.filter(d => d.platform === activePlatform).map(d => d.category))];
+    categoryFiltersEl.innerHTML = '';
+    cats.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-chip' + (cat === 'All' ? ' active' : '');
+      btn.dataset.cat = cat;
+      btn.textContent = (CATEGORY_ICONS[cat] || '🗂️') + ' ' + cat;
+      btn.addEventListener('click', () => {
+        categoryFiltersEl.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = cat;
+        applyFilters();
+      });
+      categoryFiltersEl.appendChild(btn);
+    });
+    activeCategory = 'All';
+  }
+
+  function updateTabCounts() {
+    document.getElementById('winTabCount').textContent =
+      '(' + DOWNLOADS.filter(d => d.platform === 'windows').length + ')';
+    document.getElementById('andTabCount').textContent =
+      '(' + DOWNLOADS.filter(d => d.platform === 'android').length + ')';
+  }
+
+  function renderGrid() {
+    downloadsGrid.innerHTML = '';
+    DOWNLOADS.filter(d => d.platform === activePlatform).forEach(item => {
+      downloadsGrid.appendChild(buildCard(item));
+    });
+    cardWraps = Array.from(downloadsGrid.querySelectorAll('.dl-card-wrap'));
+    buildCategoryChips();
+    applyFilters();
+  }
+
+  function applyFilters() {
+    loadingSpinner.classList.add('active');
+
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const query = searchInput.value.trim().toLowerCase();
+      const recent = getRecent();
+      let visibleCount = 0;
+
+      cardWraps.forEach(wrap => {
+        const name = wrap.getAttribute('data-name').toLowerCase();
+        const cat  = wrap.getAttribute('data-category');
+        const href = wrap.querySelector('.dl-card').getAttribute('href');
+
+        const matchesSearch = !query || name.includes(query);
+        const matchesCategory = activeCategory === 'All' || cat === activeCategory;
+        const matchesView = activeView !== 'recent' || recent.includes(href);
+
+        const visible = matchesSearch && matchesCategory && matchesView;
+        wrap.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      if (activeView === 'recent') {
+        recent.forEach(href => {
+          const wrap = cardWraps.find(w => w.querySelector('.dl-card').getAttribute('href') === href);
+          if (wrap) downloadsGrid.appendChild(wrap);
+        });
+      }
+
+      resultCounter.textContent = query || activeCategory !== 'All' || activeView !== 'all'
+        ? `${visibleCount} फ़ाइल मिलीं (${visibleCount} file${visibleCount === 1 ? '' : 's'} found)`
+        : `कुल ${visibleCount} डाउनलोड उपलब्ध हैं`;
+
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      loadingSpinner.classList.remove('active');
+    }, 180);
+  }
+
+  searchInput.addEventListener('input', () => {
+    clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+    applyFilters();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    applyFilters();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      applyFilters();
+      searchInput.blur();
+    }
+  });
+
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognitionAPI) {
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    voiceBtn.addEventListener('click', () => {
+      try {
+        recognition.start();
+        voiceBtn.classList.add('listening');
+      } catch (e) { /* already started */ }
+    });
+
+    recognition.addEventListener('result', (e) => {
+      const transcript = e.results[0][0].transcript;
+      searchInput.value = transcript;
+      clearBtn.style.display = 'flex';
+      applyFilters();
+    });
+
+    recognition.addEventListener('end', () => voiceBtn.classList.remove('listening'));
+    recognition.addEventListener('error', () => voiceBtn.classList.remove('listening'));
+  } else {
+    voiceBtn.addEventListener('click', () => {
+      alert('माफ़ करें, आपका ब्राउज़र Voice Search सपोर्ट नहीं करता।');
+    });
+  }
+
+  function setActiveView(view, btn) {
+    activeView = view;
+    [showAllBtn, showRecentBtn].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+  showAllBtn.addEventListener('click', () => setActiveView('all', showAllBtn));
+  showRecentBtn.addEventListener('click', () => setActiveView('recent', showRecentBtn));
+
+  platformTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      platformTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activePlatform = tab.dataset.platform;
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      renderGrid();
+    });
+  });
+
+  // Agar URL mein #android hai (jaise nav ke "APP" link se) to seedhe Android tab khulega
+  if (window.location.hash === '#android') {
+    const androidTab = document.querySelector('.platform-tab[data-platform="android"]');
+    if (androidTab) androidTab.click();
+  }
+
+  updateTabCounts();
+  renderGrid();
+
+  /* =========================================================
+     ⬆️ SCROLL-TO-TOP BUTTON
+  ========================================================= */
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('show', window.scrollY > 320);
+  });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+<script src="floating-home.js"></script>
+</body>
+</html>
