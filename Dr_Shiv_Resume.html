@@ -35,7 +35,7 @@
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding: 3rem 1.5rem;
+    padding: 4.6rem 1.5rem 3rem;
   }
 
   /* Outer glow wrapper — screen only */
@@ -281,6 +281,12 @@
     border-radius: 99px; margin-top: 2px; font-weight: 500;
   }
 
+  .exp-desc { list-style: none; margin-top: 0.3rem; }
+  .exp-desc li { font-size: 0.66rem; color: var(--ink2); line-height: 1.55; padding-left: 0.8rem; position: relative; margin-bottom: 0.12rem; }
+  .exp-desc li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: 0.6rem; top: 1px; }
+  .section.allow-break { break-inside: auto; }
+  .proj-cat { font-size: 0.56rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); padding-left: 0.28rem; margin-bottom: 0.15rem; }
+
   /* Education */
   .edu-item {
     border-left: 2.5px solid var(--accent);
@@ -352,11 +358,36 @@
     .header::before, .header::after { animation: none; }
     .header-accent, .footer-strip { background: #2563eb; animation: none; }
     .deco-bg { display: none; }
-    .print-btn { display: none; }
+    .print-btn, .lang-bar, .lang-note { display: none; }
     /* prevent cards from splitting across pages */
     .project-item, .edu-item, .exp-item { break-inside: avoid; }
     .section { break-inside: avoid; }
   }
+
+  /* Language bar */
+  .lang-bar {
+    position: absolute; top: 0.8rem; left: 50%; transform: translateX(-50%);
+    z-index: 100; display: flex; align-items: center; gap: 0.4rem; flex-wrap: nowrap;
+    background: rgba(255,255,255,0.94); backdrop-filter: blur(8px);
+    padding: 0.35rem 0.55rem; border-radius: 99px;
+    box-shadow: 0 4px 22px rgba(37,99,235,0.28); border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif; max-width: calc(100vw - 1rem);
+  }
+  .lang-bar .lb {
+    border: 1px solid var(--border); background: white; color: var(--ink2);
+    font-size: 0.74rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 99px;
+    cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+  .lang-bar .lb.active { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border-color: transparent; }
+  .lang-bar select {
+    font-size: 0.74rem; font-family: inherit; padding: 0.3rem 0.4rem; border-radius: 99px;
+    border: 1px solid var(--border); background: white; color: var(--ink2); max-width: 150px; min-width: 0;
+  }
+  .lang-note { position: absolute; top: 3.9rem; left: 50%; transform: translateX(-50%); z-index: 100; background: #fef3c7; color: #92400e; font-size: 0.72rem; padding: 0.35rem 0.8rem; border-radius: 8px; display: none; }
+  /* hide Google Translate chrome */
+  #google_translate_element, .goog-te-banner-frame, .skiptranslate > iframe, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+  body { top: 0 !important; }
+  .goog-text-highlight { background: none !important; box-shadow: none !important; }
 
   /* Print button */
   .print-btn {
@@ -372,10 +403,63 @@
   }
   .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,99,235,0.55); }
   .print-btn svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Print: must come last so it overrides the screen styles above */
+  @media print {
+    .lang-bar, .lang-note, .print-btn, #google_translate_element { display: none !important; }
+    body { padding: 0 !important; }
+  }
+
+  /* ── MOBILE / TABLET FIT ── */
+  @media screen and (max-width: 820px) {
+    body { display: block; padding: 4.2rem 0.5rem 4.5rem; }
+    .page-glow { padding: 3px; width: 100%; }
+    .page { width: 100%; }
+    .header { padding: 1.4rem 1.1rem 1.2rem; }
+    .header-inner { flex-direction: column; align-items: center; text-align: center; }
+    .name { font-size: 1.6rem; }
+    .title-line { letter-spacing: 1px; line-height: 1.6; }
+    .contact-bar { justify-content: center; }
+    .contact-item { font-size: 0.78rem; }
+    .body { flex-direction: column; }
+    .sidebar { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--border); padding: 1.3rem 1.1rem; }
+    .sidebar::after { display: none; }
+    .main { padding: 1.3rem 1.1rem; }
+    .tech-table { font-size: 0.74rem; }
+    .tech-table td:first-child { white-space: normal; width: 34%; }
+    .project-desc, .exp-desc li { font-size: 0.76rem; }
+    .project-title, .exp-role, .edu-degree { font-size: 0.84rem; }
+    .exp-org, .edu-school { font-size: 0.76rem; }
+    .profile-text { font-size: 0.84rem; }
+    .tag { font-size: 0.66rem; }
+    .skill-label { font-size: 0.76rem; }
+    .print-btn { bottom: 1rem; right: 1rem; padding: 0.6rem 1rem; font-size: 0.76rem; }
+    .lang-bar { gap: 0.3rem; padding: 0.3rem 0.4rem; }
+    .lang-bar .lb { padding: 0.28rem 0.6rem; font-size: 0.7rem; }
+    .lang-bar select { max-width: 112px; }
+  }
 </style>
  <script src="security.js"></script>
 </head>
 <body>
+
+<div class="lang-bar" id="langBar" translate="no">
+  <span aria-hidden="true">🌐</span>
+  <button class="lb active" data-l="en">English</button>
+  <button class="lb" data-l="hi">हिंदी</button>
+  <select id="langSel" aria-label="More languages">
+    <option value="">More languages…</option>
+    <option value="ur">اردو</option><option value="bn">বাংলা</option><option value="mr">मराठी</option>
+    <option value="gu">ગુજરાતી</option><option value="pa">ਪੰਜਾਬੀ</option><option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option>
+    <option value="ne">नेपाली</option><option value="ar">العربية</option><option value="fr">Français</option>
+    <option value="es">Español</option><option value="de">Deutsch</option><option value="pt">Português</option>
+    <option value="ru">Русский</option><option value="zh-CN">中文</option><option value="ja">日本語</option>
+    <option value="ko">한국어</option><option value="id">Bahasa Indonesia</option><option value="tr">Türkçe</option>
+  </select>
+</div>
+<div class="lang-note" id="langNote" translate="no">Translation needs an internet connection.</div>
+<div id="google_translate_element"></div>
 
 <button class="print-btn" onclick="window.print()">
   <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -444,11 +528,11 @@
       </div>
       <div class="header-text">
         <div class="name">Dr. Shiv Kumar</div>
-        <div class="title-line">Software Architect &nbsp;·&nbsp; Educational Administrator &nbsp;·&nbsp; PhD Computer Science</div>
+        <div class="title-line">Founder, Shiv Computer &nbsp;·&nbsp; Software Architect &nbsp;·&nbsp; Educational Administrator &nbsp;·&nbsp; PhD Computer Science</div>
         <div class="contact-bar">
           <div class="contact-item">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Lucknow &amp; Barabanki, UP
+            Lucknow &amp; Barabanki, Uttar Pradesh
           </div>
           <div class="contact-item">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.5 2 2 0 0 1 3.55 1.29h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16l.42.92z"/></svg>
@@ -520,24 +604,30 @@
           <span class="tag" style="animation-delay:0.5s">LLM Integration</span>
           <span class="tag" style="animation-delay:0.55s">AI Automation</span>
           <span class="tag" style="animation-delay:0.6s">Claude / GPT APIs</span>
+          <span class="tag" style="animation-delay:0.65s">School ERP</span>
+          <span class="tag" style="animation-delay:0.7s">Accounting Software</span>
+          <span class="tag" style="animation-delay:0.75s">Hindi Localization</span>
+          <span class="tag" style="animation-delay:0.8s">Digital Forensics</span>
+          <span class="tag" style="animation-delay:0.85s">Windows Installers</span>
+          <span class="tag" style="animation-delay:0.9s">Offline-First Apps</span>
         </div>
       </div>
 
       <div class="section">
         <div class="section-title">Tech Stack</div>
         <table class="tech-table">
-          <tr><td>Languages</td><td>Python, Rust, C++, Java, JavaScript, HTML, CSS, Kotlin.</td></tr>
-          <tr><td>Frameworks</td><td>WinForms, WPF, Electron, React, Flask, FastAPI, TensorFlow, PyTorch.</td></tr>
-          <tr><td>Tools</td><td>Git, Docker, VS Code, PyCharm, Figma, Postman, Wireshark.</td></tr>
-          <tr><td>Databases</td><td>SQLite, PostgreSQL, MySQL, MongoDB.</td></tr>
+          <tr><td>Languages</td><td>Python, Kotlin, JavaScript, HTML, CSS, Rust, C++, Java.</td></tr>
+          <tr><td>Frameworks</td><td>Tkinter, PyQt5, WinForms, WPF, Electron, Jetpack Compose (Material 3), React, Flask, FastAPI, Google Apps Script, Ollama, TensorFlow, PyTorch.</td></tr>
+          <tr><td>Tools</td><td>Git, Docker, VS Code, PyCharm, Android Studio, Gradle, Figma, Postman, Wireshark.</td></tr>
+          <tr><td>Databases</td><td>SQLite, Room, PostgreSQL, MySQL, MongoDB, Google Sheets (as backend).</td></tr>
           <tr><td>Cloud / DevOps</td><td>AWS (EC2, S3), Azure, CI/CD Pipelines, GitHub Actions.</td></tr>
           <tr><td>Operating Systems</td><td>Windows (expert), Linux (proficient), macOS (familiar)</td></tr>
           <tr><td>Mobile</td><td>Android (Kotlin), PWA (JavaScript)</td></tr>
           <tr><td>AI</td><td> AI API Integration, Automation Scripting</td></tr>
-          <tr><td>Version Control</td><td>Git, GitHub, GitLab</td></tr>
-          <tr><td>Android Development</td><td>Kotlin, Android SDK</td></tr>
+          <tr><td>Packaging &amp; Deploy</td><td>Nuitka, PyInstaller, Inno Setup installers, Android APK, GitHub Pages, Render.</td></tr>
+          <tr><td>Web Libraries</td><td>pdf.js, SheetJS, OpenCV.js, Web Audio API, Service Workers (PWA).</td></tr>
           <tr><td>Architecture</td><td>Windows, PowerShell, PWA</td></tr>
-          <tr><td>Security</td><td>Cybersecurity, Media Forensics Tools, SHA256 Hashing, File Integrity Checking, File Encryption, File & Folder Locker, Ethical Hacking</td></tr>
+          <tr><td>Security</td><td>Cybersecurity, Digital Forensics, Entropy &amp; Metadata Analysis, SHA-256 / HMAC Licensing, Fernet/PBKDF2 Encryption, File Integrity Checking, Ethical Hacking.</td></tr>
           <tr><td>Design</td><td>Glassmorphism, UI/UX, Photoshop</td></tr>
           <tr><td>Hardware</td><td>IP Camera, Networking</td></tr>
           <tr><td>AI / ML</td><td>LLMs, Prompt Eng., Automation</td></tr>
@@ -552,7 +642,7 @@
       <div class="section">
         <div class="section-title">Professional Profile</div>
         <p class="profile-text">
-          A distinguished PhD scholar in Computer Science with over a decade of experience as a software architect and educational administrator. Expert in developing industrial-grade software solutions while overseeing complex institutional infrastructure for institutions like Shree Durge Maa Bal Govind Inter College. Combines deep technical expertise with practical administrative leadership across educational and government sectors in Uttar Pradesh.
+          PhD scholar in Computer Science, software architect and founder of Shiv Computer, a computer education institute and software brand based in Karanpur Suratganj, Barabanki. With over a decade of experience across computer teaching, operations and institutional administration, he designs and ships production-ready software &mdash; school ERP and fee management, accounting and ledger systems, Android apps, Windows utilities and AI-assisted tools &mdash; built for real schools, shops and offices in Uttar Pradesh. Combines hands-on engineering, UI/UX craft and practical administrative leadership. Research interests: cyber security and digital forensics.
         </p>
       </div>
 
@@ -573,6 +663,38 @@
         <div class="project-item" style="animation-delay:0.5s">
           <div class="project-title">Hardware &amp; Surveillance Infrastructure</div>
           <div class="project-desc">Extensive experience in system maintenance, advanced troubleshooting, and IP camera surveillance hardware management across multiple institutional sites.</div>
+        </div>
+      </div>
+
+      <div class="section allow-break">
+        <div class="section-title">Software Portfolio &mdash; Shiv Computer</div>
+        <div class="project-item" style="animation-delay:0.1s">
+          <div class="proj-cat">School &amp; Institution Software</div>
+          <div class="project-desc">FeeBook (v8.5.x) &amp; School ERP in Python/Tkinter + SQLite &mdash; student registration, fee management, promotion, marksheets, HMAC-SHA256 tiered licensing, auto-backup and professional installers. Also: School Admission Form app (multi-school, A4 print, UDISE, Hindi/English entry), invigilator Duty Chart, student registration and records-search tools.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.2s">
+          <div class="proj-cat">Accounting &amp; Business Apps</div>
+          <div class="project-desc">Shiv Khata Pro, Khata Book (Lane-Den), Party Statement (PDF/print, multi-shop) and an Om Traders stock app &mdash; offline-first, multi-shop, with reports, backup/restore and PIN lock. SHIV COMPUTER SMART TALLY: Tally-style double-entry system on Google Apps Script + Sheets with Day Book, Ledger, Trial Balance, P&amp;L and Balance Sheet.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.3s">
+          <div class="proj-cat">Android Applications</div>
+          <div class="project-desc">SAMS / SHIV GPM (Kotlin, Jetpack Compose, Material 3, secure WebView), Neo Assistant (Hindi voice assistant), a bilingual POS app (Room, Coroutines), a Hindi phonetic keyboard transliterator, and the Shiv Computer website packaged as an Android app.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.4s">
+          <div class="proj-cat">Windows Tools &amp; Utilities</div>
+          <div class="project-desc">SHIV Ultimate System Cleaner (Python, distributed as protected .exe with a Hindi user guide), Shiv Hindi IME (system-wide phonetic typing with global keyboard hook), Scanner Pro (WIA, PDF output), Capricorn DSC driver setup tool, and an Electron-based launcher with ASAR packing and obfuscation.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.5s">
+          <div class="proj-cat">Web, AI &amp; Security</div>
+          <div class="project-desc">Ollama/Flask multilingual AI chat, Chrome extensions (Shiv AutoFill, Ninja Profile Shield), client-side PDF/Excel record search (pdf.js, SheetJS), OpenCV.js ID-print tool, PDF book reader, file/folder encryption (Fernet/PBKDF2), forensic file analysis with entropy and C2PA metadata, and ShivOS-Linux (PyQt5 shell, ISO build pipeline).</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.6s">
+          <div class="proj-cat">Utilities, Media &amp; Games</div>
+          <div class="project-desc">Hindi/English Voice Calculator (live answer, speech echo), &ldquo;Kabhi Sham Dhale&rdquo; Hindi music player PWA, Shiv Computer IQ Test &amp; Certificate app, single-file tools for birth certificates, ID cards, name slips, attendance registers and certificates, a Flask-based chat app hosted on Render, and six standalone HTML games.</div>
+        </div>
+        <div class="project-item" style="animation-delay:0.7s">
+          <div class="proj-cat">Research</div>
+          <div class="project-desc">Doctoral research in cyber security and digital forensics, including the CFIF framework and the ATECA algorithm.</div>
         </div>
       </div>
 
@@ -598,12 +720,29 @@
 
       <div class="section">
         <div class="section-title">Work History</div>
+        <div class="exp-item" style="animation-delay:0.1s">
+          <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
+          <div class="exp-body">
+            <div class="exp-role">Founder &amp; Lead Developer</div>
+            <div class="exp-org">Shiv Computer &mdash; Karanpur Suratganj, Barabanki, UP</div>
+            <div class="exp-year">Ongoing</div>
+            <ul class="exp-desc">
+              <li>Run a computer education institute and a software brand that builds and distributes desktop apps, web tools, Android apps and installer packages.</li>
+              <li>Own the full product cycle: requirements, UI/UX, development, packaging (Nuitka / PyInstaller, Inno Setup, APK) and deployment.</li>
+              <li>Maintain a public digital platform with a Windows/Android download center at shivtool.github.io.</li>
+            </ul>
+          </div>
+        </div>
         <div class="exp-item" style="animation-delay:0.15s">
           <div class="exp-dot-wrap"><div class="exp-dot"></div><div class="exp-line"></div></div>
           <div class="exp-body">
             <div class="exp-role">Educational Administrator</div>
             <div class="exp-org">Shree Durge Maa Bal Govind Inter College &amp; GPM Convent School</div>
             <div class="exp-year">Ongoing</div>
+            <ul class="exp-desc">
+              <li>Manage administrative workflows, student records and digital infrastructure.</li>
+              <li>Build in-house tools for the institution: invigilator duty charts, admission forms, student registration, records search and certificate/ID utilities.</li>
+            </ul>
           </div>
         </div>
         <div class="exp-item" style="animation-delay:0.25s">
@@ -680,6 +819,59 @@
       });
     }, 600);
   });
+</script>
+<script>
+(function () {
+  var gtLoaded = false, KEY = 'resume_lang';
+  var bar = document.getElementById('langBar'), sel = document.getElementById('langSel'), note = document.getElementById('langNote');
+  // keep names, contact details and tech values untranslated
+  document.querySelectorAll('.name, .contact-item, .tech-table td:last-child').forEach(function (el) { el.setAttribute('translate', 'no'); });
+
+  window.googleTranslateElementInit = function () {
+    new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
+  };
+  function loadGT(cb) {
+    if (gtLoaded) return cb();
+    gtLoaded = true;
+    var sc = document.createElement('script');
+    sc.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    sc.onerror = function () { gtLoaded = false; showNote(); };
+    document.head.appendChild(sc);
+    cb();
+  }
+  function showNote() { note.style.display = 'block'; setTimeout(function () { note.style.display = 'none'; }, 3500); }
+  function apply(code) {
+    var n = 0, t = setInterval(function () {
+      var c = document.querySelector('select.goog-te-combo');
+      if (c) { clearInterval(t); c.value = code; c.dispatchEvent(new Event('change')); }
+      else if (++n > 60) { clearInterval(t); showNote(); }
+    }, 150);
+  }
+  function clearCookie() {
+    var past = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    document.cookie = past; document.cookie = past + '; domain=' + location.hostname;
+  }
+  function mark(code) {
+    bar.querySelectorAll('.lb').forEach(function (b) { b.classList.toggle('active', b.dataset.l === code); });
+    sel.value = (code === 'en' || code === 'hi') ? '' : code;
+  }
+  function setLang(code) {
+    try { localStorage.setItem(KEY, code); } catch (e) {}
+    mark(code);
+    if (code === 'en') {
+      clearCookie();
+      var h = document.documentElement.className;
+      if (/translated-(ltr|rtl)/.test(h)) location.reload();
+      return;
+    }
+    loadGT(function () { apply(code); });
+  }
+  bar.querySelectorAll('.lb').forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.l); }); });
+  sel.addEventListener('change', function () { if (sel.value) setLang(sel.value); });
+  var saved = 'en';
+  try { saved = localStorage.getItem(KEY) || 'en'; } catch (e) {}
+  if (saved !== 'en') { mark(saved); loadGT(function () { apply(saved); }); }
+})();
 </script>
 <script src="floating-home.js"></script>
 </body>
